@@ -1,7 +1,8 @@
-const express = require("express");
-const authControllerRoute = require("./authRoute");
+import express from "express";
+import authControllerRoute from "./authRoute.js";
+
 const indexRoute = express.Router();
 
 indexRoute.use('/auth',authControllerRoute);
 
-module.exports = indexRoute;
+export default indexRoute;

@@ -1,193 +1,384 @@
-const { default: axios, Axios } = require("axios");
-const users = require("../Models/users");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const {v4:uuidv4} = require("uuid");
-const { set } = require("mongoose");
+import axios from "axios";
+import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from "uuid";
+import env from "../utils/consts.js";
+import { AppError, asyncHandler } from "../middlewares/errorHandler.js";
+import User from "../models/user.js";
+import Profile from "../models/profile.js";
+import { addToBlacklist, isTokenBlacklisted } from "../middlewares/authMiddleware.js";
 
-// registration
-exports.Register = async(req,res)=>{
-    try {
-        const {firstName,lastName,mobileNumber,MPIN} = req.body;
-        const mobilenumberfound = await users.findOne({mobileNumber});
-        if(mobilenumberfound){
-            return res.status(401).json({mag:"This Phone number is Already there there in Db "});
-        }
-        const bcryptmpin = await bcrypt.hash(MPIN,10);
-        // const userId = uuidv4();
-        let user = new users({
-            firstName,
-            lastName,
-            mobileNumber,
-            mpin:bcryptmpin,
+// Registration
+export const register = asyncHandler(async (req, res) => {
+    const {
+        email,
+        mobileNumber,
+        mpin,
+        firstName,
+        lastName,
+        dateOfBirth,
+        gender,
+        designation,
+        experience,
+        location
+    } = req.body;
 
-        });
-        await user.save();
-        return res.status(200).json({msg:"User is Registered Successfully",id:uuidv4});
+    // Check if user already exists
+    const existingUser = await User.findOne({
+        $or: [{ email }, { mobileNumber }]
+    });
 
-    } catch (error) {
-        console.error(error);
-        return res.status(500).json({msg:"Error while Signup",error});
+    if (existingUser) {
+        throw new AppError('User with this email or mobile number already exists', 400);
     }
-}
 
-// login through username mpin
-exports.login= async(req,res)=>{
-    try{
-        const {mobileNumber,mpin} = req.body;
-        const mobileExist = await users.findOne({mobileNumber});
-        if(!mobileExist){
-            return res.status(400).json({msg:"This mobile number is not registered"});
-        }
-        const verifympin = await bcrypt.compare(mpin,mobileExist.mpin);
-        if(!verifympin){
-            return res.status(400).json({msg:"mpin is not correct"});
-        }
-        const acessToken = jwt.sign({id:mobileNumber},process.env.JWTSECRET,{expiresIn:"15m"});
-        const refreshToken = jwt.sign({},process.env.REFRESHTOKEN,{expiresIn:"7d"});
+    // Create user
+    const user = await User.create({
+        email,
+        mobileNumber,
+        mpin
+    });
 
-        mobileExist.refreshToken = refreshToken;
-        mobileExist.refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    // Create profile
+    const profile = await Profile.create({
+        user: user._id,
+        firstName,
+        lastName,
+        dateOfBirth,
+        gender,
+        designation,
+        experience,
+        location
+    });
 
-        await mobileExist.save();
+    // Generate tokens
+    const accessToken = jwt.sign(
+        { id: user._id },
+        env.jwt.secret,
+        { expiresIn: env.jwt.expiresIn }
+    );
 
-        return res.status(200).json({
-            msg:"login Successfull",
-            acessToken,
-            refreshToken,
-            id:mobileExist.id,
-            mobilenumber:mobileExist.mobileNumber,
-        });
+    const refreshToken = jwt.sign(
+        { id: user._id },
+        env.jwt.refreshSecret,
+        { expiresIn: env.jwt.refreshExpiresIn }
+    );
 
-    }catch(e){
-        console.error(e);
-        return res.status(500).json({msg:"Error while login",e});
-    }
-}
+    // Update user with refresh token
+    user.refreshToken = refreshToken;
+    user.refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    await user.save();
 
-// send otp
-exports.sendOtp= async(req,res)=>{
-    try{
-        const {mobileNumber} = req.body
-        const otp = ("" + Math.floor(100000 + Math.random()*900000));
-        const expiresIn = new Date(Date.now() + 5 * 60 * 1000);
-        axios.post(process.env.VERIFYOTPURL,
-            {
-                "Text": `Use ${otp} as your User Verification code.Expires in 10 minutes This code is Confidential. Never Share it with anyone for your safety. LEXORA`,
-                "Number":"91"+mobileNumber,
-                "SenderId":"LEXORA",
-                "DRNotifyUrl":"https://www.domainname.com/notifyurl",
-                "DRNotifyHttpMethod":"POST",
-                "Tool":"API"
+    res.status(201).json({
+        success: true,
+        message: "User registered successfully",
+        data: {
+            user: {
+                id: user._id,
+                email: user.email,
+                mobileNumber: user.mobileNumber,
+                isEmailVerified: user.isEmailVerified,
+                isPhoneVerified: user.isPhoneVerified
             },
-            
-            {
-            headers:{
+            profile: {
+                id: profile._id,
+                fullName: profile.fullName,
+                designation: profile.designation,
+                location: profile.location
+            },
+            tokens: {
+                accessToken,
+                refreshToken
+            }
+        }
+    });
+});
+
+// Login
+export const login = asyncHandler(async (req, res) => {
+    const { mobileNumber, mpin } = req.body;
+
+    // Find user
+    const user = await User.findOne({ mobileNumber });
+    if (!user) {
+        throw new AppError('Invalid mobile number or MPIN', 401);
+    }
+
+    // Check if account is locked
+    if (user.isLocked) {
+        throw new AppError('Account is temporarily locked due to multiple failed attempts', 423);
+    }
+
+    // Verify MPIN
+    const isMpinValid = await user.compareMpin(mpin);
+    if (!isMpinValid) {
+        await user.incLoginAttempts();
+        throw new AppError('Invalid mobile number or MPIN', 401);
+    }
+
+    // Reset login attempts on successful login
+    await user.resetLoginAttempts();
+
+    // Update last login
+    user.lastLoginAt = new Date();
+    await user.save();
+
+    // Generate tokens
+    const accessToken = jwt.sign(
+        { id: user._id },
+        env.jwt.secret,
+        { expiresIn: env.jwt.expiresIn }
+    );
+
+    const refreshToken = jwt.sign(
+        { id: user._id },
+        env.jwt.refreshSecret,
+        { expiresIn: env.jwt.refreshExpiresIn }
+    );
+
+    // Update user with new refresh token
+    user.refreshToken = refreshToken;
+    user.refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    await user.save();
+
+    // Get profile
+    const profile = await Profile.findOne({ user: user._id });
+
+    res.status(200).json({
+        success: true,
+        message: "Login successful",
+        data: {
+            user: {
+                id: user._id,
+                email: user.email,
+                mobileNumber: user.mobileNumber,
+                isEmailVerified: user.isEmailVerified,
+                isPhoneVerified: user.isPhoneVerified
+            },
+            profile: profile ? {
+                id: profile._id,
+                fullName: profile.fullName,
+                designation: profile.designation,
+                location: profile.location
+            } : null,
+            tokens: {
+                accessToken,
+                refreshToken
+            }
+        }
+    });
+});
+
+// Send OTP
+export const sendOtp = asyncHandler(async (req, res) => {
+    const { mobileNumber } = req.body;
+
+    // Validate mobile number
+    if (!mobileNumber || !/^[0-9]{10}$/.test(mobileNumber)) {
+        throw new AppError('Please provide a valid 10-digit mobile number', 400);
+    }
+
+    // Check if user exists
+    const user = await User.findOne({ mobileNumber });
+    if (!user) {
+        throw new AppError('Mobile number not registered', 404);
+    }
+
+    // Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+
+    // Update user with OTP
+    user.otp = otp;
+    user.otpExpiresAt = otpExpiresAt;
+    await user.save();
+
+    // Send OTP via SMS (using your existing service)
+    try {
+        await axios.post(env.otp.verifyUrl, {
+            "Text": `Use ${otp} as your User Verification code. Expires in 5 minutes. This code is Confidential. Never Share it with anyone for your safety. LEXORA`,
+            "Number": "91" + mobileNumber,
+            "SenderId": "LEXORA",
+            "DRNotifyUrl": "https://www.domainname.com/notifyurl",
+            "DRNotifyHttpMethod": "POST",
+            "Tool": "API"
+        }, {
+            headers: {
                 'Content-Type': 'application/json',
             },
-            auth:{
-                userName:process.env.OTPAUTHKEY,
-                password:process.env.OTPAUTHTOKEN,
+            auth: {
+                userName: env.otp.authKey,
+                password: env.otp.authToken,
             },
-        },
-          
-        ).then(async(res)=>{
-            console.log("Response Recieved",res);
-            const mobileExist = await users.findOne({mobileNumber});
-            if(!mobileExist){
-                return res.status(400).json({msg:"Mobile number Does not Exist in Db"});
-            }
-            mobileExist.otpVerified = true;
-            await mobileExist.save();
-        }).catch((err)=>{
-            console.log("Error Occured",err);
-        });
-        
-        
-    }catch(e){
-        console.error(e);
-        return res.status(500).json({msg:"Error while Verifying Otp",e});
-    }
-}
-
-exports.verifyOtp = async(req,res)=>{
-    try{
-        const {otp} = req.body;
-    }catch(e){
-        console.error(e);
-        return res.status(500).json({msg:"Otp Verification issued",e});
-    }
-}
-
-// forgot Password
-exports.forgotPassword= async(req,res)=>{
-    try{
-        const {mobileNumber,newMpin } = req.body;
-        const mobileExist = await users.findOne({mobileNumber});
-        if(!mobileExist){
-            return res.status(401).json({msg:"Mobile number does not exist"});
-        }
-        const bcryptmpin = await bcrypt.hash(newMpin,10);
-        mobileExist.mpin = bcryptmpin;
-        mobileExist.save();
-        return res.status(200).json({msg:"Successfuly password change"});
-
-    }catch(e){
-        console.error(e);
-        return res.status(500).json({msg:"Error while login",e});
-    }
-}
-
-// logout
-exports.logout= async(req,res)=>{
-    try{
-        const {refreshToken} = req.body;
-        if(!refreshToken){
-            return res.status(400).json({msg:"Refresh token required"});
-        }
-        const user = await users.findOne({refreshToken});
-        if(user){
-            user.refreshToken = null;
-            user.accessToken = null;
-            await user.save();
-        }
-        
-        return res.status(200).json({msg:"Logout Successfully"});
-
-    }catch(e){
-        console.error(e);
-        return res.status(500).json({msg:"Error while logout",e});
-    }
-}
-
-exports.refreshingacesstoken = async(req,res)=>{
-    const {refrestoken} = req.body;
-    if(!refrestoken){
-            return res.status(401).json({msg:"acess token is not present there"});
-        }
-    try {
-        
-        const user = await users.findOne({refrestoken});
-        if(!user){
-            return res.status(403).json({msg:"Refresh token invalid or not fiund "});
-        }
-        jwt.verify(refrestoken,process.env.refreshToken,async(err)=>{
-            if(err){
-                return res.status(403).json({msg:"Refresh token Expired Please login Again"});
-            }
-            const newAcesstoken = jwt.sign({id:mobileNumber},process.env.JWTSECRET,{expiresIn:"15m"});
-
-            const newrefreshToken  = jwt.sign({},process.env.refreshToken,{expiresIn:"7d"},);
-            user.refreshToken = newrefreshToken;
-            await user.save();
-            return res.status(200).json({
-                    accessToken: newAcesstoken,
-                    refreshToken: newrefreshToken
-                });
         });
 
+        res.status(200).json({
+            success: true,
+            message: "OTP sent successfully",
+            data: {
+                mobileNumber: mobileNumber.replace(/(\d{3})(\d{3})(\d{4})/, '$1***$3'),
+                expiresIn: "5 minutes"
+            }
+        });
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({msg:"Error while refreshing acesss token"})
+        console.error('OTP sending failed:', error);
+        throw new AppError('Failed to send OTP. Please try again.', 500);
     }
-}
+});
+
+// Verify OTP
+export const verifyOtp = asyncHandler(async (req, res) => {
+    const { mobileNumber, otp } = req.body;
+
+    // Validate inputs
+    if (!mobileNumber || !otp) {
+        throw new AppError('Mobile number and OTP are required', 400);
+    }
+
+    // Find user
+    const user = await User.findOne({ mobileNumber });
+    if (!user) {
+        throw new AppError('Mobile number not registered', 404);
+    }
+
+    // Check if OTP exists and is not expired
+    if (!user.otp || !user.otpExpiresAt || user.otpExpiresAt < new Date()) {
+        throw new AppError('OTP has expired or is invalid', 400);
+    }
+
+    // Verify OTP
+    if (user.otp !== otp) {
+        throw new AppError('Invalid OTP', 400);
+    }
+
+    // Update user verification status
+    user.otpVerified = true;
+    user.isPhoneVerified = true;
+    user.otp = null;
+    user.otpExpiresAt = null;
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: "OTP verified successfully",
+        data: {
+            isPhoneVerified: true
+        }
+    });
+});
+
+// Forgot Password
+export const forgotPassword = asyncHandler(async (req, res) => {
+    const { mobileNumber, newMpin } = req.body;
+
+    // Validate new MPIN
+    if (!newMpin || newMpin.length < 4 || newMpin.length > 6) {
+        throw new AppError('MPIN must be 4-6 digits', 400);
+    }
+
+    // Find user
+    const user = await User.findOne({ mobileNumber });
+    if (!user) {
+        throw new AppError('Mobile number not registered', 404);
+    }
+
+    // Update MPIN
+    user.mpin = newMpin;
+    await user.save();
+
+    res.status(200).json({
+        success: true,
+        message: "Password updated successfully"
+    });
+});
+
+// Logout
+export const logout = asyncHandler(async (req, res) => {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+        throw new AppError('Refresh token is required', 400);
+    }
+
+    // Add token to blacklist
+    addToBlacklist(refreshToken);
+
+    // Clear refresh token from user
+    if (req.user) {
+        req.user.refreshToken = null;
+        req.user.refreshTokenExpiresAt = null;
+        await req.user.save();
+    }
+
+    res.status(200).json({
+        success: true,
+        message: "Logged out successfully"
+    });
+});
+
+// Refresh Access Token
+export const refreshAccessToken = asyncHandler(async (req, res) => {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+        throw new AppError('Refresh token is required', 400);
+    }
+
+    // Check if token is blacklisted
+    if (isTokenBlacklisted(refreshToken)) {
+        throw new AppError('Token has been invalidated', 401);
+    }
+
+    try {
+        // Verify refresh token
+        const decoded = jwt.verify(refreshToken, env.jwt.refreshSecret);
+
+        // Find user
+        const user = await User.findById(decoded.id);
+        if (!user || user.refreshToken !== refreshToken) {
+            throw new AppError('Invalid refresh token', 401);
+        }
+
+        // Check if refresh token is expired
+        if (user.refreshTokenExpiresAt < new Date()) {
+            throw new AppError('Refresh token expired', 401);
+        }
+
+        // Generate new tokens
+        const newAccessToken = jwt.sign(
+            { id: user._id },
+            env.jwt.secret,
+            { expiresIn: env.jwt.expiresIn }
+        );
+
+        const newRefreshToken = jwt.sign(
+            { id: user._id },
+            env.jwt.refreshSecret,
+            { expiresIn: env.jwt.refreshExpiresIn }
+        );
+
+        // Update user with new refresh token
+        user.refreshToken = newRefreshToken;
+        user.refreshTokenExpiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+        await user.save();
+
+        // Add old token to blacklist
+        addToBlacklist(refreshToken);
+
+        res.status(200).json({
+            success: true,
+            message: "Token refreshed successfully",
+            data: {
+                accessToken: newAccessToken,
+                refreshToken: newRefreshToken
+            }
+        });
+    } catch (error) {
+        if (error.name === 'JsonWebTokenError') {
+            throw new AppError('Invalid refresh token', 401);
+        }
+        if (error.name === 'TokenExpiredError') {
+            throw new AppError('Refresh token expired', 401);
+        }
+        throw error;
+    }
+});

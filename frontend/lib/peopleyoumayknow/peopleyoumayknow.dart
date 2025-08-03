@@ -4,8 +4,8 @@ import 'package:reva/contacts/contacts.dart';
 import 'package:reva/events/eventtile.dart';
 import 'package:reva/peopleyoumayknow/peopleyoumayknowtile.dart';
 import 'package:reva/posts/postTile.dart';
+import 'package:reva/request/requestscreen.dart';
 import 'package:reva/request/requesttile.dart';
-import 'package:reva/requests.dart';
 import 'package:reva/start_subscription.dart';
 
 import '../notification/notification.dart';
@@ -156,7 +156,7 @@ class PeopleYouMayKnow extends StatelessWidget {
                     // TODO: Implement find in contacts action
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => RequestsPage()),
+                      MaterialPageRoute(builder: (context) => RequestScreen()),
                     );
                   },
                   style: ElevatedButton.styleFrom(

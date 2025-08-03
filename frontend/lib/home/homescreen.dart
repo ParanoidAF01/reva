@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:reva/home/components/GoldCard.dart';
 import 'package:reva/home/create_post_card.dart';
 import 'package:reva/peopleyoumayknow/peopleyoumayknow.dart';
@@ -9,6 +10,7 @@ import 'package:reva/qr/profile_qr_screen.dart';
 import 'package:reva/events/event_detail_screen.dart';
 import 'package:reva/events/eventscreen.dart';
 import 'package:reva/posts/createpost.dart';
+import 'package:reva/providers/user_provider.dart';
 
 // Make sure the GoldCard widget is defined in GoldCard.dart
 // import 'package:reva/qr/profile_qr_screen.dart';
@@ -88,13 +90,17 @@ class HomeScreen extends StatelessWidget {
                           color: Colors.white,
                         ),
                       ),
-                      Text(
-                        "Ayush,",
-                        style: GoogleFonts.dmSans(
-                          fontWeight: FontWeight.w700,
-                          fontSize: width * 0.07,
-                          color: Colors.white,
-                        ),
+                      Consumer<UserProvider>(
+                        builder: (context, userProvider, child) {
+                          return Text(
+                            "${userProvider.userName},",
+                            style: GoogleFonts.dmSans(
+                              fontWeight: FontWeight.w700,
+                              fontSize: width * 0.07,
+                              color: Colors.white,
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -128,7 +134,8 @@ class HomeScreen extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: width * 0.03),
                       child: Row(
                         children: [
-                          const Icon(Icons.search, color: Colors.white70, size: 22),
+                          const Icon(Icons.search,
+                              color: Colors.white70, size: 22),
                           SizedBox(width: width * 0.02),
                           const Expanded(
                             child: TextField(
@@ -152,17 +159,15 @@ class HomeScreen extends StatelessWidget {
                     width: width * 0.13,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFF0262AB),
-                          Color(0xFF01345A)
-                        ],
+                        colors: [Color(0xFF0262AB), Color(0xFF01345A)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.filter_list, color: Colors.white, size: 26),
+                      icon: const Icon(Icons.filter_list,
+                          color: Colors.white, size: 26),
                       onPressed: () {
                         // TODO: Filter action
                       },
@@ -172,12 +177,15 @@ class HomeScreen extends StatelessWidget {
               ),
               SizedBox(height: height * 0.03),
               // Example dynamic data for GoldCard
-              Builder(
-                builder: (context) {
-                  final String userName = "Ayush Kumar.";
-                  final String userLocation = "Delhi NCR";
-                  final String userExperience = "4+ years";
-                  final String userLanguages = "Hindi, English";
+              Consumer<UserProvider>(
+                builder: (context, userProvider, child) {
+                  final String userName = userProvider.userName;
+                  final String userLocation =
+                      userProvider.userData?['location'] ?? "Delhi NCR";
+                  final String userExperience =
+                      userProvider.userData?['experience'] ?? "4+ years";
+                  final String userLanguages =
+                      userProvider.userData?['languages'] ?? "Hindi, English";
                   final String tag1 = "Commercial";
                   final String tag2 = "Plots";
                   final String tag3 = "Rental";
@@ -205,7 +213,8 @@ class HomeScreen extends StatelessWidget {
                             ),
                             padding: EdgeInsets.symmetric(vertical: 14),
                           ),
-                          icon: Icon(Icons.qr_code, color: Colors.white, size: 22),
+                          icon: Icon(Icons.qr_code,
+                              color: Colors.white, size: 22),
                           label: Text(
                             'View my Profile QR',
                             style: GoogleFonts.dmSans(
@@ -220,7 +229,8 @@ class HomeScreen extends StatelessWidget {
                               MaterialPageRoute(
                                 builder: (context) => ProfileQrScreen(
                                   mpin: '1234', // Replace with real user data
-                                  phone: '9876543210', // Replace with real user data
+                                  phone:
+                                      '9876543210', // Replace with real user data
                                 ),
                               ),
                             );
@@ -272,11 +282,7 @@ class HomeScreen extends StatelessWidget {
               _DynamicProgressBar(
                 progress: 196,
                 max: 500,
-                tickPositions: const [
-                  0,
-                  196,
-                  500
-                ],
+                tickPositions: const [0, 196, 500],
                 label: 'Your progress',
                 unlockText: 'to Unlock',
                 unlockCard: 'Silver card',
@@ -340,7 +346,8 @@ class HomeScreen extends StatelessWidget {
               // Upcoming Events Section
 
               SizedBox(width: 8),
-              Icon(Icons.arrow_forward, color: Colors.white, size: height * 0.045),
+              Icon(Icons.arrow_forward,
+                  color: Colors.white, size: height * 0.045),
 
               // People you may know section (placeholder for now)
               SizedBox(height: height * 0.04),
@@ -360,13 +367,15 @@ class HomeScreen extends StatelessWidget {
                     TextButton(
                       onPressed: () {
                         Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PeopleYouMayKnow()
-                              ),
-                            );
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => PeopleYouMayKnow()),
+                        );
                       },
-                      child: Text('See all', style: GoogleFonts.dmSans(color: Color(0xFFB2C2D9), fontWeight: FontWeight.w500)),
+                      child: Text('See all',
+                          style: GoogleFonts.dmSans(
+                              color: Color(0xFFB2C2D9),
+                              fontWeight: FontWeight.w500)),
                     ),
                   ],
                 ),
@@ -378,7 +387,8 @@ class HomeScreen extends StatelessWidget {
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   itemCount: 5, // Example count, replace with dynamic data
-                  separatorBuilder: (context, index) => SizedBox(width: width * 0.04),
+                  separatorBuilder: (context, index) =>
+                      SizedBox(width: width * 0.04),
                   itemBuilder: (context, index) {
                     return SizedBox(
                       width: width * 0.42, // Responsive width for card
@@ -408,14 +418,38 @@ class HomeScreen extends StatelessWidget {
               // Contact Management Section
               ContactManagementSection(
                 contacts: [
-                  ContactCardData(icon: Image.asset('assets/builder.png', width: 28), count: '48', label: 'Builder'),
-                  ContactCardData(icon: Image.asset('assets/loan.png', width: 28), count: '12', label: 'Loan Provider'),
-                  ContactCardData(icon: Image.asset('assets/interior.png', width: 28), count: '11', label: 'Interior Designer'),
-                  ContactCardData(icon: Image.asset('assets/material.png', width: 28), count: '30', label: 'Material Supplier'),
-                  ContactCardData(icon: Image.asset('assets/legal.png', width: 28), count: '48', label: 'Legal Advisor'),
-                  ContactCardData(icon: Image.asset('assets/vastu.png', width: 28), count: '12', label: 'Vastu Consultant'),
-                  ContactCardData(icon: Image.asset('assets/homebuyer.png', width: 28), count: '11', label: 'Home Buyer'),
-                  ContactCardData(icon: Image.asset('assets/investor.png', width: 28), count: '30', label: 'Property Investor'),
+                  ContactCardData(
+                      icon: Image.asset('assets/builder.png', width: 28),
+                      count: '48',
+                      label: 'Builder'),
+                  ContactCardData(
+                      icon: Image.asset('assets/loan.png', width: 28),
+                      count: '12',
+                      label: 'Loan Provider'),
+                  ContactCardData(
+                      icon: Image.asset('assets/interior.png', width: 28),
+                      count: '11',
+                      label: 'Interior Designer'),
+                  ContactCardData(
+                      icon: Image.asset('assets/material.png', width: 28),
+                      count: '30',
+                      label: 'Material Supplier'),
+                  ContactCardData(
+                      icon: Image.asset('assets/legal.png', width: 28),
+                      count: '48',
+                      label: 'Legal Advisor'),
+                  ContactCardData(
+                      icon: Image.asset('assets/vastu.png', width: 28),
+                      count: '12',
+                      label: 'Vastu Consultant'),
+                  ContactCardData(
+                      icon: Image.asset('assets/homebuyer.png', width: 28),
+                      count: '11',
+                      label: 'Home Buyer'),
+                  ContactCardData(
+                      icon: Image.asset('assets/investor.png', width: 28),
+                      count: '30',
+                      label: 'Property Investor'),
                 ],
                 achievement: AchievementData(
                   progress: 32,
@@ -475,7 +509,8 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: cardWidth * 0.06, vertical: cardHeight * 0.045),
+        padding: EdgeInsets.symmetric(
+            horizontal: cardWidth * 0.06, vertical: cardHeight * 0.045),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -555,10 +590,7 @@ class HomeScreen extends StatelessWidget {
         color: gradient ? Color(0xFF0269B6) : Color(0xFFEDF5FF),
         gradient: gradient
             ? LinearGradient(
-                colors: [
-                  Color(0xFF0269B6),
-                  Color(0xFF002E50)
-                ],
+                colors: [Color(0xFF0269B6), Color(0xFF002E50)],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
               )
@@ -597,7 +629,8 @@ class _DynamicProgressBar extends StatelessWidget {
     return Container(
       width: double.infinity,
       margin: EdgeInsets.symmetric(vertical: width * 0.005),
-      padding: EdgeInsets.symmetric(horizontal: width * 0.03, vertical: width * 0.025),
+      padding: EdgeInsets.symmetric(
+          horizontal: width * 0.03, vertical: width * 0.025),
       decoration: BoxDecoration(
         color: const Color(0xFF292B32),
         borderRadius: BorderRadius.circular(width * 0.03),
@@ -632,7 +665,8 @@ class _DynamicProgressBar extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Center(
-                  child: Icon(Icons.lock, color: Colors.amber[200], size: width * 0.045),
+                  child: Icon(Icons.lock,
+                      color: Colors.amber[200], size: width * 0.045),
                 ),
               ),
             ],
@@ -694,13 +728,9 @@ class _DynamicProgressBar extends StatelessWidget {
               final tickSize = width * 0.015;
               final barWidth = constraints.maxWidth;
               // 4 dots at 20, 40, 60, 80 percent
-              final List<int> ticks = [
-                20,
-                40,
-                60,
-                80
-              ];
-              List<double> tickOffsets = ticks.map((tick) => (tick / 100) * barWidth).toList();
+              final List<int> ticks = [20, 40, 60, 80];
+              List<double> tickOffsets =
+                  ticks.map((tick) => (tick / 100) * barWidth).toList();
               return Stack(
                 children: [
                   // Background bar
@@ -719,17 +749,15 @@ class _DynamicProgressBar extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
-                        colors: [
-                          Color(0xFF0269B6),
-                          Color(0xFF002E50)
-                        ],
+                        colors: [Color(0xFF0269B6), Color(0xFF002E50)],
                       ),
                       borderRadius: BorderRadius.circular(width * 0.08),
                     ),
                   ),
                   // Ticks
                   ...List.generate(ticks.length, (i) {
-                    final isOnBlue = tickOffsets[i] <= barWidth * progressPercent;
+                    final isOnBlue =
+                        tickOffsets[i] <= barWidth * progressPercent;
                     return Positioned(
                       left: tickOffsets[i] - tickSize / 2,
                       top: (barHeight - tickSize) / 2,
@@ -738,7 +766,8 @@ class _DynamicProgressBar extends StatelessWidget {
                         height: tickSize,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: isOnBlue ? Color(0xFFEDF5FF) : Color(0xFF0269B6),
+                          color:
+                              isOnBlue ? Color(0xFFEDF5FF) : Color(0xFF0269B6),
                           border: Border.all(color: Colors.white, width: 1),
                         ),
                       ),
@@ -752,9 +781,21 @@ class _DynamicProgressBar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('0', style: GoogleFonts.dmSans(color: Colors.white, fontSize: width * 0.025, fontWeight: FontWeight.w600)),
-              Text('$progress', style: GoogleFonts.dmSans(color: Colors.white, fontSize: width * 0.03, fontWeight: FontWeight.w600)),
-              Text('$max', style: GoogleFonts.dmSans(color: Colors.white, fontSize: width * 0.025, fontWeight: FontWeight.w600)),
+              Text('0',
+                  style: GoogleFonts.dmSans(
+                      color: Colors.white,
+                      fontSize: width * 0.025,
+                      fontWeight: FontWeight.w600)),
+              Text('$progress',
+                  style: GoogleFonts.dmSans(
+                      color: Colors.white,
+                      fontSize: width * 0.03,
+                      fontWeight: FontWeight.w600)),
+              Text('$max',
+                  style: GoogleFonts.dmSans(
+                      color: Colors.white,
+                      fontSize: width * 0.025,
+                      fontWeight: FontWeight.w600)),
             ],
           ),
         ],
@@ -766,10 +807,12 @@ class _DynamicProgressBar extends StatelessWidget {
 // Upcoming Events Carousel Widget
 class _UpcomingEventsCarousel extends StatefulWidget {
   final List<Map<String, dynamic>> events;
-  const _UpcomingEventsCarousel({Key? key, required this.events}) : super(key: key);
+  const _UpcomingEventsCarousel({Key? key, required this.events})
+      : super(key: key);
 
   @override
-  State<_UpcomingEventsCarousel> createState() => _UpcomingEventsCarouselState();
+  State<_UpcomingEventsCarousel> createState() =>
+      _UpcomingEventsCarouselState();
 }
 
 class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
@@ -894,7 +937,8 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => EventDetailScreen(eventId: '1'),
+                                  builder: (context) =>
+                                      EventDetailScreen(eventId: '1'),
                                 ),
                               );
                             },
@@ -927,7 +971,9 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
               width: _currentPage == i ? 10 : 7,
               height: _currentPage == i ? 10 : 7,
               decoration: BoxDecoration(
-                color: _currentPage == i ? const Color(0xFF1976D2) : Colors.white24,
+                color: _currentPage == i
+                    ? const Color(0xFF1976D2)
+                    : Colors.white24,
                 shape: BoxShape.circle,
               ),
             ),

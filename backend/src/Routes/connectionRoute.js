@@ -12,7 +12,7 @@ const connectionRoute = express.Router();
 
 connectionRoute.use(verifyJWT);
 
-connectionRoute.post("/qr", connectViaQR);
+connectionRoute.get("/qr", connectViaQR);
 connectionRoute.get("/", getMyConnections);
 connectionRoute.get("/count", getConnectionCount);
 connectionRoute.get("/suggestions", getConnectionSuggestions);

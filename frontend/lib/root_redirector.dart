@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:reva/authentication/welcomescreen.dart';
 import 'package:reva/bottomnavigation/bottomnavigation.dart';
 import 'package:reva/services/auth_service.dart';
+import 'package:reva/providers/user_provider.dart';
+import 'package:reva/start_subscription.dart';
 
 class RootRedirector extends StatefulWidget {
   const RootRedirector({Key? key}) : super(key: key);
@@ -22,14 +25,32 @@ class _RootRedirectorState extends State<RootRedirector> {
 
   void _startSplashAndCheck() async {
     await Future.delayed(const Duration(seconds: 2));
+
+    if (!mounted) return;
+
     final auth = AuthService();
     final token = await auth.getToken('accessToken');
-    if (!mounted) return;
+
     if (token != null && token.isNotEmpty) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const BottomNavigation()),
-      );
+      // User is logged in, check subscription
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      await userProvider.loadUserData();
+      await userProvider.checkSubscription();
+
+      if (!mounted) return;
+
+      if (userProvider.isSubscribed) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const BottomNavigation()),
+        );
+      } else {
+        // User is logged in but not subscribed
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const StartSubscriptionPage()),
+        );
+      }
     } else {
+      // User is not logged in
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const WelcomeScreen()),
       );
@@ -47,7 +68,11 @@ class _RootRedirectorState extends State<RootRedirector> {
           children: [
             FlutterLogo(size: 80),
             SizedBox(height: 24),
-            Text('REVA', style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold)),
+            Text('REVA',
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold)),
           ],
         ),
       ),

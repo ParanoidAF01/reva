@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:reva/services/service_manager.dart';
 
 class QrScanScreen extends StatefulWidget {
   const QrScanScreen({super.key});
@@ -31,7 +32,8 @@ class _QrScanScreenState extends State<QrScanScreen> {
                 style: TextStyle(color: Colors.white54, fontSize: 14),
               ),
               IconButton(
-                icon: const Icon(Icons.notifications_none, color: Colors.white54),
+                icon:
+                    const Icon(Icons.notifications_none, color: Colors.white54),
                 onPressed: () {},
               ),
             ],
@@ -68,14 +70,75 @@ class _QrScanScreenState extends State<QrScanScreen> {
                         borderRadius: BorderRadius.circular(16),
                         child: MobileScanner(
                           controller: MobileScannerController(),
-                          onDetect: (capture) {
+                          onDetect: (capture) async {
                             if (isScanned) return;
                             final List<Barcode> barcodes = capture.barcodes;
-                            if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
+                            if (barcodes.isNotEmpty &&
+                                barcodes.first.rawValue != null) {
                               setState(() {
                                 scannedData = barcodes.first.rawValue;
                                 isScanned = true;
                               });
+
+                              // Log what QR sees
+                              print('QR SCAN DEBUG:');
+                              print('Raw QR Data: ${barcodes.first.rawValue}');
+                              print('Barcode Type: ${barcodes.first.type}');
+                              print('Format: ${barcodes.first.format}');
+
+                              // Parse QR data to extract phone number
+                              String? phoneNumber;
+                              String rawData = barcodes.first.rawValue!;
+
+                              if (rawData.contains('phone:')) {
+                                // Extract phone number from "mpin:xxx,phone:xxx" format
+                                final phoneMatch =
+                                    RegExp(r'phone:(\d+)').firstMatch(rawData);
+                                if (phoneMatch != null) {
+                                  phoneNumber = phoneMatch.group(1);
+                                  print('Extracted Phone Number: $phoneNumber');
+                                }
+                              } else {
+                                // Assume raw data is phone number
+                                phoneNumber = rawData;
+                                print(
+                                    'Using raw data as phone number: $phoneNumber');
+                              }
+
+                              // Handle QR connection
+                              try {
+                                final response = await ServiceManager
+                                    .instance.connections
+                                    .connectViaQR({
+                                  'mobileNumber': phoneNumber ?? scannedData!,
+                                });
+
+                                if (response['success'] == true) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          'Successfully connected with ${response['data']['connectedUser']['fullName']}'),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(response['message'] ??
+                                          'Connection failed'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: ${e.toString()}'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+
                               Navigator.pop(context, scannedData);
                             }
                           },
@@ -90,8 +153,10 @@ class _QrScanScreenState extends State<QrScanScreen> {
                           height: 32,
                           decoration: const BoxDecoration(
                             border: Border(
-                              top: BorderSide(color: Color(0xFF1976D2), width: 4),
-                              left: BorderSide(color: Color(0xFF1976D2), width: 4),
+                              top: BorderSide(
+                                  color: Color(0xFF1976D2), width: 4),
+                              left: BorderSide(
+                                  color: Color(0xFF1976D2), width: 4),
                             ),
                           ),
                         ),
@@ -104,8 +169,10 @@ class _QrScanScreenState extends State<QrScanScreen> {
                           height: 32,
                           decoration: const BoxDecoration(
                             border: Border(
-                              top: BorderSide(color: Color(0xFF1976D2), width: 4),
-                              right: BorderSide(color: Color(0xFF1976D2), width: 4),
+                              top: BorderSide(
+                                  color: Color(0xFF1976D2), width: 4),
+                              right: BorderSide(
+                                  color: Color(0xFF1976D2), width: 4),
                             ),
                           ),
                         ),
@@ -118,8 +185,10 @@ class _QrScanScreenState extends State<QrScanScreen> {
                           height: 32,
                           decoration: const BoxDecoration(
                             border: Border(
-                              bottom: BorderSide(color: Color(0xFF1976D2), width: 4),
-                              left: BorderSide(color: Color(0xFF1976D2), width: 4),
+                              bottom: BorderSide(
+                                  color: Color(0xFF1976D2), width: 4),
+                              left: BorderSide(
+                                  color: Color(0xFF1976D2), width: 4),
                             ),
                           ),
                         ),
@@ -132,8 +201,10 @@ class _QrScanScreenState extends State<QrScanScreen> {
                           height: 32,
                           decoration: const BoxDecoration(
                             border: Border(
-                              bottom: BorderSide(color: Color(0xFF1976D2), width: 4),
-                              right: BorderSide(color: Color(0xFF1976D2), width: 4),
+                              bottom: BorderSide(
+                                  color: Color(0xFF1976D2), width: 4),
+                              right: BorderSide(
+                                  color: Color(0xFF1976D2), width: 4),
                             ),
                           ),
                         ),

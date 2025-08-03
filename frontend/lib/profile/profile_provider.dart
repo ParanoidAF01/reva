@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'user_profile.dart';
+import '../services/service_manager.dart';
 
 class ProfileProvider extends ChangeNotifier {
   UserProfile _profile = UserProfile(
@@ -16,9 +17,52 @@ class ProfileProvider extends ChangeNotifier {
 
   UserProfile get profile => _profile;
 
-  void updateProfile(UserProfile profile) {
-    _profile = profile;
-    notifyListeners();
+  // Load profile from API
+  Future<void> loadProfile() async {
+    try {
+      final response = await ServiceManager.instance.profile.getMyProfile();
+      if (response['success'] == true && response['data'] != null) {
+        final profileData = response['data'];
+        _profile = UserProfile(
+          name: profileData['fullName'] ?? _profile.name,
+          location: profileData['location'] ?? _profile.location,
+          experience: profileData['experience'] ?? _profile.experience,
+          languages: profileData['languages'] ?? _profile.languages,
+          phone: profileData['mobileNumber'] ?? _profile.phone,
+          email: profileData['email'] ?? _profile.email,
+          avatarPath: profileData['avatar'] ?? _profile.avatarPath,
+          totalConnections:
+              profileData['totalConnections'] ?? _profile.totalConnections,
+          eventsAttended:
+              profileData['eventsAttended'] ?? _profile.eventsAttended,
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error loading profile: $e');
+    }
+  }
+
+  // Update profile via API
+  Future<void> updateProfile(UserProfile profile) async {
+    try {
+      final response = await ServiceManager.instance.profile.updateProfile({
+        'fullName': profile.name,
+        'location': profile.location,
+        'experience': profile.experience,
+        'languages': profile.languages,
+        'mobileNumber': profile.phone,
+        'email': profile.email,
+        'avatar': profile.avatarPath,
+      });
+
+      if (response['success'] == true) {
+        _profile = profile;
+        notifyListeners();
+      }
+    } catch (e) {
+      print('Error updating profile: $e');
+    }
   }
 
   void editField({

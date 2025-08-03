@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/notification/notificationTile.dart';
 import 'package:reva/notification/notification_model.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../services/service_manager.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -29,13 +28,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
       error = null;
     });
     try {
-      // Replace with your actual API endpoint
-      final response = await http.get(Uri.parse('https://example.com/api/notifications'));
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        notifications = data.map((e) => NotificationModel.fromJson(e)).toList();
+      final response =
+          await ServiceManager.instance.notifications.getMyNotifications();
+      if (response['success'] == true) {
+        final List<dynamic> notificationsData =
+            response['data']['notifications'] ?? [];
+        notifications = notificationsData
+            .map((e) => NotificationModel.fromJson(e))
+            .toList();
       } else {
-        error = 'Failed to load notifications';
+        error = response['message'] ?? 'Failed to load notifications';
       }
     } catch (e) {
       error = e.toString();
@@ -55,7 +57,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.only(top: height * 0.025, left: 16, right: 16, bottom: 8),
+              padding: EdgeInsets.only(
+                  top: height * 0.025, left: 16, right: 16, bottom: 8),
               child: Row(
                 children: [
                   InkWell(
@@ -68,7 +71,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         color: const Color(0xFF23262B),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+                      child: const Icon(Icons.arrow_back_ios_new_rounded,
+                          color: Colors.white, size: 18),
                     ),
                   ),
                   const Spacer(),
@@ -88,11 +92,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : error != null
-                      ? Center(child: Text(error!, style: const TextStyle(color: Colors.red)))
+                      ? Center(
+                          child: Text(error!,
+                              style: const TextStyle(color: Colors.red)))
                       : ListView.builder(
-                          padding: EdgeInsets.symmetric(horizontal: width * 0.05, vertical: 8),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: width * 0.05, vertical: 8),
                           itemCount: notifications.length,
-                          itemBuilder: (context, index) => NotificationTile(notification: notifications[index]),
+                          itemBuilder: (context, index) => NotificationTile(
+                              notification: notifications[index]),
                         ),
             ),
           ],

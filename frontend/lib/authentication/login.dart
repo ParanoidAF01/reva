@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 import 'package:reva/authentication/signup/signup.dart';
 import 'package:reva/authentication/signup/otpscreen.dart';
@@ -9,6 +10,7 @@ import 'package:reva/bottomnavigation/bottomnavigation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:reva/providers/user_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,7 +29,8 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Google sign-in successful!')),
         );
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BottomNavigation()));
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const BottomNavigation()));
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -48,7 +51,8 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Apple sign-in successful!')),
       );
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BottomNavigation()));
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => const BottomNavigation()));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Apple sign-in failed: $e')),
@@ -64,7 +68,8 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Facebook sign-in successful!')),
         );
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const BottomNavigation()));
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const BottomNavigation()));
       } else {
         throw result.message ?? 'Unknown error';
       }
@@ -76,7 +81,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   final TextEditingController phoneController = TextEditingController();
-  final List<TextEditingController> mpinControllers = List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> mpinControllers =
+      List.generate(6, (_) => TextEditingController());
   bool isLoading = false;
 
   @override
@@ -109,21 +115,34 @@ class _LoginScreenState extends State<LoginScreen> {
       final mpin = mpinControllers.map((c) => c.text).join();
       if (phone.isEmpty || mpin.length != 6) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please enter your phone number and 6-digit MPIN')),
+          const SnackBar(
+              content: Text('Please enter your phone number and 6-digit MPIN')),
         );
         setState(() {
           isLoading = false;
         });
         return;
       }
-      await AuthService().login(mobileNumber: phone, mpin: mpin);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login successful!')),
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const BottomNavigation()),
-      );
+
+      final response =
+          await AuthService().login(mobileNumber: phone, mpin: mpin);
+
+      if (response['success'] == true) {
+        // Load user data after successful login
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+        await userProvider.loadUserData();
+        await userProvider.checkSubscription();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Login successful!')),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const BottomNavigation()),
+        );
+      } else {
+        throw Exception(response['message'] ?? 'Login failed');
+      }
     } catch (e) {
       String errorMsg = 'Login failed';
       if (e.toString().contains('not found')) {
@@ -170,20 +189,35 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             OutlinedButton.icon(
                               style: OutlinedButton.styleFrom(
-                                side: const BorderSide(color: Color(0xFFB2C2D9)),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
+                                side:
+                                    const BorderSide(color: Color(0xFFB2C2D9)),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(24)),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 14, vertical: 2),
                               ),
                               onPressed: () {},
-                              icon: const Icon(Icons.help_outline, size: 18, color: Color(0xFFB2C2D9)),
-                              label: const Text('Help', style: TextStyle(color: Color(0xFFB2C2D9), fontWeight: FontWeight.w500)),
+                              icon: const Icon(Icons.help_outline,
+                                  size: 18, color: Color(0xFFB2C2D9)),
+                              label: const Text('Help',
+                                  style: TextStyle(
+                                      color: Color(0xFFB2C2D9),
+                                      fontWeight: FontWeight.w500)),
                             ),
                           ],
                         ),
                         const SizedBox(height: 32),
-                        Center(child: Text('Login', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 32, color: Colors.white))),
+                        Center(
+                            child: Text('Login',
+                                style: GoogleFonts.dmSans(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 32,
+                                    color: Colors.white))),
                         const SizedBox(height: 32),
-                        const Text('Phone Number', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
+                        const Text('Phone Number',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500)),
                         const SizedBox(height: 4),
                         TextField(
                           controller: phoneController,
@@ -191,15 +225,23 @@ class _LoginScreenState extends State<LoginScreen> {
                           keyboardType: TextInputType.phone,
                           decoration: InputDecoration(
                             hintText: 'Phone Number',
-                            hintStyle: const TextStyle(color: Color(0xFFB0B0B0)),
+                            hintStyle:
+                                const TextStyle(color: Color(0xFFB0B0B0)),
                             filled: true,
                             fillColor: const Color(0xFF23262B),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(4), borderSide: BorderSide.none),
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(4),
+                                borderSide: BorderSide.none),
+                            contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 10),
                           ),
                         ),
                         const SizedBox(height: 18),
-                        Text('Enter Your MPIN', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 14, color: Colors.white)),
+                        Text('Enter Your MPIN',
+                            style: GoogleFonts.dmSans(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                                color: Colors.white)),
                         const SizedBox(height: 12),
                         _MpinBoxField(
                           controllers: mpinControllers,
@@ -224,7 +266,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 );
                               },
-                              child: Text('Forgot MPIN?', style: GoogleFonts.dmSans(color: const Color(0xFFB2C2D9), fontSize: 13, fontWeight: FontWeight.w500, decoration: TextDecoration.underline)),
+                              child: Text('Forgot MPIN?',
+                                  style: GoogleFonts.dmSans(
+                                      color: const Color(0xFFB2C2D9),
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500,
+                                      decoration: TextDecoration.underline)),
                             ),
                           ],
                         ),
@@ -236,10 +283,18 @@ class _LoginScreenState extends State<LoginScreen> {
                             onPressed: isLoading ? null : _login,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF0262AB),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
                               elevation: 0,
                             ),
-                            child: isLoading ? const CircularProgressIndicator(color: Colors.white) : Text('Login', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: Colors.white)),
+                            child: isLoading
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white)
+                                : Text('Login',
+                                    style: GoogleFonts.dmSans(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 18,
+                                        color: Colors.white)),
                           ),
                         ),
                         const SizedBox(height: 24),
@@ -247,12 +302,23 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text("Don’t have an account? ", style: GoogleFonts.dmSans(color: const Color(0xFFD8D8DD), fontSize: 15)),
+                              Text("Don’t have an account? ",
+                                  style: GoogleFonts.dmSans(
+                                      color: const Color(0xFFD8D8DD),
+                                      fontSize: 15)),
                               InkWell(
                                 onTap: () {
-                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const SignUp()));
+                                  Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const SignUp()));
                                 },
-                                child: Text("Signup", style: GoogleFonts.dmSans(color: const Color(0xFF3B9FED), fontWeight: FontWeight.w600, fontSize: 15)),
+                                child: Text("Signup",
+                                    style: GoogleFonts.dmSans(
+                                        color: const Color(0xFF3B9FED),
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 15)),
                               ),
                             ],
                           ),
@@ -304,7 +370,8 @@ class _MpinBoxField extends StatelessWidget {
             keyboardType: TextInputType.number,
             textAlign: TextAlign.center,
             maxLength: 1,
-            style: GoogleFonts.dmSans(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700),
+            style: GoogleFonts.dmSans(
+                color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700),
             decoration: const InputDecoration(
               counterText: '',
               border: InputBorder.none,

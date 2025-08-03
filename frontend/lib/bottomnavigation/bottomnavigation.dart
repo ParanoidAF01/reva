@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:reva/events/eventscreen.dart';
 import 'package:reva/home/homescreen.dart';
 
@@ -7,6 +8,7 @@ import 'package:reva/profile/profile_screen.dart';
 import 'package:reva/posts/postsScreen.dart';
 
 import 'package:reva/qr/qr_scan_screen.dart';
+import 'package:reva/providers/user_provider.dart';
 
 class BottomNavigation extends StatefulWidget {
   final int initialIndex;
@@ -23,6 +25,13 @@ class _BottomNavigationState extends State<BottomNavigation> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+    _loadUserData();
+  }
+
+  Future<void> _loadUserData() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    await userProvider.loadUserData();
+    await userProvider.checkSubscription();
   }
 
   @override
@@ -48,10 +57,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: const LinearGradient(
-              colors: [
-                Color(0xFF0262AB),
-                Color(0xFF01345A)
-              ],
+              colors: [Color(0xFF0262AB), Color(0xFF01345A)],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),

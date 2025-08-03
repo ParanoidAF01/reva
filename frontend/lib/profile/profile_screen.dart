@@ -8,6 +8,9 @@ import 'package:provider/provider.dart';
 import 'package:reva/start_subscription.dart';
 import 'user_profile.dart';
 import 'profile_provider.dart';
+import '../providers/user_provider.dart';
+import '../services/service_manager.dart';
+import '../wallet/walletscreen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -18,9 +21,8 @@ class ProfileScreen extends StatelessWidget {
     final width = MediaQuery.of(context).size.width;
     return ChangeNotifierProvider(
       create: (_) => ProfileProvider(),
-      child: Consumer<ProfileProvider>(
-        builder: (context, provider, _) {
-          final profile = provider.profile;
+      child: Consumer2<ProfileProvider, UserProvider>(
+        builder: (context, provider, userProvider, _) {
           return Scaffold(
             backgroundColor: const Color(0xFF22252A),
             body: SafeArea(
@@ -169,14 +171,15 @@ class ProfileScreen extends StatelessWidget {
                             children: [
                               CircleAvatar(
                                 radius: 54,
-                                backgroundImage: AssetImage(profile.avatarPath),
+                                backgroundImage:
+                                    AssetImage('assets/dummyprofile.png'),
                               ),
                               Positioned(
                                 bottom: 8,
                                 right: 8,
                                 child: GestureDetector(
                                   onTap: () => _showEditProfileDialog(
-                                      context, provider, profile),
+                                      context, provider, userProvider),
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: Colors.white,
@@ -194,7 +197,7 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            profile.name,
+                            userProvider.userName,
                             style: GoogleFonts.dmSans(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -203,7 +206,8 @@ class ProfileScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            profile.location,
+                            userProvider.userData?['location'] ??
+                                'Location not set',
                             style: GoogleFonts.dmSans(
                               color: Colors.white.withOpacity(0.7),
                               fontWeight: FontWeight.w500,
@@ -223,14 +227,18 @@ class ProfileScreen extends StatelessWidget {
                         const Icon(Icons.access_time,
                             color: Colors.white70, size: 18),
                         const SizedBox(width: 6),
-                        Text(profile.experience,
+                        Text(
+                            userProvider.userData?['experience'] ??
+                                'Experience not set',
                             style: GoogleFonts.dmSans(
                                 color: Colors.white70, fontSize: 14)),
                         const SizedBox(width: 16),
                         const Icon(Icons.circle,
                             color: Colors.white38, size: 6),
                         const SizedBox(width: 16),
-                        Text(profile.languages,
+                        Text(
+                            userProvider.userData?['languages'] ??
+                                'Languages not set',
                             style: GoogleFonts.dmSans(
                                 color: Colors.white70, fontSize: 14)),
                       ],
@@ -245,12 +253,16 @@ class ProfileScreen extends StatelessWidget {
                         _ProfileStatCard(
                             icon: Icons.people,
                             label: 'Total Connections',
-                            value: profile.totalConnections.toString()),
+                            value: userProvider.userData?['totalConnections']
+                                    ?.toString() ??
+                                '0'),
                         const SizedBox(width: 18),
                         _ProfileStatCard(
                             icon: Icons.celebration,
                             label: 'Events Attended',
-                            value: profile.eventsAttended.toString()),
+                            value: userProvider.userData?['eventsAttended']
+                                    ?.toString() ??
+                                '0'),
                       ],
                     ),
                   ),
@@ -265,7 +277,10 @@ class ProfileScreen extends StatelessWidget {
                             const Icon(Icons.phone,
                                 color: Colors.white70, size: 18),
                             const SizedBox(width: 8),
-                            Text(profile.phone,
+                            Text(
+                                userProvider.userData?['user']
+                                        ?['mobileNumber'] ??
+                                    'Phone not set',
                                 style: GoogleFonts.dmSans(
                                     color: Colors.white, fontSize: 15)),
                           ],
@@ -276,7 +291,9 @@ class ProfileScreen extends StatelessWidget {
                             const Icon(Icons.email,
                                 color: Colors.white70, size: 18),
                             const SizedBox(width: 8),
-                            Text(profile.email,
+                            Text(
+                                userProvider.userData?['user']?['email'] ??
+                                    'Email not set',
                                 style: GoogleFonts.dmSans(
                                     color: Colors.white, fontSize: 15)),
                           ],
@@ -354,15 +371,14 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  void _showEditProfileDialog(
-      BuildContext context, ProfileProvider provider, UserProfile profile) {
-    final nameController = TextEditingController(text: profile.name);
-    final locationController = TextEditingController(text: profile.location);
+  void _showEditProfileDialog(BuildContext context, ProfileProvider provider,
+      UserProvider userProvider) {
+    final locationController =
+        TextEditingController(text: userProvider.userData?['location'] ?? '');
     final experienceController =
-        TextEditingController(text: profile.experience);
-    final languagesController = TextEditingController(text: profile.languages);
-    final phoneController = TextEditingController(text: profile.phone);
-    final emailController = TextEditingController(text: profile.email);
+        TextEditingController(text: userProvider.userData?['experience'] ?? '');
+    final languagesController =
+        TextEditingController(text: userProvider.userData?['languages'] ?? '');
 
     showDialog(
       context: context,
@@ -375,12 +391,9 @@ class ProfileScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _editField('Name', nameController),
                 _editField('Location', locationController),
                 _editField('Experience', experienceController),
                 _editField('Languages', languagesController),
-                _editField('Phone', phoneController),
-                _editField('Email', emailController),
               ],
             ),
           ),
@@ -394,16 +407,37 @@ class ProfileScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0262AB),
               ),
-              onPressed: () {
-                provider.editField(
-                  name: nameController.text,
-                  location: locationController.text,
-                  experience: experienceController.text,
-                  languages: languagesController.text,
-                  phone: phoneController.text,
-                  email: emailController.text,
-                );
-                Navigator.pop(context);
+              onPressed: () async {
+                try {
+                  // Update profile via API
+                  final response =
+                      await ServiceManager.instance.profile.updateProfile({
+                    'location': locationController.text,
+                    'experience': experienceController.text,
+                    'languages': languagesController.text,
+                  });
+
+                  if (response['success'] == true) {
+                    // Reload user data to reflect changes
+                    await userProvider.loadUserData();
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Profile updated successfully!')),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text(response['message'] ??
+                              'Failed to update profile')),
+                    );
+                  }
+                } catch (e) {
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error updating profile: $e')),
+                  );
+                }
               },
               child: const Text('Save'),
             ),

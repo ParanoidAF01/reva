@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/events/eventtile.dart';
 import 'package:reva/events/event_model.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import '../services/service_manager.dart';
 // import 'package:reva/posts/postTile.dart';
 
 // import '../notification/notification.dart';
@@ -36,14 +35,13 @@ class _EventScreenState extends State<EventScreen> {
       error = null;
     });
     try {
-      // Replace with your actual API endpoint
-      final response = await http.get(Uri.parse('https://example.com/api/events'));
-      if (response.statusCode == 200) {
-        final List<dynamic> data = jsonDecode(response.body);
-        events = data.map((e) => EventModel.fromJson(e)).toList();
+      final response = await ServiceManager.instance.events.getAllEvents();
+      if (response['success'] == true) {
+        final List<dynamic> eventsData = response['data']['events'] ?? [];
+        events = eventsData.map((e) => EventModel.fromJson(e)).toList();
         filteredEvents = List.from(events);
       } else {
-        error = 'Failed to load events';
+        error = response['message'] ?? 'Failed to load events';
       }
     } catch (e) {
       error = e.toString();
@@ -56,8 +54,12 @@ class _EventScreenState extends State<EventScreen> {
   void filterEvents() {
     setState(() {
       filteredEvents = events.where((event) {
-        final matchesSearch = event.title.toLowerCase().contains(searchQuery.toLowerCase()) || event.location.toLowerCase().contains(searchQuery.toLowerCase());
-        final matchesCity = selectedCity.isEmpty || event.location.toLowerCase() == selectedCity.toLowerCase();
+        final matchesSearch = event.title
+                .toLowerCase()
+                .contains(searchQuery.toLowerCase()) ||
+            event.location.toLowerCase().contains(searchQuery.toLowerCase());
+        final matchesCity = selectedCity.isEmpty ||
+            event.location.toLowerCase() == selectedCity.toLowerCase();
         return matchesSearch && matchesCity;
       }).toList();
     });
@@ -72,7 +74,9 @@ class _EventScreenState extends State<EventScreen> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : error != null
-              ? Center(child: Text(error!, style: const TextStyle(color: Colors.red)))
+              ? Center(
+                  child:
+                      Text(error!, style: const TextStyle(color: Colors.red)))
               : Column(
                   children: [
                     SizedBox(height: height * 0.06),
@@ -90,7 +94,10 @@ class _EventScreenState extends State<EventScreen> {
                                 color: const Color(0xFF23262B),
                                 shape: BoxShape.circle,
                               ),
-                              child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+                              child: const Icon(
+                                  Icons.arrow_back_ios_new_rounded,
+                                  color: Colors.white,
+                                  size: 18),
                             ),
                           ),
                           const Spacer(),
@@ -121,16 +128,19 @@ class _EventScreenState extends State<EventScreen> {
                               child: Row(
                                 children: [
                                   const SizedBox(width: 12),
-                                  const Icon(Icons.search, color: Colors.white70, size: 22),
+                                  const Icon(Icons.search,
+                                      color: Colors.white70, size: 22),
                                   const SizedBox(width: 8),
                                   Expanded(
                                     child: TextField(
                                       controller: searchController,
-                                      style: const TextStyle(color: Colors.white),
+                                      style:
+                                          const TextStyle(color: Colors.white),
                                       cursorColor: Colors.white54,
                                       decoration: const InputDecoration(
                                         hintText: 'Search By City Or Name...',
-                                        hintStyle: TextStyle(color: Colors.white54),
+                                        hintStyle:
+                                            TextStyle(color: Colors.white54),
                                         border: InputBorder.none,
                                       ),
                                       onChanged: (val) {
@@ -140,23 +150,31 @@ class _EventScreenState extends State<EventScreen> {
                                     ),
                                   ),
                                   IconButton(
-                                    icon: const Icon(Icons.filter_alt_rounded, color: Color(0xFF3B9FED), size: 28),
+                                    icon: const Icon(Icons.filter_alt_rounded,
+                                        color: Color(0xFF3B9FED), size: 28),
                                     onPressed: () async {
                                       // Simple city filter dialog
-                                      final cities = events.map((e) => e.location).toSet().toList();
+                                      final cities = events
+                                          .map((e) => e.location)
+                                          .toSet()
+                                          .toList();
                                       final selected = await showDialog<String>(
                                         context: context,
                                         builder: (context) => SimpleDialog(
                                           title: const Text('Filter by City'),
                                           children: [
                                             SimpleDialogOption(
-                                              onPressed: () => Navigator.pop(context, ''),
+                                              onPressed: () =>
+                                                  Navigator.pop(context, ''),
                                               child: const Text('All'),
                                             ),
-                                            ...cities.map((city) => SimpleDialogOption(
-                                                  onPressed: () => Navigator.pop(context, city),
-                                                  child: Text(city),
-                                                )),
+                                            ...cities.map(
+                                                (city) => SimpleDialogOption(
+                                                      onPressed: () =>
+                                                          Navigator.pop(
+                                                              context, city),
+                                                      child: Text(city),
+                                                    )),
                                           ],
                                         ),
                                       );

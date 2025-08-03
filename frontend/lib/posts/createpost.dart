@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
 import 'package:iconsax/iconsax.dart';
-
+import '../services/service_manager.dart';
 import '../notification/notification.dart';
 
 class SharePostScreen extends StatelessWidget {
@@ -33,7 +32,11 @@ class SharePostScreen extends StatelessWidget {
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                     const Spacer(),
-                    Text("Share post", style: GoogleFonts.dmSans(fontSize: 26, fontWeight: FontWeight.w700, color: Colors.white)),
+                    Text("Share post",
+                        style: GoogleFonts.dmSans(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white)),
                     const Spacer(flex: 2),
                   ],
                 ),
@@ -54,7 +57,8 @@ class SharePostScreen extends StatelessWidget {
                       children: [
                         Text(
                           "Piyush Patyal",
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
                         ),
                         Text(
                           "0/2 Posts",
@@ -69,28 +73,44 @@ class SharePostScreen extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
                         ),
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
                       ),
                       onPressed: () async {
                         final text = postController.text.trim();
                         if (text.isNotEmpty || pickedFile != null) {
-                          // Replace with your API endpoint
-                          final url = Uri.parse('https://example.com/api/posts');
-                          var request = http.MultipartRequest('POST', url);
-                          request.fields['content'] = text;
-                          if (pickedFile != null) {
-                            request.files.add(await http.MultipartFile.fromPath(
-                              pickedType == 'photo' ? 'image' : 'video',
-                              pickedFile!.path,
-                            ));
+                          try {
+                            final postData = {
+                              'content': text,
+                              'mediaType': pickedFile != null
+                                  ? (pickedType == 'photo' ? 'image' : 'video')
+                                  : null,
+                              'mediaPath': pickedFile?.path,
+                            };
+
+                            final response = await ServiceManager.instance.posts
+                                .createPost(postData);
+                            if (response['success'] == true) {
+                              Navigator.of(context).pop();
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(response['message'] ??
+                                        'Failed to create post')),
+                              );
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text('Error creating post: $e')),
+                            );
                           }
-                          await request.send();
-                          Navigator.of(context).pop();
                         }
                       },
                       child: const Text(
                         "Post",
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ],
@@ -113,7 +133,8 @@ class SharePostScreen extends StatelessWidget {
               ),
               if (pickedFile != null)
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                   child: pickedType == 'photo'
                       ? Image.file(
                           File(pickedFile!.path),
@@ -122,7 +143,9 @@ class SharePostScreen extends StatelessWidget {
                       : Container(
                           height: 120,
                           color: Colors.black26,
-                          child: Center(child: Text('Video selected', style: TextStyle(color: Colors.white))),
+                          child: Center(
+                              child: Text('Video selected',
+                                  style: TextStyle(color: Colors.white))),
                         ),
                 ),
               const Spacer(),
@@ -136,14 +159,16 @@ class SharePostScreen extends StatelessWidget {
                     topRight: Radius.circular(24),
                   ),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     InkWell(
                       onTap: () async {
                         final ImagePicker picker = ImagePicker();
-                        final XFile? file = await picker.pickImage(source: ImageSource.gallery);
+                        final XFile? file =
+                            await picker.pickImage(source: ImageSource.gallery);
                         if (file != null) {
                           setState(() {
                             pickedFile = file;
@@ -151,12 +176,14 @@ class SharePostScreen extends StatelessWidget {
                           });
                         }
                       },
-                      child: _buildOption(Iconsax.gallery, "Add a photo", highlight: true),
+                      child: _buildOption(Iconsax.gallery, "Add a photo",
+                          highlight: true),
                     ),
                     InkWell(
                       onTap: () async {
                         final ImagePicker picker = ImagePicker();
-                        final XFile? file = await picker.pickVideo(source: ImageSource.gallery);
+                        final XFile? file =
+                            await picker.pickVideo(source: ImageSource.gallery);
                         if (file != null) {
                           setState(() {
                             pickedFile = file;
@@ -164,13 +191,19 @@ class SharePostScreen extends StatelessWidget {
                           });
                         }
                       },
-                      child: _buildOption(Iconsax.video, "Take a video", highlight: true),
+                      child: _buildOption(Iconsax.video, "Take a video",
+                          highlight: true),
                     ),
-                    _buildOption(Iconsax.award, "Celebrate an occasion", highlight: false),
-                    _buildOption(Iconsax.document, "Add a document", highlight: false),
-                    _buildOption(Iconsax.briefcase, "Share that you’re hiring", highlight: false),
-                    _buildOption(Iconsax.people, "Find an expert", highlight: false),
-                    _buildOption(Iconsax.chart, "Create a poll", highlight: false),
+                    _buildOption(Iconsax.award, "Celebrate an occasion",
+                        highlight: false),
+                    _buildOption(Iconsax.document, "Add a document",
+                        highlight: false),
+                    _buildOption(Iconsax.briefcase, "Share that you’re hiring",
+                        highlight: false),
+                    _buildOption(Iconsax.people, "Find an expert",
+                        highlight: false),
+                    _buildOption(Iconsax.chart, "Create a poll",
+                        highlight: false),
                   ],
                 ),
               ),

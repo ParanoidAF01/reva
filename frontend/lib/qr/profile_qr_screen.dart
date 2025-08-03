@@ -4,13 +4,18 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 class ProfileQrScreen extends StatelessWidget {
   final String mpin;
   final String phone;
-  const ProfileQrScreen({Key? key, required this.mpin, required this.phone}) : super(key: key);
+  const ProfileQrScreen({Key? key, required this.mpin, required this.phone})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final frameSize = width * 0.65;
     final qrData = 'mpin:$mpin,phone:$phone';
+    print('QR GENERATION DEBUG:');
+    print('MPIN: $mpin');
+    print('Phone: $phone');
+    print('QR Data: $qrData');
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
       appBar: PreferredSize(
@@ -94,7 +99,8 @@ class ProfileQrScreen extends StatelessWidget {
                       height: 32,
                       decoration: const BoxDecoration(
                         border: Border(
-                          bottom: BorderSide(color: Color(0xFF1976D2), width: 4),
+                          bottom:
+                              BorderSide(color: Color(0xFF1976D2), width: 4),
                           left: BorderSide(color: Color(0xFF1976D2), width: 4),
                         ),
                       ),
@@ -108,7 +114,8 @@ class ProfileQrScreen extends StatelessWidget {
                       height: 32,
                       decoration: const BoxDecoration(
                         border: Border(
-                          bottom: BorderSide(color: Color(0xFF1976D2), width: 4),
+                          bottom:
+                              BorderSide(color: Color(0xFF1976D2), width: 4),
                           right: BorderSide(color: Color(0xFF1976D2), width: 4),
                         ),
                       ),

@@ -5,6 +5,7 @@ import 'package:reva/authentication/welcomescreen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:reva/start_subscription.dart';
 import 'user_profile.dart';
 import 'profile_provider.dart';
 
@@ -26,7 +27,8 @@ class ProfileScreen extends StatelessWidget {
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 16.0, left: 16, right: 16),
+                    padding:
+                        const EdgeInsets.only(top: 16.0, left: 16, right: 16),
                     child: Row(
                       children: [
                         InkWell(
@@ -39,7 +41,8 @@ class ProfileScreen extends StatelessWidget {
                               color: const Color(0xFF23262B),
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+                            child: const Icon(Icons.arrow_back_ios_new_rounded,
+                                color: Colors.white, size: 18),
                           ),
                         ),
                         const Spacer(),
@@ -53,54 +56,84 @@ class ProfileScreen extends StatelessWidget {
                         ),
                         const Spacer(),
                         IconButton(
-                          icon: const Icon(Icons.settings, color: Colors.white, size: 24),
+                          icon: const Icon(Icons.settings,
+                              color: Colors.white, size: 24),
                           onPressed: () {
                             showModalBottomSheet(
                               context: context,
                               backgroundColor: const Color(0xFF23262B),
                               shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(18)),
                               ),
                               builder: (context) {
                                 return Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     ListTile(
-                                      leading: const Icon(Icons.account_balance_wallet, color: Colors.white),
-                                      title: const Text('Wallet', style: TextStyle(color: Colors.white)),
+                                      leading: const Icon(
+                                          Icons.account_balance_wallet,
+                                          color: Colors.white),
+                                      title: const Text('Wallet',
+                                          style:
+                                              TextStyle(color: Colors.white)),
                                       onTap: () {
                                         Navigator.of(context).pop();
-                                        Navigator.of(context).pushNamed('/wallet');
+                                        Navigator.of(context)
+                                            .pushNamed('/wallet');
                                       },
                                     ),
                                     ListTile(
-                                      leading: const Icon(Icons.person, color: Colors.white),
-                                      title: const Text('Account', style: TextStyle(color: Colors.white)),
-                                      onTap: () {
-                                      },
-                                    ),
-                                    ListTile(
-                                      leading: const Icon(Icons.help_center, color: Colors.white),
-                                      title: const Text('Help Center', style: TextStyle(color: Colors.white)),
+                                      leading: const Icon(Icons.person,
+                                          color: Colors.white),
+                                      title: const Text('Account',
+                                          style:
+                                              TextStyle(color: Colors.white)),
                                       onTap: () {
                                         Navigator.of(context).pop();
                                         Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (_) => const HelpCenterScreen()),
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  const StartSubscriptionPage()),
                                         );
                                       },
                                     ),
                                     ListTile(
-                                      leading: const Icon(Icons.notifications, color: Colors.white),
-                                      title: const Text('Notifications', style: TextStyle(color: Colors.white)),
+                                      leading: const Icon(Icons.help_center,
+                                          color: Colors.white),
+                                      title: const Text('Help Center',
+                                          style:
+                                              TextStyle(color: Colors.white)),
+                                      onTap: () {
+                                        Navigator.of(context).pop();
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  const HelpCenterScreen()),
+                                        );
+                                      },
+                                    ),
+                                    ListTile(
+                                      leading: const Icon(Icons.notifications,
+                                          color: Colors.white),
+                                      title: const Text('Notifications',
+                                          style:
+                                              TextStyle(color: Colors.white)),
                                       onTap: () {},
                                     ),
                                     ListTile(
-                                      leading: const Icon(Icons.logout, color: Colors.white),
-                                      title: const Text('Sign Out', style: TextStyle(color: Colors.white)),
+                                      leading: const Icon(Icons.logout,
+                                          color: Colors.white),
+                                      title: const Text('Sign Out',
+                                          style:
+                                              TextStyle(color: Colors.white)),
                                       onTap: () async {
                                         await AuthService().logout();
-                                        Navigator.of(context).pushAndRemoveUntil(
-                                          MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+                                        Navigator.of(context)
+                                            .pushAndRemoveUntil(
+                                          MaterialPageRoute(
+                                              builder: (_) =>
+                                                  const WelcomeScreen()),
                                           (route) => false,
                                         );
                                       },
@@ -142,15 +175,18 @@ class ProfileScreen extends StatelessWidget {
                                 bottom: 8,
                                 right: 8,
                                 child: GestureDetector(
-                                  onTap: () => _showEditProfileDialog(context, provider, profile),
+                                  onTap: () => _showEditProfileDialog(
+                                      context, provider, profile),
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: Colors.white,
                                       shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white, width: 2),
+                                      border: Border.all(
+                                          color: Colors.white, width: 2),
                                     ),
                                     padding: const EdgeInsets.all(4),
-                                    child: const Icon(Icons.edit, size: 18, color: Color(0xFF0262AB)),
+                                    child: const Icon(Icons.edit,
+                                        size: 18, color: Color(0xFF0262AB)),
                                   ),
                                 ),
                               ),
@@ -184,13 +220,19 @@ class ProfileScreen extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.access_time, color: Colors.white70, size: 18),
+                        const Icon(Icons.access_time,
+                            color: Colors.white70, size: 18),
                         const SizedBox(width: 6),
-                        Text(profile.experience, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14)),
+                        Text(profile.experience,
+                            style: GoogleFonts.dmSans(
+                                color: Colors.white70, fontSize: 14)),
                         const SizedBox(width: 16),
-                        const Icon(Icons.circle, color: Colors.white38, size: 6),
+                        const Icon(Icons.circle,
+                            color: Colors.white38, size: 6),
                         const SizedBox(width: 16),
-                        Text(profile.languages, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14)),
+                        Text(profile.languages,
+                            style: GoogleFonts.dmSans(
+                                color: Colors.white70, fontSize: 14)),
                       ],
                     ),
                   ),
@@ -200,9 +242,15 @@ class ProfileScreen extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _ProfileStatCard(icon: Icons.people, label: 'Total Connections', value: profile.totalConnections.toString()),
+                        _ProfileStatCard(
+                            icon: Icons.people,
+                            label: 'Total Connections',
+                            value: profile.totalConnections.toString()),
                         const SizedBox(width: 18),
-                        _ProfileStatCard(icon: Icons.celebration, label: 'Events Attended', value: profile.eventsAttended.toString()),
+                        _ProfileStatCard(
+                            icon: Icons.celebration,
+                            label: 'Events Attended',
+                            value: profile.eventsAttended.toString()),
                       ],
                     ),
                   ),
@@ -214,17 +262,23 @@ class ProfileScreen extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.phone, color: Colors.white70, size: 18),
+                            const Icon(Icons.phone,
+                                color: Colors.white70, size: 18),
                             const SizedBox(width: 8),
-                            Text(profile.phone, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
+                            Text(profile.phone,
+                                style: GoogleFonts.dmSans(
+                                    color: Colors.white, fontSize: 15)),
                           ],
                         ),
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            const Icon(Icons.email, color: Colors.white70, size: 18),
+                            const Icon(Icons.email,
+                                color: Colors.white70, size: 18),
                             const SizedBox(width: 8),
-                            Text(profile.email, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
+                            Text(profile.email,
+                                style: GoogleFonts.dmSans(
+                                    color: Colors.white, fontSize: 15)),
                           ],
                         ),
                       ],
@@ -259,7 +313,10 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         ),
                         icon: const Icon(Icons.logout, color: Colors.white),
-                        label: const Text('Sign Out', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        label: const Text('Sign Out',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold)),
                         onPressed: () async {
                           bool error = false;
                           try {
@@ -272,12 +329,15 @@ class ProfileScreen extends StatelessWidget {
                           }
                           if (context.mounted) {
                             Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+                              MaterialPageRoute(
+                                  builder: (_) => const WelcomeScreen()),
                               (route) => false,
                             );
                             if (error) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Session expired or already logged out.')),
+                                const SnackBar(
+                                    content: Text(
+                                        'Session expired or already logged out.')),
                               );
                             }
                           }
@@ -294,10 +354,12 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  void _showEditProfileDialog(BuildContext context, ProfileProvider provider, UserProfile profile) {
+  void _showEditProfileDialog(
+      BuildContext context, ProfileProvider provider, UserProfile profile) {
     final nameController = TextEditingController(text: profile.name);
     final locationController = TextEditingController(text: profile.location);
-    final experienceController = TextEditingController(text: profile.experience);
+    final experienceController =
+        TextEditingController(text: profile.experience);
     final languagesController = TextEditingController(text: profile.languages);
     final phoneController = TextEditingController(text: profile.phone);
     final emailController = TextEditingController(text: profile.email);
@@ -307,7 +369,8 @@ class ProfileScreen extends StatelessWidget {
       builder: (context) {
         return AlertDialog(
           backgroundColor: const Color(0xFF23262B),
-          title: Text('Edit Profile', style: GoogleFonts.dmSans(color: Colors.white)),
+          title: Text('Edit Profile',
+              style: GoogleFonts.dmSans(color: Colors.white)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -324,7 +387,8 @@ class ProfileScreen extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+              child:
+                  const Text('Cancel', style: TextStyle(color: Colors.white70)),
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
@@ -374,7 +438,8 @@ class _ProfileStatCard extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  const _ProfileStatCard({required this.icon, required this.label, required this.value});
+  const _ProfileStatCard(
+      {required this.icon, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -391,9 +456,14 @@ class _ProfileStatCard extends StatelessWidget {
           children: [
             Icon(icon, color: Colors.white, size: 22),
             const SizedBox(height: 8),
-            Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(value,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16)),
             const SizedBox(height: 4),
-            Text(label, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+            Text(label,
+                style: const TextStyle(color: Colors.white70, fontSize: 13)),
           ],
         ),
       ),

@@ -16,11 +16,6 @@ const subscriptionSchema = mongoose.Schema({
         required: true,
         min: 0
     },
-    billingCycle: {
-        type: String,
-        enum: ['monthly', 'quarterly', 'yearly', 'trial'],
-        required: true
-    },
     status: {
         type: String,
         enum: ['active', 'cancelled', 'expired', 'pending'],

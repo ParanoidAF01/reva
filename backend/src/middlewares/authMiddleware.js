@@ -2,8 +2,8 @@ import jwt from "jsonwebtoken";
 import env from "../utils/consts.js";
 import { ApiError } from "../utils/ApiError.js";
 import User from "../models/user.js";
-
-const blacklistedTokens = new Set();
+import BlacklistedToken from "../models/blacklistedToken.js";
+import { parseTimeString } from "../utils/helpers.js";
 
 export const verifyJWT = async (req, res, next) => {
     try {
@@ -17,7 +17,8 @@ export const verifyJWT = async (req, res, next) => {
             ? authHeader.substring(7)
             : authHeader;
 
-        if (blacklistedTokens.has(token)) {
+        const isBlacklisted = await isTokenBlacklisted(token);
+        if (isBlacklisted) {
             return next(new ApiError(401, 'Token has been invalidated'));
         }
 
@@ -56,13 +57,18 @@ export const requireAdmin = (req, res, next) => {
     next();
 };
 
-export const addToBlacklist = (token) => {
-    blacklistedTokens.add(token);
-    setTimeout(() => {
-        blacklistedTokens.delete(token);
-    }, 24 * 60 * 60 * 1000);
+export const addToBlacklist = async (token, userId) => {
+    const expiresInMs = parseTimeString(env.jwt.refreshExpiresIn);
+    const expiresAt = new Date(Date.now() + expiresInMs);
+
+    await BlacklistedToken.create({
+        token,
+        userId,
+        expiresAt
+    });
 };
 
-export const isTokenBlacklisted = (token) => {
-    return blacklistedTokens.has(token);
+export const isTokenBlacklisted = async (token) => {
+    const blacklistedToken = await BlacklistedToken.findOne({ token });
+    return !!blacklistedToken;
 }; 

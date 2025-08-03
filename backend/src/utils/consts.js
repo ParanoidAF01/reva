@@ -5,8 +5,8 @@ dotenv.config();
 const env = {
     config: {
         port: process.env.PORT || 3000,
-        nodeEnv: process.env.NODE_ENV || "development",
-        corsOrigin: process.env.CORS_ORIGIN || "http://localhost:3000",
+        nodeEnv: process.env.NODE_ENV || "production",
+        corsOrigin: process.env.CORS_ORIGIN || "*",
     },
 
     mongodb: {
@@ -21,13 +21,19 @@ const env = {
     },
 
     otp: {
-        authKey: process.env.OTP_AUTH_KEY,
-        authToken: process.env.OTP_AUTH_TOKEN,
-        verifyUrl: process.env.VERIFY_OTP_URL,
+        authKey: process.env.OTP_AUTH_KEY || null,
+        authToken: process.env.OTP_AUTH_TOKEN || null,
+        verifyUrl: process.env.OTP_VERIFY_URL || null,
+        expiresIn: process.env.OTP_EXPIRES_IN || "5m",
     },
 
     security: {
         bcryptRounds: process.env.BCRYPT_ROUNDS || 12,
+    },
+
+    razorpay: {
+        keyId: process.env.RAZORPAY_KEY_ID,
+        keySecret: process.env.RAZORPAY_KEY_SECRET,
     },
 
 }

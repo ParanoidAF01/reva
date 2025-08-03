@@ -5,6 +5,8 @@ import postsRoute from "./postsRoute.js";
 import eventsRoute from "./eventsRoute.js";
 import connectionRoute from "./connectionRoute.js";
 import notificationRoute from "./notificationRoute.js";
+import subscriptionRoute from "./subscriptionRoute.js";
+import transactionRoute from "./transactionRoute.js";
 
 const indexRoute = express.Router();
 
@@ -14,5 +16,7 @@ indexRoute.use('/posts', postsRoute);
 indexRoute.use('/events', eventsRoute);
 indexRoute.use('/connections', connectionRoute);
 indexRoute.use('/notifications', notificationRoute);
+indexRoute.use('/subscriptions', subscriptionRoute);
+indexRoute.use('/transactions', transactionRoute);
 
 export default indexRoute;

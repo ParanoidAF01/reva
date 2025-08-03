@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/home/components/GoldCard.dart';
 import 'package:reva/home/create_post_card.dart';
+import 'package:reva/peopleyoumayknow/peopleyoumayknow.dart';
 import 'package:reva/peopleyoumayknow/peopleyoumayknowtile.dart';
 import 'package:reva/home/contact_management_section.dart';
 import 'package:reva/qr/profile_qr_screen.dart';
 import 'package:reva/events/event_detail_screen.dart';
 import 'package:reva/events/eventscreen.dart';
 import 'package:reva/posts/createpost.dart';
+
 // Make sure the GoldCard widget is defined in GoldCard.dart
 // import 'package:reva/qr/profile_qr_screen.dart';
 // Make sure ProfileQrScreen is a widget class in this file.
@@ -356,7 +358,14 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                     TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PeopleYouMayKnow()
+                              ),
+                            );
+                      },
                       child: Text('See all', style: GoogleFonts.dmSans(color: Color(0xFFB2C2D9), fontWeight: FontWeight.w500)),
                     ),
                   ],

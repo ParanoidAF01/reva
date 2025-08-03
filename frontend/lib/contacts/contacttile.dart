@@ -19,15 +19,15 @@ class ContactTile extends StatelessWidget {
           // Profile Image
           CircleAvatar(
             radius: width * 0.06,
-            backgroundImage: AssetImage('assets/dummyprofile.png'),
+            backgroundImage: const AssetImage('assets/dummyprofile.png'),
           ),
           const SizedBox(width: 12),
 
           // Name & Subtitle
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   'Aryna Gupta',
                   style: TextStyle(
@@ -38,12 +38,38 @@ class ContactTile extends StatelessWidget {
                 ),
                 SizedBox(height: 3),
                 Text(
-                  'Kolkata,New Delhi',
+                  'Kolkata, New Delhi',
                   style: TextStyle(
                     color: Color(0xFFB2B8BD),
                     fontSize: 13.5,
                     fontWeight: FontWeight.w400,
                   ),
+                ),
+                SizedBox(height: 3),
+                Text(
+                  'Last contacted: 2 days ago',
+                  style: TextStyle(
+                    color: Color(0xFF8A9299),
+                    fontSize: 12,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'Status: Active',
+                  style: TextStyle(
+                    color: Color(0xFF8A9299),
+                    fontSize: 12,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'Notes: Interested in 3BHK, prefers morning calls.',
+                  style: TextStyle(
+                    color: Color(0xFF8A9299),
+                    fontSize: 11.5,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
@@ -53,7 +79,10 @@ class ContactTile extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF0262AB), Color(0xFF01345A)],
+                colors: [
+                  Color(0xFF0262AB),
+                  Color(0xFF01345A)
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),

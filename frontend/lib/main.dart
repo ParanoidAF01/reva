@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'authentication/welcomescreen.dart';
+import 'root_redirector.dart';
+import 'notification/notification.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +16,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'REVA',
       debugShowCheckedModeBanner: false,
-      home: WelcomeScreen(),
+      home: const RootRedirector(),
+      routes: {
+        '/notification': (context) => const NotificationScreen(),
+      },
     );
   }
 }

@@ -14,7 +14,7 @@ class RequestScreen extends StatelessWidget {
     var height= MediaQuery.of(context).size.height;
     var width= MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Color(0xFF22252A),
+      backgroundColor: const Color(0xFF22252A),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -33,7 +33,7 @@ class RequestScreen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 20,),
+            const SizedBox(height: 20,),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: width*0.05),
               child: Row(
@@ -50,11 +50,11 @@ class RequestScreen extends StatelessWidget {
                         children: [
                           const Icon(Icons.search, color: Colors.white70, size: 22),
                           SizedBox(width: width * 0.02),
-                          Expanded(
+                          const Expanded(
                             child: TextField(
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(color: Colors.white),
                               cursorColor: Colors.white54,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 hintText: 'Search...',
                                 hintStyle: TextStyle(color: Colors.white54),
                                 border: InputBorder.none,
@@ -83,9 +83,9 @@ class RequestScreen extends StatelessWidget {
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           Text(
                             'Search',
                             style: TextStyle(
@@ -102,11 +102,11 @@ class RequestScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: height*0.03,),
-            RequestTile(),
-            RequestTile(),
-            RequestTile(),
-            RequestTile(),
-            RequestTile(),
+            const RequestTile(),
+            const RequestTile(),
+            const RequestTile(),
+            const RequestTile(),
+            const RequestTile(),
 
           ],
         ),

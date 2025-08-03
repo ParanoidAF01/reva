@@ -1,105 +1,165 @@
 import 'package:flutter/material.dart';
 
 class SilverCard extends StatelessWidget {
-  const SilverCard({super.key});
+  final String name;
+  final String location;
+  final String experience;
+  final String languages;
+  final String tag1;
+  final String tag2;
+  final String tag3;
+  final String kycStatus;
+  final double tagSpacing;
+  final double kycGap;
+  const SilverCard({
+    Key? key,
+    required this.name,
+    required this.location,
+    required this.experience,
+    required this.languages,
+    required this.tag1,
+    required this.tag2,
+    required this.tag3,
+    required this.kycStatus,
+    this.tagSpacing = 2.0,
+    this.kycGap = 30.0,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 170,
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color(0xFF2E323A),
-            Color(0xFF1F2227),
-            Color(0xFF2C2E35),
-          ],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    final double screenWidth = MediaQuery.of(context).size.width;
+    return Column(
+      children: [
+        Container(
+          width: screenWidth - 32, // 16px margin on each side, adjust as needed
+          height: 200,
+          clipBehavior: Clip.antiAlias,
+          decoration: ShapeDecoration(
+            shape: RoundedRectangleBorder(
+              side: BorderSide(width: 1.53, color: Colors.white),
+              borderRadius: BorderRadius.circular(12.25),
+            ),
           ),
-        ],
-      ),
-      child: Stack(
-        children: [
-          /// Top Right Edit Icon
-          const Positioned(
-            top: 0,
-            right: 0,
-            child: Icon(Icons.edit, color: Colors.white, size: 18),
-          ),
-
-          /// Main Row Layout
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              /// Left Profile Image Placeholder
-              Container(
-                height: 64,
-                width: 64,
-                margin: const EdgeInsets.only(right: 12),
-                decoration: BoxDecoration(
-                  shape: BoxShape.rectangle,
-                  borderRadius: BorderRadius.circular(12),
-                  // TODO: Replace with your actual image
-                  image: const DecorationImage(
-                    image: AssetImage('assets/your_image.png'),
-                    fit: BoxFit.cover,
+              // Background image
+              Positioned.fill(
+                child: Image.asset(
+                  'assets/silver_background.png',
+                  fit: BoxFit.cover,
+                ),
+              ),
+              // Medal image (bigger and more centered)
+              Positioned(
+                right: 50,
+                top: 20,
+                child: Image.asset(
+                  'assets/silver_medal.png',
+                  width: 90,
+                  height: 90,
+                ),
+              ),
+              // Name
+              Positioned(
+                left: 23.47,
+                top: 20,
+                child: SizedBox(
+                  width: 168,
+                  child: Text(
+                    name,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontFamily: 'DM Sans',
+                      fontWeight: FontWeight.w700,
+                      height: 1.40,
+                    ),
                   ),
                 ),
               ),
-
-              /// Profile Info
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              // Location
+              Positioned(
+                left: 23.47,
+                top: 48,
+                child: SizedBox(
+                  width: 168,
+                  child: Text(
+                    location,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontFamily: 'DM Sans',
+                      fontWeight: FontWeight.w700,
+                      height: 1.40,
+                    ),
+                  ),
+                ),
+              ),
+              // Experience
+              Positioned(
+                left: 111,
+                top: 109,
+                child: SizedBox(
+                  width: 50,
+                  child: Text(
+                    experience,
+                    style: const TextStyle(
+                      color: Color(0xFFBDBDBD),
+                      fontSize: 12,
+                      fontFamily: 'DM Sans',
+                      fontWeight: FontWeight.w400,
+                      height: 1.40,
+                    ),
+                  ),
+                ),
+              ),
+              // Languages
+              Positioned(
+                left: 23,
+                top: 109,
+                child: SizedBox(
+                  width: 168,
+                  child: Text(
+                    languages,
+                    style: const TextStyle(
+                      color: Color(0xFFBDBDBD),
+                      fontSize: 12,
+                      fontFamily: 'DM Sans',
+                      fontWeight: FontWeight.w400,
+                      height: 1.40,
+                    ),
+                  ),
+                ),
+              ),
+              // Tags and KYC status in a single row
+              Positioned(
+                left: 15,
+                top: 139,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Text(
-                      "Ayush Kumar.",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      "Delhi NCR",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    /// Language and Experience
+                    _tagChip(tag1),
+                    SizedBox(width: tagSpacing),
+                    _tagChip(tag2),
+                    SizedBox(width: tagSpacing),
+                    _tagChip(tag3),
+                    SizedBox(width: kycGap), // Gap between tags and KYC status
                     Row(
-                      children: const [
-                        _FadedText("Hindi, English"),
-                        SizedBox(width: 16),
-                        _FadedText("4+ years"),
-                      ],
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    /// Tags Row
-                    Row(
-                      children: const [
-                        _GlassChip(label: "Commercial"),
-                        SizedBox(width: 8),
-                        _GlassChip(label: "Plots"),
-                        SizedBox(width: 8),
-                        _GlassChip(label: "Rental"),
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.check, color: Colors.green, size: 16),
+                        SizedBox(width: 4),
+                        Text(
+                          kycStatus,
+                          style: const TextStyle(
+                            color: Color(0xFFBDBDBD),
+                            fontSize: 12,
+                            fontFamily: 'DM Sans',
+                            fontWeight: FontWeight.w400,
+                            height: 1.40,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -107,77 +167,28 @@ class SilverCard extends StatelessWidget {
               ),
             ],
           ),
-
-          /// KYC Approved
-          const Positioned(
-            right: 0,
-            bottom: 0,
-            child: Row(
-              children: [
-                Icon(Icons.check, color: Colors.greenAccent, size: 16),
-                SizedBox(width: 4),
-                Text(
-                  "KYC\napproved",
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
-                    height: 1.2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
-/// Reusable faded text
-class _FadedText extends StatelessWidget {
-  final String text;
-  const _FadedText(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      text,
+Widget _tagChip(String label) {
+  return Container(
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    decoration: BoxDecoration(
+      color: const Color(0xFF2B2F34),
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Text(
+      label,
       style: const TextStyle(
-        color: Colors.white54,
-        fontSize: 14,
+        color: Colors.white,
+        fontSize: 12,
+        fontFamily: 'DM Sans',
         fontWeight: FontWeight.w400,
+        height: 1.40,
       ),
-    );
-  }
-}
-
-/// Glass chip with gradient
-class _GlassChip extends StatelessWidget {
-  final String label;
-  const _GlassChip({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        gradient: const LinearGradient(
-          colors: [Color(0xFF7B7E83), Color(0xFF2E2F31)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        border: Border.all(color: Colors.black26),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 13,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-  }
+    ),
+  );
 }

@@ -9,12 +9,12 @@ class PostTile extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     return Padding(
-      padding: EdgeInsets.only(bottom: 20.0),
+      padding: const EdgeInsets.only(bottom: 20.0),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.all(size.width * 0.04),
-        decoration: BoxDecoration(
-          color: const Color(0xFF2E3339),
+        decoration: const BoxDecoration(
+          color: Color(0xFF2E3339),
 
         ),
         child: Column(
@@ -34,24 +34,24 @@ class PostTile extends StatelessWidget {
                   child: Icon(Icons.person, color: Colors.black),
                 ),
                 SizedBox(width: size.width * 0.03),
-                Expanded(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         "Stanislav Naida •",
                         style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                       ),
                       Row(
                         children: [
-                          const Text(
+                          Text(
                             "Builder, New Delhi",
                             style: TextStyle(color: Colors.white60, fontSize: 12),
                           ),
                           SizedBox(width: 4),
-                          const Icon(Icons.public, size: 12, color: Colors.white60),
-                          const SizedBox(width: 4),
-                          const Text("16h", style: TextStyle(color: Colors.white60, fontSize: 12)),
+                          Icon(Icons.public, size: 12, color: Colors.white60),
+                          SizedBox(width: 4),
+                          Text("16h", style: TextStyle(color: Colors.white60, fontSize: 12)),
                         ],
                       ),
                     ],
@@ -66,18 +66,18 @@ class PostTile extends StatelessWidget {
               style: TextStyle(color: Colors.white, fontSize: 13.5),
             ),
             const SizedBox(height: 4),
-            TextButton(onPressed: (){},child: Text("read more", style: TextStyle(color: Colors.lightBlue, fontSize: 13.5))),
+            TextButton(onPressed: (){},child: const Text("read more", style: TextStyle(color: Colors.lightBlue, fontSize: 13.5))),
             const SizedBox(height: 10),
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text("11 comments", style: TextStyle(color: Colors.white60, fontSize: 12)),
               ],
             ),
-            SizedBox(height: 8,),
-            Row(
+            const SizedBox(height: 8,),
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: const [
+              children: [
                 PostActionButton(icon: LucideIcons.thumbsUp, label: 'Like'),
                 PostActionButton(icon: LucideIcons.messageCircle, label: 'Comment'),
                 PostActionButton(icon: LucideIcons.share2, label: 'Share'),

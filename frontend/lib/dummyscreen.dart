@@ -18,44 +18,44 @@ class DummyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF22252A),
+      backgroundColor: const Color(0xFF22252A),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> PostsScreen()));
-          }, child: Text("post screen")),
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> const PostsScreen()));
+          }, child: const Text("post screen")),
           ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>EventScreen()));
-          }, child: Text("events")),
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>const EventScreen()));
+          }, child: const Text("events")),
           ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> WalletScreen()));
-          }, child: Text("wallet screen")),
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> const WalletScreen()));
+          }, child: const Text("wallet screen")),
           ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> RequestScreen()));
-          }, child: Text("Request screen")),
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> const RequestScreen()));
+          }, child: const Text("Request screen")),
           ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> PeopleYouMayKnow()));
-          }, child: Text("people you may know screen")),
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> const PeopleYouMayKnow()));
+          }, child: const Text("people you may know screen")),
           ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> Contacts()));
-          }, child: Text("Contacts")),
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> const Contacts()));
+          }, child: const Text("Contacts")),
           ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> NotificationScreen()));
-          }, child: Text("Notification")),
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> const NotificationScreen()));
+          }, child: const Text("Notification")),
           ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> OtpScreen()));
-          }, child: Text("Otp Screen")),
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> const OtpScreen()));
+          }, child: const Text("Otp Screen")),
           ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> NewMPIN()));
-          }, child: Text("new mpin screen")),
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> const NewMPIN()));
+          }, child: const Text("new mpin screen")),
           ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> ProfileStatusScreen()));
-          }, child: Text("Profile status screen")),
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> const ProfileStatusScreen()));
+          }, child: const Text("Profile status screen")),
           ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> SubscriptionScreen()));
-          }, child: Text("Subscription screen")),
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> const SubscriptionScreen()));
+          }, child: const Text("Subscription screen")),
         ],
       ),
     );

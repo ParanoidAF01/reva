@@ -7,103 +7,321 @@ class PeopleYouMayKnowCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
+    return Center(
+      child: SizedBox(
+        width: width * 0.38, // wider tile
+        height: width * 0.56, // taller tile
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            image: const DecorationImage(
+              image: AssetImage('assets/peopleyoumayknowtile_background.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(3),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.45),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.lock, color: Colors.white, size: 16),
+                      ),
+                    ],
+                  ),
+                  Center(
+                    child: Container(
+                      margin: const EdgeInsets.only(top: 1, bottom: 2),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 1),
+                      ),
+                      child: CircleAvatar(
+                        radius: width * 0.08,
+                        backgroundImage: const AssetImage('assets/dummyprofile.png'),
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Text(
+                      'Aryna Gupta',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14.5,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 0.5),
+                  Center(
+                    child: Text(
+                      'buyer/seller/\ninvestor',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFFB1B5BA),
+                        fontSize: 11.5,
+                        height: 1.1,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        'Mumbai',
+                        style: TextStyle(
+                          color: Color(0xFFB1B5BA),
+                          fontSize: 10.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => Dialog(
+                            backgroundColor: Colors.transparent,
+                            insetPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+                            child: _ProfilePreviewCard(
+                              name: 'Aryna Gupta',
+                              location: 'Mumbai',
+                              experience: '4+ years',
+                              languages: 'Hindi, English',
+                              tags: [
+                                'Commercial',
+                                'Plots',
+                                'Rental'
+                              ],
+                              totalConnections: '****',
+                              eventsAttended: '***',
+                              phone: '+91 **********',
+                              email: 'a****************',
+                              image: 'assets/dummyprofile.png',
+                            ),
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF01416A),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        elevation: 0,
+                      ),
+                      child: const Text(
+                        'Connect',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfilePreviewCard extends StatelessWidget {
+  final String name;
+  final String location;
+  final String experience;
+  final String languages;
+  final List<String> tags;
+  final String totalConnections;
+  final String eventsAttended;
+  final String phone;
+  final String email;
+  final String image;
+  const _ProfilePreviewCard({
+    required this.name,
+    required this.location,
+    required this.experience,
+    required this.languages,
+    required this.tags,
+    required this.totalConnections,
+    required this.eventsAttended,
+    required this.phone,
+    required this.email,
+    required this.image,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
     return Container(
-      // Remove the fixed width line: width: width * 0.42,
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12), // Reduced vertical padding
       decoration: BoxDecoration(
-        color: const Color(0xFF2F3338), // extracted from image
+        borderRadius: BorderRadius.circular(32),
+        gradient: LinearGradient(
+          colors: [
+            Color(0xFF23303E),
+            Color(0xFF1B232B)
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              IconButton(
+                icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              const Spacer(),
+              Text('Profile', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
+              const Spacer(flex: 2),
+            ],
+          ),
+          SizedBox(height: 8),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              CircleAvatar(
+                radius: width * 0.13,
+                backgroundImage: AssetImage(image),
+              ),
+              Positioned(
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  padding: EdgeInsets.all(6),
+                  child: Icon(Icons.lock, color: Color(0xFF01416A), size: 22),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 10),
+          Text(name, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 22)),
+          Text(location, style: TextStyle(color: Colors.white70, fontSize: 15)),
+          SizedBox(height: 10),
+          SizedBox(
+            width: 120,
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFF01416A),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                padding: EdgeInsets.symmetric(vertical: 6),
+                elevation: 0,
+              ),
+              child: Text('Connect', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+            ),
+          ),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('• $experience', style: TextStyle(color: Colors.white70, fontSize: 13)),
+              SizedBox(width: 8),
+              Text('• $languages', style: TextStyle(color: Colors.white70, fontSize: 13)),
+            ],
+          ),
+          SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: tags
+                .map((tag) => Container(
+                      margin: EdgeInsets.symmetric(horizontal: 4),
+                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Color(0xFF23262B),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(tag, style: TextStyle(color: Colors.white, fontSize: 12)),
+                    ))
+                .toList(),
+          ),
+          SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _ProfileStatBox(icon: Icons.people, value: totalConnections, label: 'Total Connections'),
+              SizedBox(width: 16),
+              _ProfileStatBox(icon: Icons.celebration, value: eventsAttended, label: 'Events Attended'),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.phone, color: Colors.white70, size: 18),
+              SizedBox(width: 6),
+              Text(phone, style: TextStyle(color: Colors.white70, fontSize: 15)),
+              SizedBox(width: 18),
+              Icon(Icons.email, color: Colors.white70, size: 18),
+              SizedBox(width: 6),
+              Text(email, style: TextStyle(color: Colors.white70, fontSize: 15)),
+            ],
+          ),
+          SizedBox(height: 18),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.chat, color: Colors.white, size: 22), // WhatsApp alternative
+              SizedBox(width: 16),
+              Icon(Icons.facebook, color: Colors.white, size: 22),
+              SizedBox(width: 16),
+              Icon(Icons.photo_camera, color: Colors.white, size: 22), // Camera alternative
+            ],
+          ),
+          SizedBox(height: 10),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileStatBox extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String label;
+  const _ProfileStatBox({required this.icon, required this.value, required this.label});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 110,
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Color(0xFF23262B),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min, // Important: minimizes the column height
         children: [
-          // Profile Picture with white border
-          Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white,
-                width: 1,
-              ),
-            ),
-            child: CircleAvatar(
-              radius: width * 0.09, // Slightly smaller for grid
-              backgroundImage: const AssetImage('assets/dummyprofile.png'),
-            ),
-          ),
-          const SizedBox(height: 8), // Reduced spacing
-
-          // Name
-          const Text(
-            'Aryna Gupta',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 15.5,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 3), // Reduced spacing
-
-          // Subtitle (multiline)
-          const Text(
-            'buyer/seller/\ninvestor',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Color(0xFFB1B5BA),
-              fontSize: 13.5,
-              height: 1.3, // Reduced line height
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-          const SizedBox(height: 4), // Reduced spacing
-
-          // Location aligned right
-          const Align(
-            alignment: Alignment.centerRight,
-            child: Text(
-              'Mumbai',
-              style: TextStyle(
-                color: Color(0xFFB1B5BA),
-                fontSize: 12.5,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8), // Reduced spacing
-
-          // Connect Button
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF0184FF), Color(0xFF0168D1)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(30),
-              onTap: () {
-                // connect action
-              },
-              child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 8), // Reduced button padding
-                child: Center(
-                  child: Text(
-                    'Connect',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14.5,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // Minimal space after button - you can adjust or remove this
-          const SizedBox(height: 4), // Very small space after button
+          Icon(icon, color: Colors.white, size: 22),
+          SizedBox(height: 6),
+          Text(value, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18)),
+          SizedBox(height: 2),
+          Text(label, style: TextStyle(color: Colors.white70, fontSize: 12)),
         ],
       ),
     );

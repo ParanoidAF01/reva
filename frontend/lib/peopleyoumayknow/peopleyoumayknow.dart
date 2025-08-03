@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:reva/contacts/contacts.dart';
 import 'package:reva/events/eventtile.dart';
 import 'package:reva/peopleyoumayknow/peopleyoumayknowtile.dart';
 import 'package:reva/posts/postTile.dart';
 import 'package:reva/request/requesttile.dart';
+import 'package:reva/requests.dart';
+import 'package:reva/start_subscription.dart';
 
 import '../notification/notification.dart';
 
@@ -12,31 +15,34 @@ class PeopleYouMayKnow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var height= MediaQuery.of(context).size.height;
-    var width= MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Color(0xFF22252A),
+      backgroundColor: const Color(0xFF22252A),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(height: height*0.1,),
+            SizedBox(height: height * 0.1),
             Padding(
-              padding:EdgeInsets.symmetric(horizontal: width*0.05),
+              padding: EdgeInsets.symmetric(horizontal: width * 0.05),
               child: Row(
                 children: [
-                  TriangleIcon(size: 20 , color: Colors.white,),
-                  SizedBox(width: width*0.15,),
-                  Text("People you know", style: GoogleFonts.dmSans(
+                  TriangleIcon(size: 20, color: Colors.white),
+                  SizedBox(width: width * 0.15),
+                  Text(
+                    "People you know",
+                    style: GoogleFonts.dmSans(
                       fontSize: 26,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white
-                  ),)
+                      color: Colors.white,
+                    ),
+                  ),
                 ],
               ),
             ),
-            SizedBox(height: 20,),
+            const SizedBox(height: 20),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: width*0.05),
+              padding: EdgeInsets.symmetric(horizontal: width * 0.05),
               child: Row(
                 children: [
                   Expanded(
@@ -49,13 +55,17 @@ class PeopleYouMayKnow extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: width * 0.03),
                       child: Row(
                         children: [
-                          const Icon(Icons.search, color: Colors.white70, size: 22),
+                          const Icon(
+                            Icons.search,
+                            color: Colors.white70,
+                            size: 22,
+                          ),
                           SizedBox(width: width * 0.02),
-                          Expanded(
+                          const Expanded(
                             child: TextField(
-                              style: const TextStyle(color: Colors.white),
+                              style: TextStyle(color: Colors.white),
                               cursorColor: Colors.white54,
-                              decoration: const InputDecoration(
+                              decoration: InputDecoration(
                                 hintText: 'Search...',
                                 hintStyle: TextStyle(color: Colors.white54),
                                 border: InputBorder.none,
@@ -84,9 +94,9 @@ class PeopleYouMayKnow extends StatelessWidget {
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           Text(
                             'Search',
                             style: TextStyle(
@@ -98,32 +108,99 @@ class PeopleYouMayKnow extends StatelessWidget {
                         ],
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
-            SizedBox(height: height*0.03,),
+            SizedBox(height: height * 0.03),
+
+            // Find in Contacts Button
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // TODO: Implement find in contacts action
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => Contacts()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: height * 0.018),
+                    backgroundColor: const Color(0xFF0262AB),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'Find in Contacts',
+                    style: GoogleFonts.dmSans(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // TODO: Implement find in contacts action
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RequestsPage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(vertical: height * 0.018),
+                    backgroundColor: const Color(0xFF0262AB),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'View Requests',
+                    style: GoogleFonts.dmSans(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ),
 
             // Grid View for Cards
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: width*0.05),
+              padding: EdgeInsets.symmetric(horizontal: width * 0.05),
               child: GridView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2, // 2 cards per row
-                  crossAxisSpacing: width * 0.03, // Horizontal spacing between cards
-                  mainAxisSpacing: height * 0.02, // Vertical spacing between cards
+                  crossAxisSpacing:
+                      width * 0.03, // Horizontal spacing between cards
+                  mainAxisSpacing:
+                      height * 0.02, // Vertical spacing between cards
                   childAspectRatio: 0.65, // Adjusted for better proportions
                 ),
                 itemCount: 7, // Number of cards
                 itemBuilder: (context, index) {
-                  return PeopleYouMayKnowCard();
+                  return const PeopleYouMayKnowCard();
                 },
               ),
             ),
 
-            SizedBox(height: height*0.05,), // Bottom padding
+            SizedBox(height: height * 0.05), // Bottom padding
           ],
         ),
       ),

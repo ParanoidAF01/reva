@@ -12,7 +12,7 @@ class WalletScreen extends StatelessWidget {
     var height= MediaQuery.of(context).size.height;
     var width= MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Color(0xFF22252A),
+      backgroundColor: const Color(0xFF22252A),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -38,7 +38,7 @@ class WalletScreen extends StatelessWidget {
               padding:EdgeInsets.symmetric(horizontal: width*0.05),
               child: Row(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 22,
                     backgroundColor: Color(0xFFF2F2F2),
                     child: Icon(Icons.compare_arrows),
@@ -53,11 +53,11 @@ class WalletScreen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 10,),
-            WalletTile(),
-            WalletTile(),
-            WalletTile(),
-            WalletTile(),
+            const SizedBox(height: 10,),
+            const WalletTile(),
+            const WalletTile(),
+            const WalletTile(),
+            const WalletTile(),
 
           ],
         ),

@@ -23,7 +23,7 @@ class _NewMPINState extends State<NewMPIN> {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: Color(0xFF22252A),
+      backgroundColor: const Color(0xFF22252A),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -58,7 +58,7 @@ class _NewMPINState extends State<NewMPIN> {
                             });
                           },
                         ),
-                        SizedBox(height:12,),
+                        const SizedBox(height:12,),
                         CustomTextField(
                           label: 'Confirm MPIN',
                           hint: '666 666',
@@ -71,14 +71,14 @@ class _NewMPINState extends State<NewMPIN> {
                             });
                           },
                         ),
-                        SizedBox(height: 16),
+                        const SizedBox(height: 16),
                         SizedBox(height: height * 0.04),
                         SizedBox(
                           width: double.infinity,
                           height: height * 0.065,
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=> CompleteProfileScreen()));
+                              Navigator.push(context, MaterialPageRoute(builder: (context)=> const CompleteProfileScreen()));
                             },
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.zero,
@@ -96,7 +96,7 @@ class _NewMPINState extends State<NewMPIN> {
                                 ),
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Center(
+                              child: const Center(
                                 child: Text(
                                   'Login',
                                   style: TextStyle(
@@ -111,7 +111,7 @@ class _NewMPINState extends State<NewMPIN> {
                         ),
                         SizedBox(height: height * 0.04),
 
-                        Spacer(),
+                        const Spacer(),
                         Center(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -123,7 +123,7 @@ class _NewMPINState extends State<NewMPIN> {
                               ),
                               InkWell(
                                 onTap: () {
-                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>  LoginScreen()));
+                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>  const LoginScreen()));
                                 },
                                 child: const Text(
                                   "SignUP",

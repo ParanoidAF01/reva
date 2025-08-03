@@ -27,12 +27,12 @@ class OnboardingScreen extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Center(
+              const Center(
                 child: IntrinsicWidth(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
-                    children: const [
+                    children: [
                       BulletPoint(text: 'Connect only with RERA-verified agents'),
                       SizedBox(height: 12),
                       BulletPoint(text: 'Share & find buyer/seller/investor leads'),
@@ -48,7 +48,7 @@ class OnboardingScreen extends StatelessWidget {
                 height: height * 0.065,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginNavigation()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=> const LoginNavigation()));
                   },
                   style: ElevatedButton.styleFrom(
                     elevation: 0,

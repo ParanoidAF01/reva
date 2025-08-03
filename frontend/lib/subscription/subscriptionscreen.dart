@@ -26,7 +26,7 @@ class SubscriptionScreen extends StatelessWidget {
                   itemCount: 8,
                   itemBuilder: (_, index) => Container(
                     width: width * 0.25,
-                    margin: EdgeInsets.only(right: 10),
+                    margin: const EdgeInsets.only(right: 10),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(12),
                       image: DecorationImage(
@@ -91,7 +91,7 @@ class SubscriptionScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      SizedBox(width: 10),
+                      const SizedBox(width: 10),
                       Text(
                         'Yearly',
                         style: TextStyle(
@@ -145,13 +145,13 @@ class SubscriptionScreen extends StatelessWidget {
                     SizedBox(height: height * 0.025),
                     Container(
                       decoration: BoxDecoration(
-                        color: Color(0xFF1D1F23),
+                        color: const Color(0xFF1D1F23),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: TextFormField(
-                        style: TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
+                        style: const TextStyle(color: Colors.white),
+                        decoration: const InputDecoration(
                           hintText: 'Enter Months',
                           hintStyle: TextStyle(color: Colors.white54),
                           border: InputBorder.none,

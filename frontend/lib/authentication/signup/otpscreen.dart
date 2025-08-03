@@ -1,9 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:reva/authentication/signup/contactdetailsscreen.dart';
+import 'package:reva/services/auth_service.dart';
+import 'package:reva/authentication/signup/newmpin.dart';
 
-class OtpScreen extends StatelessWidget {
-  const OtpScreen({super.key});
+class OtpScreen extends StatefulWidget {
+  final String? prefillPhone;
+  const OtpScreen({Key? key, this.prefillPhone}) : super(key: key);
+
+  @override
+  State<OtpScreen> createState() => _OtpScreenState();
+}
+
+class _OtpScreenState extends State<OtpScreen> {
+  late TextEditingController phoneController;
+  final TextEditingController otpController = TextEditingController();
+  String? sentOtp;
+  bool otpSent = false;
+  bool isLoading = false;
+  String? error;
+
+  @override
+  void initState() {
+    super.initState();
+    phoneController = TextEditingController(text: widget.prefillPhone ?? '');
+  }
+
+  Future<void> _sendOtp() async {
+    setState(() {
+      isLoading = true;
+      error = null;
+    });
+    try {
+      final res = await AuthService().sendOtp(phoneController.text);
+      sentOtp = res['otp']?.toString() ?? '123456';
+      otpSent = true;
+    } catch (e) {
+      error = e.toString();
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  Future<void> _verifyOtp() async {
+    setState(() {
+      isLoading = true;
+      error = null;
+    });
+    final userOtp = otpController.text;
+    if (sentOtp == null) {
+      error = 'Please request OTP first.';
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+    final isValid = await AuthService().verifyOtp(
+      mobileNumber: phoneController.text,
+      otp: userOtp,
+      sentOtp: sentOtp!,
+    );
+    setState(() {
+      isLoading = false;
+    });
+    if (isValid) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const NewMPIN(),
+        ),
+      );
+    } else {
+      setState(() {
+        error = 'Invalid OTP. Please try again.';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,140 +90,171 @@ class OtpScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: height * 0.07),
+              SizedBox(height: height * 0.04),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF6F6F6F)),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                    ),
+                    onPressed: () {},
+                    icon: const Icon(Icons.help_outline, size: 18),
+                    label: const Text('Help'),
+                  ),
+                ],
+              ),
+              SizedBox(height: height * 0.01),
               Center(
                 child: Text(
                   'Forgot MPIN',
                   style: GoogleFonts.dmSans(
                     color: Colors.white,
-                    fontSize: 36,
+                    fontSize: 32,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
               SizedBox(height: height * 0.04),
-
-              const SizedBox(height: 4),
-
-              SizedBox(height: height * 0.04),
-
-              /// Aadhaar Label
-              const Text(
-                'Enter Your Mobile Number',
-                style: TextStyle(
-                  color: Color(0xFFD8D8DD),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-
-              SizedBox(height: height * 0.01),
-
-              /// Aadhaar Input
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2E3138),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const TextField(
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    hintText: '00000 00000',
-                    hintStyle: TextStyle(color: Color(0xFF6F6F6F)),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-
-              SizedBox(height: height * 0.02),
-
-              /// Get OTP
-              const Center(
-                child: Text(
-                  'Sent OTP',
+              if (!otpSent) ...[
+                const Text(
+                  'Enter Your Mobile Number',
                   style: TextStyle(
-                    color:Color(0xFFFCFCFC)
-                    ,
-                    fontWeight: FontWeight.w500,
+                    color: Color(0xFFD8D8DD),
                     fontSize: 14,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-              ),
-
-              SizedBox(height: height * 0.03),
-
-              /// OTP Label and Resend
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
-                    'Enter OTP',
-                    style: TextStyle(
-                      color: Color(0xFFD8D8DD),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  Text(
-                    'resend',
-                    style: TextStyle(
-                      color: Color(0xFF6F6F6F),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: height * 0.015),
-
-              /// OTP Boxes
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(
-                  6,
-                      (index) => Container(
-                    height: height * 0.06,
-                    width: width * 0.11,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2E3138),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                ),
-              ),
-
-              SizedBox(height: height * 0.05),
-
-              /// Verify Button
-              InkWell(
-                onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=> ContactDetailsScreen()));
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: height * 0.065,
+                const SizedBox(height: 8),
+                Container(
                   decoration: BoxDecoration(
+                    color: const Color(0xFF23262B),
                     borderRadius: BorderRadius.circular(8),
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFF0262AB),
-                        Color(0xFF01345A),
-                      ],
-                    ),
                   ),
-                  child: const Center(
-                    child: Text(
-                      'Submit OTP ',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
+                  child: TextField(
+                    controller: phoneController,
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(
+                      prefixText: '+91  ',
+                      prefixStyle: TextStyle(color: Color(0xFF6F6F6F)),
+                      hintText: 'Phone Number',
+                      hintStyle: TextStyle(color: Color(0xFF6F6F6F)),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : _sendOtp,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0262AB),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: isLoading ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('Get OTP', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Don't have an account? ", style: TextStyle(color: Color(0xFF6F6F6F))),
+                    GestureDetector(
+                      onTap: () {
+                        /* TODO: Navigate to signup */
+                      },
+                      child: const Text('Signup', style: TextStyle(color: Color(0xFF3B9FED), fontWeight: FontWeight.w600)),
+                    ),
+                  ],
+                ),
+              ] else ...[
+                const Text(
+                  'Enter Your Mobile Number',
+                  style: TextStyle(
+                    color: Color(0xFFD8D8DD),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF23262B),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextField(
+                    controller: phoneController,
+                    enabled: false,
+                    decoration: const InputDecoration(
+                      prefixText: '+91  ',
+                      prefixStyle: TextStyle(color: Color(0xFF6F6F6F)),
+                      hintText: 'Phone Number',
+                      hintStyle: TextStyle(color: Color(0xFF6F6F6F)),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Divider(color: Color(0xFF6F6F6F)),
+                const SizedBox(height: 16),
+                const Text('Enter OTP', style: TextStyle(color: Color(0xFFD8D8DD), fontWeight: FontWeight.w500)),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF23262B),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: TextField(
+                          controller: otpController,
+                          keyboardType: TextInputType.number,
+                          maxLength: 6,
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                            counterText: '',
+                          ),
+                          style: const TextStyle(color: Colors.white, letterSpacing: 32, fontSize: 24),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
+                      onTap: isLoading ? null : _sendOtp,
+                      child: const Text('Resend OTP', style: TextStyle(color: Color(0xFF3B9FED), fontWeight: FontWeight.w600, fontSize: 12)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: isLoading ? null : _verifyOtp,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0262AB),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: isLoading ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('Verify and Continue', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                   ),
                 ),
+              ],
+              const Spacer(),
+              Center(
+                child: Image.asset('assets/logo.png', height: 32),
               ),
+              SizedBox(height: height * 0.03),
             ],
           ),
         ),

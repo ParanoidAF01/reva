@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
 import 'package:iconsax/iconsax.dart';
 
 import '../notification/notification.dart';
@@ -11,134 +14,189 @@ class SharePostScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
-
-    return Container(
-      color: const Color(0xFF22252A),
-      child: Column(
-        children: [
-          SizedBox(height: height*0.1,),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: width*0.05),
-            child: Row(
-              children: [
-
-                TriangleIcon(size: 20 , color: Colors.white,),
-                SizedBox(width: width*0.25,),
-                Text("Share post", style: GoogleFonts.dmSans(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white
-                ),)
-
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 30),
-
-          // Profile Row
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 24,
-                  backgroundImage: AssetImage('assets/dummyprofile.png'),
-                ),
-                const SizedBox(width: 12),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    final TextEditingController postController = TextEditingController();
+    XFile? pickedFile;
+    String? pickedType;
+    return StatefulBuilder(
+      builder: (context, setState) => Scaffold(
+        backgroundColor: const Color(0xFF22252A),
+        body: SafeArea(
+          child: Column(
+            children: [
+              SizedBox(height: height * 0.03),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+                child: Row(
                   children: [
-                    Text(
-                      "Piyush Patyal",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    IconButton(
+                      icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
-                    Text(
-                      "0/2 Posts",
-                      style: TextStyle(color: Colors.grey),
+                    const Spacer(),
+                    Text("Share post", style: GoogleFonts.dmSans(fontSize: 26, fontWeight: FontWeight.w700, color: Colors.white)),
+                    const Spacer(flex: 2),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 30),
+              // Profile Row
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    const CircleAvatar(
+                      radius: 24,
+                      backgroundImage: AssetImage('assets/dummyprofile.png'),
+                    ),
+                    const SizedBox(width: 12),
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Piyush Patyal",
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          "0/2 Posts",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF0262AB),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      ),
+                      onPressed: () async {
+                        final text = postController.text.trim();
+                        if (text.isNotEmpty || pickedFile != null) {
+                          // Replace with your API endpoint
+                          final url = Uri.parse('https://example.com/api/posts');
+                          var request = http.MultipartRequest('POST', url);
+                          request.fields['content'] = text;
+                          if (pickedFile != null) {
+                            request.files.add(await http.MultipartFile.fromPath(
+                              pickedType == 'photo' ? 'image' : 'video',
+                              pickedFile!.path,
+                            ));
+                          }
+                          await request.send();
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: const Text(
+                        "Post",
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ],
                 ),
-                const Spacer(),
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [Color(0xFF0262AB), Color(0xFF01345A)],
-                    ),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: const Text(
-                    "Post",
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                  ),
-                )
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Prompt Text
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  "What do you want to talk\nabout?",
-                  style: TextStyle(color: Colors.grey, fontSize: 24),
-                ),
-              ],
-            ),
-          ),
-
-          const Spacer(),
-
-          // Bottom Container
-          Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: Color(0xFF2F343A),
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(24),
-                topRight: Radius.circular(24),
               ),
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildOption(Iconsax.gallery, "Add a photo"),
-                _buildOption(Iconsax.video, "Take a video"),
-                _buildOption(Iconsax.award, "Celebrate an occasion"),
-                _buildOption(Iconsax.document, "Add a document"),
-                _buildOption(Iconsax.briefcase, "Share that you’re hiring"),
-                _buildOption(Iconsax.people, "Find an expert"),
-                _buildOption(Iconsax.chart, "Create a poll"),
-              ],
-            ),
+              const SizedBox(height: 24),
+              // Prompt Text
+              Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: TextField(
+                  controller: postController,
+                  maxLines: 3,
+                  style: const TextStyle(color: Colors.white, fontSize: 24),
+                  decoration: const InputDecoration(
+                    hintText: "What do you want to talk about?",
+                    hintStyle: TextStyle(color: Colors.grey, fontSize: 24),
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              if (pickedFile != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  child: pickedType == 'photo'
+                      ? Image.file(
+                          File(pickedFile!.path),
+                          height: 120,
+                        )
+                      : Container(
+                          height: 120,
+                          color: Colors.black26,
+                          child: Center(child: Text('Video selected', style: TextStyle(color: Colors.white))),
+                        ),
+                ),
+              const Spacer(),
+              // Bottom Container
+              Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFF2F343A),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(24),
+                    topRight: Radius.circular(24),
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    InkWell(
+                      onTap: () async {
+                        final ImagePicker picker = ImagePicker();
+                        final XFile? file = await picker.pickImage(source: ImageSource.gallery);
+                        if (file != null) {
+                          setState(() {
+                            pickedFile = file;
+                            pickedType = 'photo';
+                          });
+                        }
+                      },
+                      child: _buildOption(Iconsax.gallery, "Add a photo", highlight: true),
+                    ),
+                    InkWell(
+                      onTap: () async {
+                        final ImagePicker picker = ImagePicker();
+                        final XFile? file = await picker.pickVideo(source: ImageSource.gallery);
+                        if (file != null) {
+                          setState(() {
+                            pickedFile = file;
+                            pickedType = 'video';
+                          });
+                        }
+                      },
+                      child: _buildOption(Iconsax.video, "Take a video", highlight: true),
+                    ),
+                    _buildOption(Iconsax.award, "Celebrate an occasion", highlight: false),
+                    _buildOption(Iconsax.document, "Add a document", highlight: false),
+                    _buildOption(Iconsax.briefcase, "Share that you’re hiring", highlight: false),
+                    _buildOption(Iconsax.people, "Find an expert", highlight: false),
+                    _buildOption(Iconsax.chart, "Create a poll", highlight: false),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildOption(IconData icon, String label) {
-    return InkWell(
-      onTap: () {},
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        child: Row(
-          children: [
-            Icon(icon, color: Colors.grey.shade300),
-            const SizedBox(width: 12),
-            Text(
-              label,
-              style: TextStyle(color: Colors.grey.shade300, fontSize: 16),
+  Widget _buildOption(IconData icon, String label, {bool highlight = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          Icon(icon, color: highlight ? Colors.white : Colors.grey.shade300),
+          const SizedBox(width: 12),
+          Text(
+            label,
+            style: TextStyle(
+              color: highlight ? Colors.white : Colors.grey.shade300,
+              fontSize: 16,
+              fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

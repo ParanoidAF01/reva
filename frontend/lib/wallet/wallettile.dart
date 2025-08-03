@@ -12,7 +12,7 @@ class WalletTile extends StatelessWidget {
           color: const Color(0xFF2E3339),
           borderRadius: BorderRadius.circular(32),
         ),
-        child: Row(
+        child: const Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             // Logo
@@ -21,13 +21,13 @@ class WalletTile extends StatelessWidget {
               backgroundImage: AssetImage("assets/logo.png"),
               backgroundColor: Colors.transparent,
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: 12),
 
             // Title and Date Column
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
                     "Reva",
                     style: TextStyle(
@@ -51,7 +51,7 @@ class WalletTile extends StatelessWidget {
             // Amount and Status Column
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
-              children: const [
+              children: [
                 Text(
                   "₹3",
                   style: TextStyle(

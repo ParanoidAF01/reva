@@ -34,7 +34,7 @@ class LoginNavigation extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: width * 0.030, // ~13
-                    color: Color(0xFFDFDFDF),
+                    color: const Color(0xFFDFDFDF),
                   ),
                 ),
               ),
@@ -44,7 +44,7 @@ class LoginNavigation extends StatelessWidget {
                 height: height * 0.065,
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=> LoginScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=> const LoginScreen()));
                   },
                   style: ElevatedButton.styleFrom(
                     elevation: 0,

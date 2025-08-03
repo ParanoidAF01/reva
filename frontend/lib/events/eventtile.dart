@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:reva/events/event_model.dart';
 
 class EventTile extends StatelessWidget {
-  const EventTile({super.key});
+  final EventModel event;
+  const EventTile({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Padding(
-      padding: EdgeInsets.only(bottom: 12.0),
+      padding: const EdgeInsets.only(bottom: 12.0),
       child: Center(
         child: Container(
           width: screenWidth * 0.9,
@@ -33,7 +35,7 @@ class EventTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Gurgaon Builder Meetup',
+                      event.title,
                       style: TextStyle(
                         fontSize: screenWidth * 0.045,
                         fontWeight: FontWeight.bold,
@@ -42,7 +44,7 @@ class EventTile extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'New Delhi',
+                      event.location,
                       style: TextStyle(
                         fontSize: screenWidth * 0.035,
                         color: Colors.white70,
@@ -54,7 +56,7 @@ class EventTile extends StatelessWidget {
                         const Text("🔥", style: TextStyle(fontSize: 16)),
                         const SizedBox(width: 6),
                         Text(
-                          '16 seats left!',
+                          event.seatsLeft,
                           style: TextStyle(
                             fontSize: screenWidth * 0.035,
                             color: Colors.white,
@@ -103,10 +105,7 @@ class EventTile extends StatelessWidget {
                           children: [
                             // Full-size image
                             Positioned.fill(
-                              child: Image.asset(
-                                "assets/eventdummyimage.png",
-                                fit: BoxFit.cover, // Ensures image covers entire container
-                              ),
+                              child: event.imageUrl.isNotEmpty ? Image.network(event.imageUrl, fit: BoxFit.cover) : Image.asset("assets/eventdummyimage.png", fit: BoxFit.cover),
                             ),
 
                             // Bottom black gradient
@@ -131,12 +130,11 @@ class EventTile extends StatelessWidget {
                           ],
                         ),
                       ),
-
                       Positioned(
                         bottom: 34,
                         right: 10,
                         child: Text(
-                          '₹299',
+                          event.price,
                           style: TextStyle(
                             fontSize: screenWidth * 0.04,
                             fontWeight: FontWeight.bold,
@@ -154,7 +152,7 @@ class EventTile extends StatelessWidget {
                         bottom: 14,
                         right: 10,
                         child: Text(
-                          'Lorem ipsum dolor sit amet',
+                          event.description,
                           style: TextStyle(
                             fontSize: screenWidth * 0.03,
                             color: Colors.white70,

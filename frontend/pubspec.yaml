@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  image_picker: ^1.0.7
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -38,6 +39,17 @@ dependencies:
   google_fonts: ^6.2.1
   lucide_icons: ^0.257.0
   iconsax: ^0.0.8
+  flutter_secure_storage: ^9.2.4
+  device_info_plus: ^11.5.0
+  mobile_scanner: ^7.0.1
+  pretty_qr_code: ^3.5.0
+
+  # Social login dependencies
+  google_sign_in: ^6.1.5
+  flutter_facebook_auth: ^6.0.4
+  sign_in_with_apple: ^7.0.1
+  provider: ^6.1.5
+  razorpay_flutter: ^1.4.0
 
 dev_dependencies:
   flutter_test:

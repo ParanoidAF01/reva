@@ -53,7 +53,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     Text(
                       "80%   ",
                       style: GoogleFonts.dmSans(
-                        color: Color(0xFFD8D8DD),
+                        color: const Color(0xFFD8D8DD),
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                       ),
@@ -61,7 +61,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     Text(
                       "Completed..",
                       style: GoogleFonts.dmSans(
-                        color: Color(0xFF6F6F6F),
+                        color: const Color(0xFF6F6F6F),
                         fontWeight: FontWeight.w500,
                         fontSize: 10,
                       ),
@@ -71,13 +71,13 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                 const SizedBox(height: 4),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Container(
+                  child: SizedBox(
                     width: width * 0.6,
-                    child: LinearProgressIndicator(
+                    child: const LinearProgressIndicator(
                       value: 0.8,
                       minHeight: 6,
                       backgroundColor: Colors.white,
-                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
                     ),
                   ),
                 ),
@@ -108,7 +108,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                   height: 52,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> SpecializationAndRecognition()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const SpecializationAndRecognition()));
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,

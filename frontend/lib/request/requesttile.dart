@@ -19,15 +19,15 @@ class RequestTile extends StatelessWidget {
           // Profile Image
           CircleAvatar(
             radius: width * 0.06,
-            backgroundImage: AssetImage('assets/dummyprofile.png'),
+            backgroundImage: const AssetImage('assets/dummyprofile.png'),
           ),
           const SizedBox(width: 12),
 
           // Name & Subtitle
-          Expanded(
+          const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
                   'Aryna Gupta',
                   style: TextStyle(

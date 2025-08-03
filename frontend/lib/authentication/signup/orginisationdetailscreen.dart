@@ -47,7 +47,7 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: height * 0.06),
-                Center(
+                const Center(
                   child: Text(
                     'Organisation Details',
                     style: TextStyle(
@@ -65,14 +65,14 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                     Text(
                       "20%   ",
                       style: GoogleFonts.dmSans(
-                          color: Color(0xFFD8D8DD),
+                          color: const Color(0xFFD8D8DD),
                           fontSize: 18,
                           fontWeight: FontWeight.w700),
                     ),
                     Text(
                       "Completed..",
                       style: GoogleFonts.dmSans(
-                        color: Color(0xFF6F6F6F),
+                        color: const Color(0xFF6F6F6F),
                         fontWeight: FontWeight.w500,
                         fontSize: 10,
                       ),
@@ -82,14 +82,14 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                 const SizedBox(height: 4),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
-                  child: Container(
+                  child: SizedBox(
                     width: width * 0.6,
-                    child: LinearProgressIndicator(
+                    child: const LinearProgressIndicator(
                       value: 0.2,
                       minHeight: 6,
                       backgroundColor: Colors.white,
                       valueColor:
-                      const AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
+                      AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
                     ),
                   ),
                 ),
@@ -103,9 +103,9 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                Text(
+                const Text(
                   'Registered Company',
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Color(0xFFDFDFDF),
                     fontWeight: FontWeight.w600,
                   ),
@@ -168,10 +168,10 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _buildGradientButton('Skip', width, (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> EKycScreen()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const EKycScreen()));
                     }),
                     _buildGradientButton('Next', width, (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> EKycScreen()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const EKycScreen()));
                     }),
                   ],
                 ),

@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:reva/authentication/onboardingscreen.dart';
 
 class WelcomeScreen extends StatelessWidget {
+  const WelcomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Color(0xFF22252A),
+      backgroundColor: const Color(0xFF22252A),
       body: SafeArea(
         child: Column(
           children: [
@@ -42,11 +44,11 @@ class WelcomeScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: width * 0.030,
                 fontWeight: FontWeight.w400,
-                color: Color(0xFFDFDFDF),
+                color: const Color(0xFFDFDFDF),
               ),
             ),
 
-            Spacer(),
+            const Spacer(),
 
             // Description
             Padding(
@@ -56,7 +58,7 @@ class WelcomeScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: width * 0.030, // ~13
-                  color: Color(0xFFDFDFDF),
+                  color: const Color(0xFFDFDFDF),
                 ),
               ),
             ),
@@ -70,7 +72,7 @@ class WelcomeScreen extends StatelessWidget {
                 width: double.infinity,
                 height: height * 0.065,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [Color(0xFF0262AB)
                       , Color(0xFF01345A)
                     ],
@@ -81,7 +83,7 @@ class WelcomeScreen extends StatelessWidget {
                 ),
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=> OnboardingScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=> const OnboardingScreen()));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.transparent,

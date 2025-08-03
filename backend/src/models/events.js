@@ -8,40 +8,34 @@ const eventsSchema = mongoose.Schema({
     },
     description: {
         type: String,
-        required: true
     },
     image: {
         type: String,
-        required: true
     },
     location: {
         type: String,
-        required: true
     },
     address: {
         type: String,
-        required: true
     },
     startDate: {
         type: Date,
-        required: true
     },
     startTime: {
         type: Date,
-        required: true
     },
     organizer: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Users",
+        ref: "User",
         required: true
     },
     attendees: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Users"
+        ref: "User"
     }],
     maxAttendees: {
         type: Number,
-        default: null
+        default: 0
     },
     entryFee: {
         type: Number,

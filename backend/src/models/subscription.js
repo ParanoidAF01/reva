@@ -3,13 +3,13 @@ import mongoose from "mongoose";
 const subscriptionSchema = mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Users",
+        ref: "User",
         required: true
     },
     plan: {
         type: String,
-        enum: ['free', 'silver', 'gold', 'platinum'],
-        default: 'free'
+        enum: ['annual', 'trial', 'monthly'],
+        default: 'annual'
     },
     amountPaid: {
         type: Number,
@@ -18,7 +18,7 @@ const subscriptionSchema = mongoose.Schema({
     },
     billingCycle: {
         type: String,
-        enum: ['monthly', 'quarterly', 'yearly'],
+        enum: ['monthly', 'quarterly', 'yearly', 'trial'],
         required: true
     },
     status: {

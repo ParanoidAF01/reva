@@ -68,19 +68,17 @@ const userSchema = new mongoose.Schema({
     eventsAttended: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: "Events",
-        required: true,
         default: []
     },
     posts: {
         type: [mongoose.Schema.Types.ObjectId],
         ref: "Posts",
-        required: true,
         default: []
     },
-    wallet: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Wallet",
-        required: true,
+    transactions: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "Transaction",
+        default: []
     },
     subscription: {
         type: mongoose.Schema.Types.ObjectId,
@@ -95,8 +93,8 @@ userSchema.pre('save', async function (next) {
     if (!this.isModified('mpin')) return next();
 
     try {
-        const salt = bcrypt.genSalt(env.security.bcryptRounds);
-        this.mpin = bcrypt.hash(this.mpin, salt);
+        const salt = await bcrypt.genSalt(env.security.bcryptRounds);
+        this.mpin = await bcrypt.hash(this.mpin, salt);
         next();
     } catch (error) {
         next(error);

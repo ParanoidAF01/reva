@@ -93,7 +93,7 @@ const profileSchema = new mongoose.Schema({
             },
             networkingMembers: {
                 type: [mongoose.Schema.Types.ObjectId],
-                ref: "Users",
+                ref: "User",
                 default: []
             },
             realEstateWebsite: {
@@ -102,7 +102,7 @@ const profileSchema = new mongoose.Schema({
             },
             associatedBuilders: {
                 type: [mongoose.Schema.Types.ObjectId],
-                ref: "Users",
+                ref: "User",
                 default: []
             },
         },

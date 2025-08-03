@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const postsSchema = mongoose.Schema({
     author: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Users",
+        ref: "User",
         required: true
     },
     content: {
@@ -28,26 +28,29 @@ const postsSchema = mongoose.Schema({
     },
     likes: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Users"
+        ref: "User"
     }],
-    comments: [{
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Users",
-            required: true
-        },
-        content: {
-            type: String,
-            required: true
-        },
-        createdAt: {
-            type: Date,
-            default: Date.now
-        }
-    }],
+    comments: {
+        type: [{
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+                required: true
+            },
+            content: {
+                type: String,
+                required: true
+            },
+            createdAt: {
+                type: Date,
+                default: Date.now
+            }
+        }],
+        default: []
+    },
     shares: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Users"
+        ref: "User"
     }],
 }, {
     timestamps: true

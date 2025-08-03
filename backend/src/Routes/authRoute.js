@@ -6,9 +6,10 @@ import {
     verifyOtp,
     forgotPassword,
     logout,
-    refreshAccessToken
+    refreshAccessToken,
+    verifyMpin
 } from "../controllers/authController.js";
-import { authenticateToken } from "../middlewares/authMiddleware.js";
+import { verifyJWT } from "../middlewares/authMiddleware.js";
 import { asyncHandler } from "../middlewares/errorHandler.js";
 
 const authRoute = express.Router();
@@ -20,6 +21,7 @@ authRoute.post('/verify-otp', asyncHandler(verifyOtp));
 authRoute.post('/forgot-password', asyncHandler(forgotPassword));
 authRoute.post('/refresh-token', asyncHandler(refreshAccessToken));
 
-authRoute.post('/logout', authenticateToken, asyncHandler(logout));
+authRoute.post('/verify-mpin', verifyJWT, asyncHandler(verifyMpin));
+authRoute.post('/logout', verifyJWT, asyncHandler(logout));
 
 export default authRoute;

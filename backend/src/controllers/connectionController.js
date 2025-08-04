@@ -1,4 +1,5 @@
 import User from "../models/user.js";
+import ConnectionRequest from "../models/connectionRequest.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -173,10 +174,216 @@ const getConnectionCount = asyncHandler(async (req, res) => {
     );
 });
 
+const sendConnectionRequest = asyncHandler(async (req, res) => {
+    const currentUserId = req.user._id;
+    if (!currentUserId) {
+        throw new ApiError(400, "User ID is required");
+    }
+
+    const { toUserId } = req.body;
+    if (!toUserId) {
+        throw new ApiError(400, "User ID is required");
+    }
+
+    const targetUser = await User.findById(toUserId).select('_id fullName mobileNumber');
+    if (!targetUser) {
+        throw new ApiError(404, "User not found");
+    }
+
+    if (targetUser._id.toString() === currentUserId.toString()) {
+        throw new ApiError(400, "You cannot send connection request to yourself");
+    }
+
+    const currentUser = await User.findById(currentUserId).select('connections');
+    if (currentUser.connections.includes(targetUser._id)) {
+        throw new ApiError(400, "You are already connected with this user");
+    }
+
+    const existingRequest = await ConnectionRequest.findOne({
+        $or: [
+            { fromUser: currentUserId, toUser: toUserId },
+            { fromUser: toUserId, toUser: currentUserId }
+        ]
+    });
+
+    if (existingRequest) {
+        if (existingRequest.status === "pending") {
+            throw new ApiError(400, "Connection request already exists");
+        } else if (existingRequest.status === "accepted") {
+            throw new ApiError(400, "You are already connected with this user");
+        }
+    }
+
+    const connectionRequest = await ConnectionRequest.create({
+        fromUser: currentUserId,
+        toUser: toUserId,
+        message: message || ""
+    });
+
+    await connectionRequest.populate([
+        {
+            path: 'fromUser',
+            select: 'fullName mobileNumber profilePicture'
+        },
+        {
+            path: 'toUser',
+            select: 'fullName mobileNumber profilePicture'
+        }
+    ]);
+
+    return res.status(201).json(
+        new ApiResponse(201, {
+            connectionRequest: {
+                _id: connectionRequest._id,
+                fromUser: connectionRequest.fromUser,
+                toUser: connectionRequest.toUser,
+                status: connectionRequest.status,
+                message: connectionRequest.message,
+                createdAt: connectionRequest.createdAt
+            }
+        }, "Connection request sent successfully")
+    );
+});
+
+const getPendingRequests = asyncHandler(async (req, res) => {
+    const currentUserId = req.user._id;
+    if (!currentUserId) {
+        throw new ApiError(400, "User ID is required");
+    }
+
+    const { page = 1, limit = 10 } = req.query;
+
+    const query = {
+        toUser: currentUserId,
+        status: "pending"
+    };
+
+    const pendingRequests = await ConnectionRequest.find(query)
+        .populate({
+            path: 'fromUser',
+            select: 'fullName mobileNumber profilePicture profile',
+            populate: {
+                path: 'profile',
+                select: 'designation location organization'
+            }
+        })
+        .sort({ createdAt: -1 })
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .exec();
+
+    const count = await ConnectionRequest.countDocuments(query);
+
+    return res.status(200).json(
+        new ApiResponse(200, {
+            pendingRequests,
+            totalPendingRequests: count,
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(count / limit)
+        }, "Pending connection requests retrieved successfully")
+    );
+});
+
+const respondToConnectionRequest = asyncHandler(async (req, res) => {
+    const currentUserId = req.user._id;
+    const { requestId } = req.params;
+    const { action } = req.body;
+
+    if (!requestId) {
+        throw new ApiError(400, "Request ID is required");
+    }
+
+    if (!action || !["accept", "reject"].includes(action)) {
+        throw new ApiError(400, "Action must be either 'accept' or 'reject'");
+    }
+
+    const connectionRequest = await ConnectionRequest.findOne({
+        _id: requestId,
+        toUser: currentUserId,
+        status: "pending"
+    }).populate('fromUser toUser');
+
+    if (!connectionRequest) {
+        throw new ApiError(404, "Connection request not found");
+    }
+
+    if (action === "accept") {
+        connectionRequest.status = "accepted";
+        await connectionRequest.save();
+
+        await User.findByIdAndUpdate(currentUserId, {
+            $push: { connections: connectionRequest.fromUser._id }
+        });
+
+        await User.findByIdAndUpdate(connectionRequest.fromUser._id, {
+            $push: { connections: currentUserId }
+        });
+
+        return res.status(200).json(
+            new ApiResponse(200, {
+                message: "Connection request accepted",
+                connectionRequest
+            }, "Connection request accepted successfully")
+        );
+    } else {
+        connectionRequest.status = "rejected";
+        await connectionRequest.save();
+
+        return res.status(200).json(
+            new ApiResponse(200, {
+                message: "Connection request rejected",
+                connectionRequest
+            }, "Connection request rejected successfully")
+        );
+    }
+});
+
+const getSentRequests = asyncHandler(async (req, res) => {
+    const currentUserId = req.user._id;
+    const { page = 1, limit = 10, status } = req.query;
+
+    const query = {
+        fromUser: currentUserId
+    };
+
+    if (status && ["pending", "accepted", "rejected"].includes(status)) {
+        query.status = status;
+    }
+
+    const sentRequests = await ConnectionRequest.find(query)
+        .populate({
+            path: 'toUser',
+            select: 'fullName mobileNumber profilePicture profile',
+            populate: {
+                path: 'profile',
+                select: 'designation location organization'
+            }
+        })
+        .sort({ createdAt: -1 })
+        .limit(limit * 1)
+        .skip((page - 1) * limit)
+        .exec();
+
+    const count = await ConnectionRequest.countDocuments(query);
+
+    return res.status(200).json(
+        new ApiResponse(200, {
+            sentRequests,
+            totalSentRequests: count,
+            currentPage: parseInt(page),
+            totalPages: Math.ceil(count / limit)
+        }, "Sent connection requests retrieved successfully")
+    );
+});
+
 export {
     connectViaQR,
     getMyConnections,
     removeConnection,
     getConnectionSuggestions,
-    getConnectionCount
+    getConnectionCount,
+    sendConnectionRequest,
+    getPendingRequests,
+    respondToConnectionRequest,
+    getSentRequests
 }; 

@@ -4,7 +4,11 @@ import {
     getMyConnections,
     removeConnection,
     getConnectionSuggestions,
-    getConnectionCount
+    getConnectionCount,
+    sendConnectionRequest,
+    getPendingRequests,
+    respondToConnectionRequest,
+    getSentRequests
 } from "../controllers/connectionController.js";
 import { verifyJWT } from "../middlewares/authMiddleware.js";
 
@@ -17,5 +21,10 @@ connectionRoute.get("/", getMyConnections);
 connectionRoute.get("/count", getConnectionCount);
 connectionRoute.get("/suggestions", getConnectionSuggestions);
 connectionRoute.delete("/:connectionId", removeConnection);
+
+connectionRoute.post("/request", sendConnectionRequest);
+connectionRoute.get("/pending-requests", getPendingRequests);
+connectionRoute.put("/request/:requestId/respond", respondToConnectionRequest);
+connectionRoute.get("/sent-requests", getSentRequests);
 
 export default connectionRoute; 

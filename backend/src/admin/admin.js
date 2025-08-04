@@ -11,6 +11,7 @@ import Notification from '../models/notification.js';
 import Subscription from '../models/subscription.js';
 import Transaction from '../models/transaction.js';
 import BlacklistedToken from '../models/blacklistedToken.js';
+import NFCCard from '../models/nfcCard.js';
 
 AdminJS.registerAdapter({ Resource, Database });
 
@@ -239,6 +240,108 @@ const adminJs = new AdminJS({
               return request;
             },
           },
+        },
+      },
+    },
+    {
+      resource: NFCCard,
+      options: {
+        properties: {
+          _id: { isVisible: false },
+          user: {
+            isVisible: { list: true, filter: true, show: true, edit: true },
+            reference: 'User'
+          },
+          cardNumber: {
+            isVisible: { list: true, filter: true, show: true, edit: false },
+            isTitle: true
+          },
+          status: {
+            isVisible: { list: true, filter: true, show: true, edit: true },
+            availableValues: [
+              { value: 'pending', label: 'Pending' },
+              { value: 'approved', label: 'Approved' },
+              { value: 'rejected', label: 'Rejected' },
+              { value: 'active', label: 'Active' },
+              { value: 'inactive', label: 'Inactive' }
+            ]
+          },
+          requestType: {
+            isVisible: { list: true, filter: true, show: true, edit: true },
+            availableValues: [
+              { value: 'new', label: 'New Card' },
+              { value: 'replacement', label: 'Replacement' },
+              { value: 'upgrade', label: 'Upgrade' }
+            ]
+          },
+          cardLeague: {
+            isVisible: { list: true, filter: true, show: true, edit: true },
+            availableValues: [
+              { value: 'bronze', label: 'Bronze' },
+              { value: 'silver', label: 'Silver' },
+              { value: 'gold', label: 'Gold' }
+            ]
+          },
+          requestDate: {
+            isVisible: { list: true, filter: true, show: true, edit: false },
+            type: 'datetime'
+          },
+          createdAt: { isVisible: false },
+          updatedAt: { isVisible: false },
+        },
+        actions: {
+          new: {
+            isAccessible: true,
+            before: async (request) => {
+              if (request.payload) {
+                // Auto-generate card number if not provided
+                if (!request.payload.cardNumber) {
+                  const timestamp = Date.now().toString();
+                  const random = Math.random().toString(36).substring(2, 8);
+                  request.payload.cardNumber = `NFC${timestamp}${random}`.toUpperCase();
+                }
+                // Set default status to pending for new cards
+                if (!request.payload.status) {
+                  request.payload.status = 'pending';
+                }
+                // Set default request type to new if not provided
+                if (!request.payload.requestType) {
+                  request.payload.requestType = 'new';
+                }
+                // Set default card league to bronze if not provided
+                if (!request.payload.cardLeague) {
+                  request.payload.cardLeague = 'bronze';
+                }
+              }
+              return request;
+            },
+          },
+          edit: {
+            isAccessible: true,
+            before: async (request) => {
+              if (request.payload) {
+                // Handle status changes
+                if (request.payload.status === 'active') {
+                  // If activating a card, deactivate other active cards for the same user
+                  const NFCCard = (await import('../models/nfcCard.js')).default;
+                  await NFCCard.updateMany(
+                    {
+                      user: request.payload.user,
+                      status: 'active',
+                      _id: { $ne: request.record?.params?._id }
+                    },
+                    { status: 'inactive' }
+                  );
+                }
+              }
+              return request;
+            },
+          },
+          delete: {
+            isAccessible: true,
+          },
+          list: { isAccessible: true },
+          show: { isAccessible: true },
         },
       },
     },

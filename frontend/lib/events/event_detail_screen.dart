@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/services/api_service.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class EventDetailScreen extends StatefulWidget {
   final String eventId;
@@ -23,7 +24,17 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   @override
   void initState() {
     super.initState();
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
     fetchEventDetail();
+  }
+
+  @override
+  void dispose() {
+    _razorpay.clear();
+    super.dispose();
   }
 
   Future<void> fetchEventDetail() async {
@@ -51,6 +62,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       isLoading = false;
     });
   }
+
+  late Razorpay _razorpay;
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +150,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                 SizedBox(
                                   width: double.infinity,
                                   child: ElevatedButton(
-                                    onPressed: () {},
+                                    onPressed: _openCheckout,
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: const Color(0xFF0262AB),
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -190,7 +203,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('People comming at this event', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
+                                Text('People coming at this event', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
                                 Text('See all', style: GoogleFonts.dmSans(color: const Color(0xFF3B9FED), fontWeight: FontWeight.w500, fontSize: 14)),
                               ],
                             ),
@@ -201,10 +214,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                             child: ListView(
                               scrollDirection: Axis.horizontal,
                               padding: const EdgeInsets.symmetric(horizontal: 16),
-                              children: [
-                                // Replace with scanned user's name and info
-                                _personCard(scannedUserName, scannedUserRole, scannedUserLocation, scannedUserImage, 'Message'),
-                              ],
+                             children: scannedUserName.isNotEmpty
+    ? [_personCard(scannedUserName, scannedUserRole, scannedUserLocation, scannedUserImage, 'Message')]
+    : [],
                             ),
                           ),
                           const SizedBox(height: 32),
@@ -275,6 +287,79 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         ],
       ),
     );
+  }
+
+void _handlePaymentSuccess(PaymentSuccessResponse response) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Payment Successful! Event Booked."),
+        backgroundColor: Colors.green,
+      ));
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
+      });
+    }
+  });
+}
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text("Payment Failed! Please try again."),
+          backgroundColor: Colors.red,
+        ));
+      }
+    });
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("External Wallet Selected: "+(response.walletName ?? "")),
+          backgroundColor: Colors.blue,
+        ));
+      }
+    });
+  }
+
+  void _openCheckout() {
+    if (event == null) return;
+    // Parse price, fallback to 0 if not possible
+    int price = 0;
+    try {
+      final priceStr = event!.price.replaceAll(RegExp(r'[^0-9]'), '');
+      price = int.tryParse(priceStr) ?? 0;
+    } catch (_) {}
+    if (price == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Invalid event price."),
+        backgroundColor: Colors.red,
+      ));
+      return;
+    }
+    var options = {
+      'key': 'rzp_test_QyOoTjd4T2z2Nj',
+      'amount': price * 100, // Razorpay expects amount in paise
+      'name': 'REVA',
+      'description': 'Event Booking',
+      'prefill': {'contact': '9123456789', 'email': 'testuser@example.com'},
+      'external': {
+        'wallets': ['paytm']
+      }
+    };
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Payment initialization failed: '+e.toString()),
+        backgroundColor: Colors.red,
+      ));
+    }
   }
 
   String _formatDay(String dateStr) {

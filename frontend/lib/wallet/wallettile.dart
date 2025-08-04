@@ -1,7 +1,20 @@
 import 'package:flutter/material.dart';
 
 class WalletTile extends StatelessWidget {
-  const WalletTile({super.key});
+  final String title;
+  final String date;
+  final String amount;
+  final String status;
+  final String logo;
+
+  const WalletTile({
+    super.key,
+    required this.title,
+    required this.date,
+    required this.amount,
+    required this.status,
+    required this.logo,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -12,16 +25,16 @@ class WalletTile extends StatelessWidget {
         color: const Color(0xFF2E3339),
         borderRadius: BorderRadius.circular(32),
       ),
-      child: const Row(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Logo
           CircleAvatar(
             radius: 20,
-            backgroundImage: AssetImage("assets/logo.png"),
+            backgroundImage: AssetImage(logo),
             backgroundColor: Colors.transparent,
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
 
           // Title and Date Column
           Expanded(
@@ -29,17 +42,17 @@ class WalletTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Reva",
-                  style: TextStyle(
+                  title,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
-                  "Send • August 08, 2023",
-                  style: TextStyle(
+                  date,
+                  style: const TextStyle(
                     color: Color(0xFFB0B0B0),
                     fontSize: 13,
                   ),
@@ -53,18 +66,18 @@ class WalletTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                "₹3",
-                style: TextStyle(
+                "₹$amount",
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text(
-                "Success",
+                status,
                 style: TextStyle(
-                  color: Color(0xFF4CAF50), // green
+                  color: status.toLowerCase() == "success" ? const Color(0xFF4CAF50) : Colors.red,
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                 ),

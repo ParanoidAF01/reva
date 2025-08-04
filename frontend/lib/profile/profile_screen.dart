@@ -58,71 +58,9 @@ class ProfileScreen extends StatelessWidget {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     ListTile(
-                                      leading: const Icon(
-                                          Icons.account_balance_wallet,
-                                          color: Colors.white),
-                                      title: const Text('Wallet',
-                                          style:
-                                              TextStyle(color: Colors.white)),
+                                      title: const Text('Help Center', style: TextStyle(color: Colors.white)),
                                       onTap: () {
-                                        Navigator.of(context).pop();
-                                        Navigator.of(context)
-                                            .pushNamed('/wallet');
-                                      },
-                                    ),
-                                    ListTile(
-                                      leading: const Icon(Icons.person,
-                                          color: Colors.white),
-                                      title: const Text('Account',
-                                          style:
-                                              TextStyle(color: Colors.white)),
-                                      onTap: () {
-                                        Navigator.of(context).pop();
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (_) =>
-                                                  const StartSubscriptionPage()),
-                                        );
-                                      },
-                                    ),
-                                    ListTile(
-                                      leading: const Icon(Icons.help_center,
-                                          color: Colors.white),
-                                      title: const Text('Help Center',
-                                          style:
-                                              TextStyle(color: Colors.white)),
-                                      onTap: () {
-                                        Navigator.of(context).pop();
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                              builder: (_) =>
-                                                  const HelpCenterScreen()),
-                                        );
-                                      },
-                                    ),
-                                    ListTile(
-                                      leading: const Icon(Icons.notifications,
-                                          color: Colors.white),
-                                      title: const Text('Notifications',
-                                          style:
-                                              TextStyle(color: Colors.white)),
-                                      onTap: () {},
-                                    ),
-                                    ListTile(
-                                      leading: const Icon(Icons.logout,
-                                          color: Colors.white),
-                                      title: const Text('Sign Out',
-                                          style:
-                                              TextStyle(color: Colors.white)),
-                                      onTap: () async {
-                                        await AuthService().logout();
-                                        Navigator.of(context)
-                                            .pushAndRemoveUntil(
-                                          MaterialPageRoute(
-                                              builder: (_) =>
-                                                  const WelcomeScreen()),
-                                          (route) => false,
-                                        );
+                                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const HelpCenterScreen()));
                                       },
                                     ),
                                   ],

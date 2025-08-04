@@ -40,15 +40,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
       if (response['success'] == true) {
         final List<dynamic> notificationsData = response['data']['notifications'] ?? [];
         print('DEBUG: notificationsData = $notificationsData');
-        // Always include notifications where current user is the recipient
-        // Filter notifications by sender email matching current user's email
-        final userProvider = context.read<UserProvider>();
-        final currentUserEmail = userProvider.userData?['email'] ?? userProvider.userData?['user']?['email'] ?? '';
-        notifications = notificationsData.map((e) => NotificationModel.fromJson(e)).where((n) {
-          final senderEmail = n.senderEmail.toString();
-          return senderEmail == currentUserEmail;
-        }).toList();
-        print('DEBUG: filtered notifications = $notifications');
+        // Show all notifications related to the user (recipient, sender, any type)
+        notifications = notificationsData.map((e) => NotificationModel.fromJson(e)).toList();
+        print('DEBUG: all notifications = $notifications');
       } else {
         error = response['message'] ?? 'Failed to load notifications';
       }

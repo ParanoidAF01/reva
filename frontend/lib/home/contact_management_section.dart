@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../services/service_manager.dart';
 
 class ContactManagementSection extends StatelessWidget {
   final List<ContactCardData> contacts;
@@ -60,68 +61,140 @@ class ContactManagementSection extends StatelessWidget {
             return LayoutBuilder(
               builder: (context, constraints) {
                 final double borderRadius = 22 * tileRadiusScale;
-                final double tileWidth = constraints.maxWidth * 0.95; // Make background wider
-                final double tileHeight = constraints.maxHeight * 1.18; // Make background taller
+                final double tileWidth = constraints.maxWidth * 0.95;
+                final double tileHeight = constraints.maxHeight * 1.18;
                 final double iconSize = tileHeight * 0.20 * tileIconScale;
                 final double countFont = tileHeight * 0.18 * tileCountFontScale;
                 final double labelFont = tileHeight * 0.11 * tileLabelFontScale;
-                final double avatarTop = -iconSize * 0.12; // less overlap, closer to content
+                final double avatarTop = -iconSize * 0.12;
                 return Center(
-                  child: SizedBox(
-                    width: tileWidth,
-                    height: tileHeight,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(borderRadius),
-                        image: const DecorationImage(
-                          image: AssetImage('assets/contactmanagement_tile.png'),
-                          fit: BoxFit.cover,
+                  child: GestureDetector(
+                    onTap: () async {
+                      // Fetch profile details from API
+                      String name = '****';
+                      String location = '****';
+                      String experience = '****';
+                      String languages = '****';
+                      String phone = '****';
+                      String email = '****';
+                      String avatar = 'assets/dummyprofile.png';
+                      try {
+                        // Replace with actual userId if available in ContactCardData
+                        if (c.label != null && c.label.isNotEmpty) {
+                          final response = await ServiceManager.instance.profile.getProfileById(c.label);
+                          if (response['success'] == true && response['data'] != null) {
+                            final data = response['data'];
+                            name = data['fullName'] ?? '****';
+                            location = data['location'] ?? '****';
+                            experience = data['experience'] ?? '****';
+                            languages = data['languages'] ?? '****';
+                            phone = data['mobileNumber'] ?? '****';
+                            email = data['email'] ?? '****';
+                            avatar = data['avatar'] ?? 'assets/dummyprofile.png';
+                          }
+                        }
+                      } catch (e) {}
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: const Color(0xFF23262B),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
                         ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(height: tileHeight * 0.06),
-                          Container(
-                            width: iconSize,
-                            height: iconSize,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.13),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white.withOpacity(0.10), width: 1.2 * tilePaddingScale),
+                        builder: (context) {
+                          return Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircleAvatar(
+                                  radius: 40,
+                                  backgroundImage: AssetImage(avatar),
+                                ),
+                                const SizedBox(height: 12),
+                                Text(name, style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22)),
+                                const SizedBox(height: 4),
+                                Text(location, style: GoogleFonts.dmSans(color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.w500, fontSize: 16)),
+                                const SizedBox(height: 8),
+                                Text('• $experience • $languages', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14)),
+                                const SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.phone, color: Colors.white70, size: 18),
+                                    const SizedBox(width: 8),
+                                    Text(phone, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.email, color: Colors.white70, size: 18),
+                                    const SizedBox(width: 8),
+                                    Text(email, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
+                                  ],
+                                ),
+                              ],
                             ),
-                            child: Center(child: SizedBox(width: iconSize * 0.7, height: iconSize * 0.7, child: c.icon)),
+                          );
+                        },
+                      );
+                    },
+                    child: SizedBox(
+                      width: tileWidth,
+                      height: tileHeight,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(borderRadius),
+                          image: const DecorationImage(
+                            image: AssetImage('assets/contactmanagement_tile.png'),
+                            fit: BoxFit.cover,
                           ),
-                          SizedBox(height: tileHeight * 0.02),
-                          Text(
-                            c.count,
-                            style: GoogleFonts.dmSans(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: countFont,
-                              letterSpacing: 0.2,
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(height: tileHeight * 0.06),
+                            Container(
+                              width: iconSize,
+                              height: iconSize,
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.13),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white.withOpacity(0.10), width: 1.2 * tilePaddingScale),
+                              ),
+                              child: Center(child: SizedBox(width: iconSize * 0.7, height: iconSize * 0.7, child: c.icon)),
                             ),
-                          ),
-                          SizedBox(height: tileHeight * 0.005 * tilePaddingScale),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                            child: Text(
-                              c.label,
+                            SizedBox(height: tileHeight * 0.02),
+                            Text(
+                              c.count,
                               style: GoogleFonts.dmSans(
                                 color: Colors.white,
-                                fontWeight: FontWeight.w400,
-                                fontSize: labelFont,
-                                height: 1.13,
-                                letterSpacing: 0.01,
+                                fontWeight: FontWeight.w700,
+                                fontSize: countFont,
+                                letterSpacing: 0.2,
                               ),
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                          // ...existing code for any additional content...
-                        ],
+                            SizedBox(height: tileHeight * 0.005 * tilePaddingScale),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                              child: Text(
+                                c.label,
+                                style: GoogleFonts.dmSans(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: labelFont,
+                                  height: 1.13,
+                                  letterSpacing: 0.01,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

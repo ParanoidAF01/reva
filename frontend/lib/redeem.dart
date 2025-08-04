@@ -3,7 +3,6 @@ import 'package:reva/home/components/goldCard.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:reva/services/nfc_card_service.dart';
 
-
 class RedeemPage extends StatefulWidget {
   const RedeemPage({super.key});
 
@@ -127,7 +126,10 @@ class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateM
                       width: double.infinity,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF0262AB), Color(0xFF5B8DCB)],
+                          colors: [
+                            Color(0xFF0262AB),
+                            Color(0xFF5B8DCB)
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -307,7 +309,9 @@ class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateM
         'email': 'testuser@example.com'
       },
       'external': {
-        'wallets': ['paytm']
+        'wallets': [
+          'paytm'
+        ]
       }
     };
     try {

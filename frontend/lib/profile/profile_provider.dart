@@ -3,6 +3,22 @@ import 'user_profile.dart';
 import '../services/service_manager.dart';
 
 class ProfileProvider extends ChangeNotifier {
+  String viewedUserId = '';
+
+  void updateProfileData(Map<String, dynamic> profileData) {
+    _profile = UserProfile(
+      name: profileData['fullName'] ?? _profile.name,
+      location: profileData['location'] ?? _profile.location,
+      experience: profileData['experience'] ?? _profile.experience,
+      languages: profileData['languages'] ?? _profile.languages,
+      phone: profileData['mobileNumber'] ?? _profile.phone,
+      email: profileData['email'] ?? _profile.email,
+      avatarPath: profileData['avatar'] ?? _profile.avatarPath,
+      totalConnections: profileData['totalConnections'] ?? _profile.totalConnections,
+      eventsAttended: profileData['eventsAttended'] ?? _profile.eventsAttended,
+    );
+    notifyListeners();
+  }
   UserProfile _profile = UserProfile(
     name: 'Abhishek Singh',
     location: 'Delhi NCR',

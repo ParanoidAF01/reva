@@ -10,8 +10,7 @@ class UserProvider extends ChangeNotifier {
   Map<String, dynamic>? get userData => _userData;
   bool get isLoading => _isLoading;
   bool get isSubscribed => _isSubscribed;
-  String get userName =>
-      _userData?['user']?['fullName'] ?? _userData?['fullName'] ?? 'User';
+  String get userName => _userData?['user']?['fullName'] ?? _userData?['fullName'] ?? 'User';
 
   Future<void> loadUserData() async {
     _isLoading = true;
@@ -23,6 +22,13 @@ class UserProvider extends ChangeNotifier {
         _userData = response['data'];
         // Save phone number for QR
         userPhoneNumber = _userData?['user']?['mobileNumber'];
+        // Fetch connections from backend and update userData
+        final connectionsResponse = await ServiceManager.instance.connections.getMyConnections();
+        if (connectionsResponse['success'] == true && connectionsResponse['data'] != null) {
+          _userData!['connections'] = connectionsResponse['data']['connections'] ?? [];
+          _userData!['pendingRequests'] = connectionsResponse['data']['pendingRequests'] ?? 0;
+          _userData!['pendingConnects'] = connectionsResponse['data']['pendingConnects'] ?? 0;
+        }
       }
     } catch (e) {
       print('Error loading user data: $e');
@@ -34,8 +40,7 @@ class UserProvider extends ChangeNotifier {
 
   Future<void> checkSubscription() async {
     try {
-      final response =
-          await ServiceManager.instance.subscription.checkSubscription();
+      final response = await ServiceManager.instance.subscription.checkSubscription();
       if (response['success'] == true) {
         _isSubscribed = response['data']['isSubscribed'] ?? false;
       }

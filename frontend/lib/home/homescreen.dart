@@ -16,6 +16,7 @@ import 'package:reva/events/event_detail_screen.dart';
 import 'package:reva/events/eventscreen.dart';
 import 'package:reva/posts/createpost.dart';
 import 'package:reva/providers/user_provider.dart';
+import 'package:reva/wallet/walletscreen.dart';
 
 // Make sure the GoldCard widget is defined in GoldCard.dart
 // import 'package:reva/qr/profile_qr_screen.dart';
@@ -152,11 +153,13 @@ class _HomeScreenState extends State<HomeScreen> {
       final response = await ServiceManager.instance.connections.getConnectionSuggestions();
       if (response['success'] == true) {
         final suggestions = response['data']['suggestions'] ?? [];
-        final mapped = suggestions.map((person) => {
-          'name': person['fullName'] ?? 'Unknown',
-          'image': person['profile'] ?? 'assets/dummyprofile.png',
-          'mobileNumber': person['mobileNumber'] ?? '',
-        }).toList();
+        final mapped = suggestions
+            .map((person) => {
+                  'name': person['fullName'] ?? 'Unknown',
+                  'image': person['profile'] ?? 'assets/dummyprofile.png',
+                  'mobileNumber': person['mobileNumber'] ?? '',
+                })
+            .toList();
         setState(() {
           peopleYouMayKnow = mapped;
           isLoadingPeople = false;
@@ -189,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
           final String userExperience = userData['experience'] ?? "";
           final String userLanguages = userData['languages'] ?? "";
           final String profileImage = userData['profileImage'] ?? 'assets/dummyprofile.png';
-          final int revaConnections = userData['connections'] ?? 0;
+          final int revaConnections = (userData['connections'] is List) ? (userData['connections'] as List).length : 0;
           final int pendingRequests = userData['pendingRequests'] ?? 0;
           final int pendingConnects = userData['pendingConnects'] ?? 0;
           final int achievementMax = 100;
@@ -280,16 +283,19 @@ class _HomeScreenState extends State<HomeScreen> {
                         ],
                       ),
                       const Spacer(),
-                      // Edit Button
+                      // Settings Menu Button (redirects to WalletScreen)
                       Container(
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: IconButton(
-                          icon: const Icon(Icons.edit, color: Color(0xFF22252A)),
+                          icon: const Icon(Icons.settings, color: Color(0xFF22252A)),
                           onPressed: () {
-                            // TODO: Edit profile action
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const WalletScreen()),
+                            );
                           },
                         ),
                       ),

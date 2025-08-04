@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:reva/home/components/goldCard.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:reva/services/nfc_card_service.dart';
 
 
 class RedeemPage extends StatefulWidget {
@@ -16,6 +17,29 @@ class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateM
   late Animation<double> _animation;
   bool achievementUnlocked = false; // Set to false to test locked state
   late Razorpay _razorpay;
+  final NfcCardService _nfcCardService = NfcCardService();
+  Future<void> _claimNfcCard() async {
+    // You can collect user info here if needed
+    final requestData = {
+      "note": "Requesting NFC card"
+    };
+    try {
+      final response = await _nfcCardService.requestNfcCard(requestData);
+      if (response["success"] == true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("NFC Card requested successfully!")),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response["message"] ?? "Failed to request NFC Card.")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    }
+  }
 
   @override
   void initState() {
@@ -194,7 +218,7 @@ class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateM
                                     SizedBox(
                                       width: double.infinity,
                                       child: ElevatedButton(
-                                        onPressed: () {},
+                                        onPressed: _claimNfcCard,
                                         style: ElevatedButton.styleFrom(
                                           backgroundColor: const Color(0xFF0262AB),
                                           padding: const EdgeInsets.symmetric(vertical: 14),

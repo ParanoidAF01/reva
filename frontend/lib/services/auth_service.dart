@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'api_service.dart';
 
@@ -145,7 +143,10 @@ class AuthService {
 
   // Logout
   Future<Map<String, dynamic>> logout() async {
-    final response = await _apiService.post('/auth/logout', {});
+    final refreshToken = await _getToken('refreshToken');
+    final response = await _apiService.post('/auth/logout', {
+      'refreshToken': refreshToken,
+    });
     await _apiService.clearTokens();
     return response;
   }

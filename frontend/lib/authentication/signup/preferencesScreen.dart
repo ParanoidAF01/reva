@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/authentication/signup/specializationandrecongination.dart';
 
-import '../components/mytextfield.dart';
 
 class PreferencesScreen extends StatefulWidget {
   const PreferencesScreen({super.key});

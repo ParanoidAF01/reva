@@ -6,11 +6,11 @@ class CreatePostCard extends StatelessWidget {
   final int maxPosts;
   final VoidCallback onCreatePost;
   const CreatePostCard({
-    Key? key,
+    super.key,
     required this.usedPosts,
     required this.maxPosts,
     required this.onCreatePost,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -55,12 +55,12 @@ class CreatePostCard extends StatelessWidget {
               Column(
                 children: [
                   Container(
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: Color(0xFF22252A),
                       shape: BoxShape.circle,
                     ),
                     padding: EdgeInsets.all(width * 0.025),
-                    child: Icon(Icons.push_pin, color: Color(0xFFE74C3C), size: width * 0.06),
+                    child: Icon(Icons.push_pin, color: const Color(0xFFE74C3C), size: width * 0.06),
                   ),
                   SizedBox(height: width * 0.01),
                   Text(

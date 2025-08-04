@@ -27,7 +27,7 @@ class ContactManagementSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cardColor = const Color(0xFF23262B);
+    const cardColor = Color(0xFF23262B);
     final labelStyle = GoogleFonts.dmSans(
       color: Colors.white,
       fontWeight: FontWeight.w500,
@@ -229,9 +229,9 @@ class AchievementCard extends StatelessWidget {
                       ),
                       Positioned(
                         left: (width - 80) * progressPercent,
-                        child: Icon(Icons.location_on, color: Colors.red, size: 18),
+                        child: const Icon(Icons.location_on, color: Colors.red, size: 18),
                       ),
-                      Positioned(
+                      const Positioned(
                         right: 0,
                         child: Icon(Icons.card_giftcard, color: Colors.amber, size: 20),
                       ),
@@ -332,7 +332,7 @@ class NfcCardWidget extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
                 elevation: 2,
                 shadowColor: Colors.black.withOpacity(0.18),
-                minimumSize: Size(0, 0),
+                minimumSize: const Size(0, 0),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
             ),
@@ -388,13 +388,13 @@ class SubscriptionStatusCard extends StatelessWidget {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: data.onRenew,
-              child: Text('Renew Now', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF01416A),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 elevation: 0,
               ),
+              child: Text('Renew Now', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
             ),
           ),
         ],

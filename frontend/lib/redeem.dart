@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:reva/bottomnavigation/bottomnavigation.dart';
 import 'package:reva/home/components/goldCard.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
@@ -85,7 +84,7 @@ class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateM
                   children: [
                     Row(
                       children: [
-                        Text('Want NFC Card?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
+                        const Text('Want NFC Card?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
                         const Spacer(),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -179,7 +178,7 @@ class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateM
                                       ],
                                     ),
                                     SizedBox(height: height * 0.02),
-                                    GoldCard(
+                                    const GoldCard(
                                       name: "Ayush Kumar.",
                                       location: "Delhi NCR",
                                       experience: "4+ years",
@@ -216,9 +215,9 @@ class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateM
                         children: [
                           const Text('Achievement Locked', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
                           SizedBox(height: height * 0.02),
-                          CircleAvatar(
+                          const CircleAvatar(
                             radius: 38,
-                            backgroundColor: const Color(0xFF22252A),
+                            backgroundColor: Color(0xFF22252A),
                             child: Icon(Icons.lock, color: Colors.white54, size: 38),
                           ),
                           SizedBox(height: height * 0.01),
@@ -250,8 +249,8 @@ class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateM
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: const Text("Payment Successful! Card Unlocked."),
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text("Payment Successful! Card Unlocked."),
       backgroundColor: Colors.green,
     ));
     setState(() {
@@ -260,8 +259,8 @@ class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateM
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: const Text("Payment Failed! Please try again."),
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text("Payment Failed! Please try again."),
       backgroundColor: Colors.red,
     ));
   }

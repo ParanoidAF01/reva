@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:reva/authentication/welcomescreen.dart';
+import 'package:reva/services/auth_service.dart';
 
 class StartSubscriptionPage extends StatefulWidget {
   const StartSubscriptionPage({super.key});
@@ -34,6 +36,35 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
     var height = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF22252A),
+        elevation: 0,
+        actions: [
+          FutureBuilder<bool>(
+            future: AuthService().isLoggedIn(),
+            builder: (context, snapshot) {
+              final isLoggedIn = snapshot.data ?? false;
+              return IconButton(
+                icon: const Icon(Icons.logout, color: Colors.white),
+                tooltip: 'Sign Out',
+                onPressed: isLoggedIn
+                    ? () async {
+                        try {
+                          await AuthService().logout();
+                        } catch (e) {
+                          debugPrint('Logout error: $e');
+                        }
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+                          (route) => false,
+                        );
+                      }
+                    : null,
+              );
+            },
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -73,7 +104,7 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
               ),
               textAlign: TextAlign.center,
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Stay verified, visible, and\nconnected — without limits.',
               style: GoogleFonts.dmSans(
@@ -105,7 +136,7 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('Annual', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 17)),
-                                SizedBox(height: 20),
+                                const SizedBox(height: 20),
                                 Text('First 7 days free - Then ₹899/Year', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14)),
                               ],
                             ),
@@ -116,13 +147,13 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text('Best Value', style: GoogleFonts.dmSans(color: Color(0xFF0262AB), fontWeight: FontWeight.w700, fontSize: 12)),
+                            child: Text('Best Value', style: GoogleFonts.dmSans(color: const Color(0xFF0262AB), fontWeight: FontWeight.w700, fontSize: 12)),
                           ),
                         ],
                       ),
                     ),
                   ),
-                  SizedBox(height: 14),
+                  const SizedBox(height: 14),
                   GestureDetector(
                     onTap: () => setState(() => _selected = 1),
                     child: Container(
@@ -139,7 +170,7 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('Monthly', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 17)),
-                                SizedBox(height: 20),
+                                const SizedBox(height: 20),
                                 Text('First 7 days free - Then ₹99/Month', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14)),
                               ],
                             ),
@@ -190,7 +221,7 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
                 ),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: width * 0.06),
               child: Text.rich(
@@ -200,19 +231,19 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
                   children: [
                     TextSpan(
                       text: 'Terms of Service',
-                      style: GoogleFonts.dmSans(color: Color(0xFF0262AB), fontSize: 13, decoration: TextDecoration.underline),
+                      style: GoogleFonts.dmSans(color: const Color(0xFF0262AB), fontSize: 13, decoration: TextDecoration.underline),
                     ),
-                    TextSpan(text: ' and '),
+                    const TextSpan(text: ' and '),
                     TextSpan(
                       text: 'Privacy Policy.',
-                      style: GoogleFonts.dmSans(color: Color(0xFF0262AB), fontSize: 13, decoration: TextDecoration.underline),
+                      style: GoogleFonts.dmSans(color: const Color(0xFF0262AB), fontSize: 13, decoration: TextDecoration.underline),
                     ),
                   ],
                 ),
                 textAlign: TextAlign.center,
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -225,7 +256,7 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
       child: Row(
         children: [
           const Icon(Icons.star, color: Colors.white70, size: 18),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           Text(text, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 15)),
         ],
       ),
@@ -236,7 +267,7 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
       content: Text("Payment Failed! Please try again."),
       backgroundColor: Colors.red,
     ));

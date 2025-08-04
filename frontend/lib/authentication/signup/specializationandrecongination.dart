@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:reva/authentication/signup/preferencesScreen.dart';
+import 'package:reva/authentication/login.dart';
 import 'package:reva/bottomnavigation/bottomnavigation.dart';
+import 'package:reva/start_subscription.dart';
 
 import '../components/mytextfield.dart';
 
@@ -144,7 +145,7 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
                   height: 52,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(context,MaterialPageRoute(builder: (context)=> const BottomNavigation()) );
+                      Navigator.pushReplacement(context,MaterialPageRoute(builder: (context)=> const LoginScreen()) );
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,

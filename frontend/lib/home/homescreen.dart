@@ -75,7 +75,7 @@ class HomeScreen extends StatelessWidget {
                   // Profile Image
                   CircleAvatar(
                     radius: width * 0.09,
-                    backgroundImage: AssetImage('assets/dummyprofile.png'),
+                    backgroundImage: const AssetImage('assets/dummyprofile.png'),
                   ),
                   SizedBox(width: width * 0.04),
                   // Hello & Name
@@ -186,10 +186,10 @@ class HomeScreen extends StatelessWidget {
                       userProvider.userData?['experience'] ?? "4+ years";
                   final String userLanguages =
                       userProvider.userData?['languages'] ?? "Hindi, English";
-                  final String tag1 = "Commercial";
-                  final String tag2 = "Plots";
-                  final String tag3 = "Rental";
-                  final String kycStatus = "KYC Approved";
+                  const String tag1 = "Commercial";
+                  const String tag2 = "Plots";
+                  const String tag3 = "Rental";
+                  const String kycStatus = "KYC Approved";
                   return Column(
                     children: [
                       GoldCard(
@@ -211,9 +211,9 @@ class HomeScreen extends StatelessWidget {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            padding: EdgeInsets.symmetric(vertical: 14),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
                           ),
-                          icon: Icon(Icons.qr_code,
+                          icon: const Icon(Icons.qr_code,
                               color: Colors.white, size: 22),
                           label: Text(
                             'View my Profile QR',
@@ -227,7 +227,7 @@ class HomeScreen extends StatelessWidget {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => ProfileQrScreen(
+                                builder: (context) => const ProfileQrScreen(
                                   mpin: '1234', // Replace with real user data
                                   phone:
                                       '9876543210', // Replace with real user data
@@ -302,7 +302,7 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: height * 0.03),
-              _UpcomingEventsCarousel(
+              const _UpcomingEventsCarousel(
                 events: [
                   {
                     'image': 'assets/eventdummyimage.png',
@@ -314,7 +314,7 @@ class HomeScreen extends StatelessWidget {
                   // Add more events here as needed
                 ],
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               // Page indicator is inside the carousel
               SizedBox(height: height * 0.04),
               SizedBox(
@@ -325,12 +325,12 @@ class HomeScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => EventScreen()),
+                      MaterialPageRoute(builder: (context) => const EventScreen()),
                     );
                   },
                   child: Text(
@@ -345,7 +345,7 @@ class HomeScreen extends StatelessWidget {
               ),
               // Upcoming Events Section
 
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               Icon(Icons.arrow_forward,
                   color: Colors.white, size: height * 0.045),
 
@@ -369,12 +369,12 @@ class HomeScreen extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => PeopleYouMayKnow()),
+                              builder: (context) => const PeopleYouMayKnow()),
                         );
                       },
                       child: Text('See all',
                           style: GoogleFonts.dmSans(
-                              color: Color(0xFFB2C2D9),
+                              color: const Color(0xFFB2C2D9),
                               fontWeight: FontWeight.w500)),
                     ),
                   ],
@@ -407,7 +407,7 @@ class HomeScreen extends StatelessWidget {
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
-                    builder: (context) => FractionallySizedBox(
+                    builder: (context) => const FractionallySizedBox(
                       heightFactor: 0.98,
                       child: SharePostScreen(),
                     ),
@@ -496,7 +496,7 @@ class HomeScreen extends StatelessWidget {
     return Container(
       width: cardWidth,
       height: cardHeight,
-      margin: EdgeInsets.only(right: 0),
+      margin: const EdgeInsets.only(right: 0),
       decoration: BoxDecoration(
         color: const Color(0xFF2E3339),
         borderRadius: BorderRadius.circular(cardWidth * 0.16),
@@ -521,12 +521,12 @@ class HomeScreen extends StatelessWidget {
                 Container(
                   width: iconCircle,
                   height: iconCircle,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF22252A),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF22252A),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
-                    child: Icon(icon, color: Color(0xFFBDBDBD), size: iconSize),
+                    child: Icon(icon, color: const Color(0xFFBDBDBD), size: iconSize),
                   ),
                 ),
                 SizedBox(width: cardWidth * 0.04),
@@ -587,9 +587,9 @@ class HomeScreen extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: gradient ? Color(0xFF0269B6) : Color(0xFFEDF5FF),
+        color: gradient ? const Color(0xFF0269B6) : const Color(0xFFEDF5FF),
         gradient: gradient
-            ? LinearGradient(
+            ? const LinearGradient(
                 colors: [Color(0xFF0269B6), Color(0xFF002E50)],
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
@@ -611,7 +611,6 @@ class _DynamicProgressBar extends StatelessWidget {
   final double width;
 
   const _DynamicProgressBar({
-    Key? key,
     required this.progress,
     required this.max,
     required this.tickPositions,
@@ -619,7 +618,7 @@ class _DynamicProgressBar extends StatelessWidget {
     required this.unlockText,
     required this.unlockCard,
     required this.width,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -634,12 +633,12 @@ class _DynamicProgressBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF292B32),
         borderRadius: BorderRadius.circular(width * 0.03),
-        border: Border.all(color: Color(0xFF0269B6), width: 1.2),
+        border: Border.all(color: const Color(0xFF0269B6), width: 1.2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
             blurRadius: 10,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -656,12 +655,12 @@ class _DynamicProgressBar extends StatelessWidget {
                   fontSize: width * 0.028,
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               Container(
                 width: width * 0.08,
                 height: width * 0.08,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF22252A),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF22252A),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -691,7 +690,7 @@ class _DynamicProgressBar extends StatelessWidget {
                       TextSpan(
                         text: unlockText,
                         style: GoogleFonts.dmSans(
-                          color: Color(0xFF0269B6),
+                          color: const Color(0xFF0269B6),
                           fontWeight: FontWeight.bold,
                           fontSize: width * 0.048,
                         ),
@@ -699,7 +698,7 @@ class _DynamicProgressBar extends StatelessWidget {
                       TextSpan(
                         text: ' ',
                         style: GoogleFonts.dmSans(
-                          color: Color(0xFF0072C3),
+                          color: const Color(0xFF0072C3),
                           fontWeight: FontWeight.bold,
                           fontSize: width * 0.048,
                         ),
@@ -707,7 +706,7 @@ class _DynamicProgressBar extends StatelessWidget {
                       TextSpan(
                         text: unlockCard,
                         style: GoogleFonts.dmSans(
-                          color: Color(0xFF999999),
+                          color: const Color(0xFF999999),
                           fontWeight: FontWeight.bold,
                           fontSize: width * 0.048,
                         ),
@@ -737,7 +736,7 @@ class _DynamicProgressBar extends StatelessWidget {
                   Container(
                     height: barHeight,
                     decoration: BoxDecoration(
-                      color: Color(0xFFE0E0E0),
+                      color: const Color(0xFFE0E0E0),
                       borderRadius: BorderRadius.circular(width * 0.08),
                     ),
                   ),
@@ -746,7 +745,7 @@ class _DynamicProgressBar extends StatelessWidget {
                     width: barWidth * progressPercent,
                     height: barHeight,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                         colors: [Color(0xFF0269B6), Color(0xFF002E50)],
@@ -767,7 +766,7 @@ class _DynamicProgressBar extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color:
-                              isOnBlue ? Color(0xFFEDF5FF) : Color(0xFF0269B6),
+                              isOnBlue ? const Color(0xFFEDF5FF) : const Color(0xFF0269B6),
                           border: Border.all(color: Colors.white, width: 1),
                         ),
                       ),
@@ -807,8 +806,7 @@ class _DynamicProgressBar extends StatelessWidget {
 // Upcoming Events Carousel Widget
 class _UpcomingEventsCarousel extends StatefulWidget {
   final List<Map<String, dynamic>> events;
-  const _UpcomingEventsCarousel({Key? key, required this.events})
-      : super(key: key);
+  const _UpcomingEventsCarousel({required this.events});
 
   @override
   State<_UpcomingEventsCarousel> createState() =>
@@ -857,7 +855,7 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
                     BoxShadow(
                       color: Colors.black.withOpacity(0.18),
                       blurRadius: 16,
-                      offset: Offset(0, 6),
+                      offset: const Offset(0, 6),
                     ),
                   ],
                 ),
@@ -900,7 +898,7 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
                                     fontSize: height * 0.07,
                                   ),
                                 ),
-                                SizedBox(height: 2),
+                                const SizedBox(height: 2),
                                 Text(
                                   event['title'],
                                   style: GoogleFonts.dmSans(
@@ -909,7 +907,7 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
                                     fontSize: height * 0.045,
                                   ),
                                 ),
-                                SizedBox(height: 2),
+                                const SizedBox(height: 2),
                                 Text(
                                   '${event['registered']} people have already registered',
                                   style: GoogleFonts.dmSans(
@@ -938,7 +936,7 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
-                                      EventDetailScreen(eventId: '1'),
+                                      const EventDetailScreen(eventId: '1'),
                                 ),
                               );
                             },
@@ -960,7 +958,7 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
             },
           ),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         // Page indicator
         Row(
           mainAxisAlignment: MainAxisAlignment.center,

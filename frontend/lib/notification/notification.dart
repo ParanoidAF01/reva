@@ -67,8 +67,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     child: Container(
                       width: 36,
                       height: 36,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF23262B),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF23262B),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.arrow_back_ios_new_rounded,

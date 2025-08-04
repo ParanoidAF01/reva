@@ -4,8 +4,7 @@ import 'package:pretty_qr_code/pretty_qr_code.dart';
 class ProfileQrScreen extends StatelessWidget {
   final String mpin;
   final String phone;
-  const ProfileQrScreen({Key? key, required this.mpin, required this.phone})
-      : super(key: key);
+  const ProfileQrScreen({super.key, required this.mpin, required this.phone});
 
   @override
   Widget build(BuildContext context) {
@@ -125,9 +124,9 @@ class ProfileQrScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            Text(
+            const Text(
               'Ayush Kumar.',
-              style: const TextStyle(
+              style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
@@ -144,9 +143,9 @@ class ProfileQrScreen extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
+              children: [
                 Icon(Icons.check_circle, color: Colors.green, size: 18),
                 SizedBox(width: 6),
                 Text(

@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:iconsax/iconsax.dart';
 import '../services/service_manager.dart';
-import '../notification/notification.dart';
 
 class SharePostScreen extends StatelessWidget {
   const SharePostScreen({super.key});
@@ -28,7 +27,7 @@ class SharePostScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                      icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                     const Spacer(),
@@ -143,7 +142,7 @@ class SharePostScreen extends StatelessWidget {
                       : Container(
                           height: 120,
                           color: Colors.black26,
-                          child: Center(
+                          child: const Center(
                               child: Text('Video selected',
                                   style: TextStyle(color: Colors.white))),
                         ),

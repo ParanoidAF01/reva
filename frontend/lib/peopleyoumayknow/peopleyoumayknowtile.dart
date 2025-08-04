@@ -52,7 +52,7 @@ class PeopleYouMayKnowCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Center(
+                  const Center(
                     child: Text(
                       'Aryna Gupta',
                       style: TextStyle(
@@ -63,7 +63,7 @@ class PeopleYouMayKnowCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 0.5),
-                  Center(
+                  const Center(
                     child: Text(
                       'buyer/seller/\ninvestor',
                       textAlign: TextAlign.center,
@@ -75,7 +75,7 @@ class PeopleYouMayKnowCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 2),
-                  Row(
+                  const Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Text(
@@ -94,7 +94,7 @@ class PeopleYouMayKnowCard extends StatelessWidget {
                       onPressed: () {
                         showDialog(
                           context: context,
-                          builder: (context) => Dialog(
+                          builder: (context) => const Dialog(
                             backgroundColor: Colors.transparent,
                             insetPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 24),
                             child: _ProfilePreviewCard(
@@ -174,7 +174,7 @@ class _ProfilePreviewCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(32),
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           colors: [
             Color(0xFF23303E),
             Color(0xFF1B232B)
@@ -190,15 +190,15 @@ class _ProfilePreviewCard extends StatelessWidget {
           Row(
             children: [
               IconButton(
-                icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
                 onPressed: () => Navigator.of(context).pop(),
               ),
               const Spacer(),
-              Text('Profile', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
+              const Text('Profile', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
               const Spacer(flex: 2),
             ],
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Stack(
             alignment: Alignment.center,
             children: [
@@ -210,81 +210,81 @@ class _ProfilePreviewCard extends StatelessWidget {
                 right: 0,
                 bottom: 0,
                 child: Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
                   ),
-                  padding: EdgeInsets.all(6),
-                  child: Icon(Icons.lock, color: Color(0xFF01416A), size: 22),
+                  padding: const EdgeInsets.all(6),
+                  child: const Icon(Icons.lock, color: Color(0xFF01416A), size: 22),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 10),
-          Text(name, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 22)),
-          Text(location, style: TextStyle(color: Colors.white70, fontSize: 15)),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
+          Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 22)),
+          Text(location, style: const TextStyle(color: Colors.white70, fontSize: 15)),
+          const SizedBox(height: 10),
           SizedBox(
             width: 120,
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF01416A),
+                backgroundColor: const Color(0xFF01416A),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-                padding: EdgeInsets.symmetric(vertical: 6),
+                padding: const EdgeInsets.symmetric(vertical: 6),
                 elevation: 0,
               ),
-              child: Text('Connect', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+              child: const Text('Connect', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('• $experience', style: TextStyle(color: Colors.white70, fontSize: 13)),
-              SizedBox(width: 8),
-              Text('• $languages', style: TextStyle(color: Colors.white70, fontSize: 13)),
+              Text('• $experience', style: const TextStyle(color: Colors.white70, fontSize: 13)),
+              const SizedBox(width: 8),
+              Text('• $languages', style: const TextStyle(color: Colors.white70, fontSize: 13)),
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: tags
                 .map((tag) => Container(
-                      margin: EdgeInsets.symmetric(horizontal: 4),
-                      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: Color(0xFF23262B),
+                        color: const Color(0xFF23262B),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(tag, style: TextStyle(color: Colors.white, fontSize: 12)),
+                      child: Text(tag, style: const TextStyle(color: Colors.white, fontSize: 12)),
                     ))
                 .toList(),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               _ProfileStatBox(icon: Icons.people, value: totalConnections, label: 'Total Connections'),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               _ProfileStatBox(icon: Icons.celebration, value: eventsAttended, label: 'Events Attended'),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.phone, color: Colors.white70, size: 18),
-              SizedBox(width: 6),
-              Text(phone, style: TextStyle(color: Colors.white70, fontSize: 15)),
-              SizedBox(width: 18),
-              Icon(Icons.email, color: Colors.white70, size: 18),
-              SizedBox(width: 6),
-              Text(email, style: TextStyle(color: Colors.white70, fontSize: 15)),
+              const Icon(Icons.phone, color: Colors.white70, size: 18),
+              const SizedBox(width: 6),
+              Text(phone, style: const TextStyle(color: Colors.white70, fontSize: 15)),
+              const SizedBox(width: 18),
+              const Icon(Icons.email, color: Colors.white70, size: 18),
+              const SizedBox(width: 6),
+              Text(email, style: const TextStyle(color: Colors.white70, fontSize: 15)),
             ],
           ),
-          SizedBox(height: 18),
-          Row(
+          const SizedBox(height: 18),
+          const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.chat, color: Colors.white, size: 22), // WhatsApp alternative
@@ -294,7 +294,7 @@ class _ProfilePreviewCard extends StatelessWidget {
               Icon(Icons.photo_camera, color: Colors.white, size: 22), // Camera alternative
             ],
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
         ],
       ),
     );
@@ -310,18 +310,18 @@ class _ProfileStatBox extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 110,
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
-        color: Color(0xFF23262B),
+        color: const Color(0xFF23262B),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         children: [
           Icon(icon, color: Colors.white, size: 22),
-          SizedBox(height: 6),
-          Text(value, style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18)),
-          SizedBox(height: 2),
-          Text(label, style: TextStyle(color: Colors.white70, fontSize: 12)),
+          const SizedBox(height: 6),
+          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18)),
+          const SizedBox(height: 2),
+          Text(label, style: const TextStyle(color: Colors.white70, fontSize: 12)),
         ],
       ),
     );

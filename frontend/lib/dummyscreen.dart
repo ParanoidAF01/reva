@@ -6,7 +6,6 @@ import 'package:reva/contacts/contacts.dart';
 import 'package:reva/events/eventscreen.dart';
 import 'package:reva/notification/notification.dart';
 import 'package:reva/peopleyoumayknow/peopleyoumayknow.dart';
-import 'package:reva/posts/createpost.dart';
 import 'package:reva/posts/postsScreen.dart';
 import 'package:reva/request/requestscreen.dart';
 import 'package:reva/subscription/subscriptionscreen.dart';

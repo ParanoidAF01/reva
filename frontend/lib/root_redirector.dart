@@ -8,14 +8,14 @@ import 'package:reva/providers/user_provider.dart';
 import 'package:reva/start_subscription.dart';
 
 class RootRedirector extends StatefulWidget {
-  const RootRedirector({Key? key}) : super(key: key);
+  const RootRedirector({super.key});
 
   @override
   State<RootRedirector> createState() => _RootRedirectorState();
 }
 
 class _RootRedirectorState extends State<RootRedirector> {
-  bool _showSplash = true;
+  final bool _showSplash = true;
 
   @override
   void initState() {
@@ -39,14 +39,17 @@ class _RootRedirectorState extends State<RootRedirector> {
 
       if (!mounted) return;
 
-      if (userProvider.isSubscribed) {
+      // Debug print to verify value
+      debugPrint('RootRedirector: isSubscribed = ${userProvider.isSubscribed}');
+
+      if (userProvider.isSubscribed == true) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (_) => const BottomNavigation()),
         );
       } else {
         // User is logged in but not subscribed
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const StartSubscriptionPage()),
+          MaterialPageRoute(builder: (_) => const BottomNavigation()),
         );
       }
     } else {

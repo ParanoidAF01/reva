@@ -6,11 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:reva/start_subscription.dart';
-import 'user_profile.dart';
 import 'profile_provider.dart';
 import '../providers/user_provider.dart';
 import '../services/service_manager.dart';
-import '../wallet/walletscreen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -33,21 +31,8 @@ class ProfileScreen extends StatelessWidget {
                         const EdgeInsets.only(top: 16.0, left: 16, right: 16),
                     child: Row(
                       children: [
-                        InkWell(
-                          onTap: () => Navigator.of(context).pop(),
-                          borderRadius: BorderRadius.circular(20),
-                          child: Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF23262B),
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.arrow_back_ios_new_rounded,
-                                color: Colors.white, size: 18),
-                          ),
-                        ),
-                        const Spacer(),
+                        
+                        
                         Text(
                           "Profile",
                           style: GoogleFonts.dmSans(
@@ -169,7 +154,7 @@ class ProfileScreen extends StatelessWidget {
                           Stack(
                             alignment: Alignment.bottomRight,
                             children: [
-                              CircleAvatar(
+                              const CircleAvatar(
                                 radius: 54,
                                 backgroundImage:
                                     AssetImage('assets/dummyprofile.png'),
@@ -302,15 +287,15 @@ class ProfileScreen extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 24.0),
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 24.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         _SocialIcon.asset(assetPath: 'assets/whatsapp.png'),
-                        const SizedBox(width: 18),
+                        SizedBox(width: 18),
                         _SocialIcon(icon: Icons.facebook),
-                        const SizedBox(width: 18),
+                        SizedBox(width: 18),
                         _SocialIcon(icon: Icons.camera_alt),
                       ],
                     ),

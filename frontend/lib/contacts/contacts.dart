@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/contacts/contacttile.dart';
-import 'package:reva/events/eventtile.dart';
-import 'package:reva/posts/postTile.dart';
-import 'package:reva/request/requesttile.dart';
 
 import '../notification/notification.dart';
 
@@ -23,7 +20,7 @@ class Contacts extends StatelessWidget {
               padding:EdgeInsets.symmetric(horizontal: width*0.05),
               child: Row(
                 children: [
-                  TriangleIcon(size: 20 , color: Colors.white,),
+                  const TriangleIcon(size: 20 , color: Colors.white,),
                   SizedBox(width: width*0.25,),
                   Text("Contacts", style: GoogleFonts.dmSans(
                       fontSize: 26,

@@ -12,7 +12,7 @@ class BronzeCard extends StatelessWidget {
   final double tagSpacing;
   final double kycGap;
   const BronzeCard({
-    Key? key,
+    super.key,
     required this.name,
     required this.location,
     required this.experience,
@@ -23,7 +23,7 @@ class BronzeCard extends StatelessWidget {
     required this.kycStatus,
     this.tagSpacing = 2.0,
     this.kycGap = 30.0,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class BronzeCard extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           decoration: ShapeDecoration(
             shape: RoundedRectangleBorder(
-              side: BorderSide(width: 1.53, color: Colors.white),
+              side: const BorderSide(width: 1.53, color: Colors.white),
               borderRadius: BorderRadius.circular(12.25),
             ),
           ),
@@ -148,8 +148,8 @@ class BronzeCard extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.check, color: Colors.green, size: 16),
-                        SizedBox(width: 4),
+                        const Icon(Icons.check, color: Colors.green, size: 16),
+                        const SizedBox(width: 4),
                         Text(
                           kycStatus,
                           style: const TextStyle(

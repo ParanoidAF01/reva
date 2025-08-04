@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/contacts/contacts.dart';
-import 'package:reva/events/eventtile.dart';
 import 'package:reva/peopleyoumayknow/peopleyoumayknowtile.dart';
-import 'package:reva/posts/postTile.dart';
 import 'package:reva/request/requestscreen.dart';
-import 'package:reva/request/requesttile.dart';
-import 'package:reva/start_subscription.dart';
 
 import '../notification/notification.dart';
 
@@ -27,7 +23,7 @@ class PeopleYouMayKnow extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: width * 0.05),
               child: Row(
                 children: [
-                  TriangleIcon(size: 20, color: Colors.white),
+                  const TriangleIcon(size: 20, color: Colors.white),
                   SizedBox(width: width * 0.15),
                   Text(
                     "People you know",
@@ -124,7 +120,7 @@ class PeopleYouMayKnow extends StatelessWidget {
                     // TODO: Implement find in contacts action
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => Contacts()),
+                      MaterialPageRoute(builder: (context) => const Contacts()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -146,7 +142,7 @@ class PeopleYouMayKnow extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: width * 0.05),
               child: SizedBox(
@@ -156,7 +152,7 @@ class PeopleYouMayKnow extends StatelessWidget {
                     // TODO: Implement find in contacts action
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => RequestScreen()),
+                      MaterialPageRoute(builder: (context) => const RequestScreen()),
                     );
                   },
                   style: ElevatedButton.styleFrom(

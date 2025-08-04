@@ -12,7 +12,7 @@ import 'package:reva/providers/user_provider.dart';
 
 class BottomNavigation extends StatefulWidget {
   final int initialIndex;
-  const BottomNavigation({Key? key, this.initialIndex = 0}) : super(key: key);
+  const BottomNavigation({super.key, this.initialIndex = 0});
 
   @override
   State<BottomNavigation> createState() => _BottomNavigationState();

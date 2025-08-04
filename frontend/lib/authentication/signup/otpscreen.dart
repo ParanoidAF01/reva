@@ -5,7 +5,7 @@ import 'package:reva/authentication/signup/newmpin.dart';
 
 class OtpScreen extends StatefulWidget {
   final String? prefillPhone;
-  const OtpScreen({Key? key, this.prefillPhone}) : super(key: key);
+  const OtpScreen({super.key, this.prefillPhone});
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
@@ -33,8 +33,12 @@ class _OtpScreenState extends State<OtpScreen> {
       final res = await AuthService().sendOtp(phoneController.text);
       if (res['success'] == true) {
         otpSent = true;
+      } else if (res['error'] != null && res['error']['message'] != null) {
+        error = res['error']['message'];
+      } else if (res['message'] != null) {
+        error = res['message'];
       } else {
-        error = res['message'] ?? 'Failed to send OTP';
+        error = 'Failed to send OTP';
       }
     } catch (e) {
       error = e.toString();
@@ -42,6 +46,14 @@ class _OtpScreenState extends State<OtpScreen> {
     setState(() {
       isLoading = false;
     });
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error!),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   Future<void> _verifyOtp() async {
@@ -55,6 +67,12 @@ class _OtpScreenState extends State<OtpScreen> {
       setState(() {
         isLoading = false;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error!),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
     final response = await AuthService().verifyOtp(
@@ -76,6 +94,12 @@ class _OtpScreenState extends State<OtpScreen> {
       setState(() {
         error = 'Invalid OTP. Please try again.';
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error!),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -219,7 +243,7 @@ class _OtpScreenState extends State<OtpScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                Divider(color: Color(0xFF6F6F6F)),
+                const Divider(color: Color(0xFF6F6F6F)),
                 const SizedBox(height: 16),
                 const Text('Enter OTP',
                     style: TextStyle(

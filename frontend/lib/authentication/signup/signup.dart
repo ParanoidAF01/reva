@@ -381,8 +381,7 @@ class _MpinBoxField extends StatelessWidget {
   final List<TextEditingController> controllers;
   final bool obscureText;
   const _MpinBoxField(
-      {Key? key, required this.controllers, this.obscureText = false})
-      : super(key: key);
+      {required this.controllers, this.obscureText = false});
 
   @override
   Widget build(BuildContext context) {

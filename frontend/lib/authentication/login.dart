@@ -9,6 +9,7 @@ import 'package:reva/services/auth_service.dart';
 import 'package:reva/bottomnavigation/bottomnavigation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+import 'package:reva/start_subscription.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:reva/providers/user_provider.dart';
 
@@ -136,10 +137,18 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login successful!')),
         );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const BottomNavigation()),
-        );
+        // Redirect based on subscription status
+        if (userProvider.isSubscribed == true) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const BottomNavigation()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const StartSubscriptionPage()),
+          );
+        }
       } else {
         throw Exception(response['message'] ?? 'Login failed');
       }

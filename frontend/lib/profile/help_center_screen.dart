@@ -89,15 +89,15 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> with SingleTickerPr
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: Colors.white24.withOpacity(0.18)),
                   ),
-                  child: Row(
+                  child: const Row(
                     children: [
-                      const SizedBox(width: 12),
-                      const Icon(Icons.search, color: Colors.white54),
-                      const SizedBox(width: 8),
+                      SizedBox(width: 12),
+                      Icon(Icons.search, color: Colors.white54),
+                      SizedBox(width: 8),
                       Expanded(
                         child: TextField(
-                          style: const TextStyle(color: Colors.white),
-                          decoration: const InputDecoration(
+                          style: TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
                             hintText: 'Search for help',
                             hintStyle: TextStyle(color: Colors.white54),
                             border: InputBorder.none,
@@ -267,7 +267,7 @@ class CustomerServiceChatScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                CircleAvatar(
+                const CircleAvatar(
                   backgroundColor: Color(0xFF01416A),
                   child: Icon(Icons.mic, color: Colors.white),
                 ),

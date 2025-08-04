@@ -218,9 +218,9 @@ class _QrScanScreenState extends State<QrScanScreen> {
                 left: left,
                 top: top + frameSize + 24,
                 width: frameSize,
-                child: Column(
+                child: const Column(
                   children: [
-                    const Text(
+                    Text(
                       'Ayush Kumar.',
                       style: TextStyle(
                         color: Colors.white,
@@ -229,8 +229,8 @@ class _QrScanScreenState extends State<QrScanScreen> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 4),
-                    const Text(
+                    SizedBox(height: 4),
+                    Text(
                       'Delhi NCR',
                       style: TextStyle(
                         color: Colors.white70,
@@ -238,10 +238,10 @@ class _QrScanScreenState extends State<QrScanScreen> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
+                      children: [
                         Icon(Icons.check_circle, color: Colors.green, size: 18),
                         SizedBox(width: 6),
                         Text(

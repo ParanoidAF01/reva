@@ -11,6 +11,7 @@ import 'package:reva/peopleyoumayknow/peopleyoumayknow.dart';
 import 'package:reva/peopleyoumayknow/peopleyoumayknowtile.dart';
 import 'package:reva/home/contact_management_section.dart';
 import 'package:reva/qr/profile_qr_screen.dart';
+import 'package:reva/services/profile_service.dart';
 import 'package:reva/events/event_detail_screen.dart';
 import 'package:reva/events/eventscreen.dart';
 import 'package:reva/posts/createpost.dart';
@@ -193,8 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
           // Use API-fetched subscription status
           // final bool subscriptionActive = userData['subscriptionActive'] ?? true;
           // final int subscriptionDaysLeft = userData['subscriptionDaysLeft'] ?? 0;
-          final String phone = userData['phone'] ?? '9876543210';
-          final String mpin = userData['mpin'] ?? '1234';
+          String phone = '';
           final String tag1 = userData['tag1'] ?? "Commercial";
           final String tag2 = userData['tag2'] ?? "Plots";
           final String tag3 = userData['tag3'] ?? "Rental";
@@ -404,11 +404,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       onPressed: () {
+                        // Use phone number saved in UserProvider
+                        String phone = UserProvider.userPhoneNumber ?? '';
                         Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => ProfileQrScreen(
-                              mpin: mpin,
+                              mpin: '', // Do not show mpin
                               phone: phone,
                               name: userName,
                             ),

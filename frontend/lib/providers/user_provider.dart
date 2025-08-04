@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/service_manager.dart';
 
 class UserProvider extends ChangeNotifier {
+  static String? userPhoneNumber;
   Map<String, dynamic>? _userData;
   bool _isLoading = false;
   bool _isSubscribed = false;
@@ -20,6 +21,8 @@ class UserProvider extends ChangeNotifier {
       final response = await ServiceManager.instance.profile.getMyProfile();
       if (response['success'] == true && response['data'] != null) {
         _userData = response['data'];
+        // Save phone number for QR
+        userPhoneNumber = _userData?['user']?['mobileNumber'];
       }
     } catch (e) {
       print('Error loading user data: $e');

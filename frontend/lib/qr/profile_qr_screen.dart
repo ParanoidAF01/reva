@@ -11,9 +11,8 @@ class ProfileQrScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final frameSize = width * 0.65;
-    final qrData = 'mpin:$mpin,phone:$phone';
+    final qrData = 'phone:$phone';
     print('QR GENERATION DEBUG:');
-    print('MPIN: $mpin');
     print('Phone: $phone');
     print('QR Data: $qrData');
     return Scaffold(

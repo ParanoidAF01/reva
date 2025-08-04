@@ -7,6 +7,7 @@ import connectionRoute from "./connectionRoute.js";
 import notificationRoute from "./notificationRoute.js";
 import subscriptionRoute from "./subscriptionRoute.js";
 import transactionRoute from "./transactionRoute.js";
+import nfcCardRoute from "./nfcCardRoute.js";
 
 const indexRoute = express.Router();
 
@@ -18,5 +19,6 @@ indexRoute.use('/connections', connectionRoute);
 indexRoute.use('/notifications', notificationRoute);
 indexRoute.use('/subscriptions', subscriptionRoute);
 indexRoute.use('/transactions', transactionRoute);
+indexRoute.use('/nfc-cards', nfcCardRoute);
 
 export default indexRoute;

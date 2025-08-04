@@ -3,7 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 import env from "./src/utils/consts.js";
 import connectDB from "./src/utils/db.js";
-import indexRouting from "./src/routes/indexRoute.js";
+import indexRouting from "./src/route/indexRoute.js";
 import { errorHandler, notFound } from "./src/middlewares/errorHandler.js";
 
 const app = express();

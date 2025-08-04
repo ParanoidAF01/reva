@@ -5,6 +5,7 @@ import 'package:reva/authentication/welcomescreen.dart';
 import 'package:reva/bottomnavigation/bottomnavigation.dart';
 import 'package:reva/services/auth_service.dart';
 import 'package:reva/providers/user_provider.dart';
+import 'package:reva/start_subscription.dart';
 
 class RootRedirector extends StatefulWidget {
   const RootRedirector({super.key});
@@ -48,7 +49,7 @@ class _RootRedirectorState extends State<RootRedirector> {
       } else {
         // User is logged in but not subscribed
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const BottomNavigation()),
+          MaterialPageRoute(builder: (_) => const StartSubscriptionPage()),
         );
       }
     } else {

@@ -5,14 +5,12 @@ import env from "./src/utils/consts.js";
 import connectDB from "./src/utils/db.js";
 import indexRouting from "./src/route/indexRoute.js";
 import { errorHandler, notFound } from "./src/middlewares/errorHandler.js";
-
 import { adminJs, adminRouter } from "./src/admin/admin.js";
 
 const app = express();
 
 connectDB();
 
-// AdminJS route
 app.use(adminJs.options.rootPath, adminRouter);
 
 app.use(cors({
@@ -28,7 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 const morganFormat = ':method :url :status';
 app.use(morgan(morganFormat));
 
-app.get('/health', (req, res) => {
+app.get('/', (req, res) => {
     res.status(200).json({
         success: true,
         message: 'Server is healthy',
@@ -67,5 +65,6 @@ const port = env.config.port;
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port} in ${env.config.nodeEnv} mode`);
-    console.log(`Health check: http://localhost:${port}/health`);
+    console.log(`Health check: http://localhost:${port}/`);
+    console.log(`AdminJS: http://localhost:${port}${adminJs.options.rootPath}`);
 });

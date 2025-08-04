@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:reva/home/components/goldCard.dart';
 import 'package:reva/home/components/silverCard.dart';
+import 'package:reva/services/nfc_card_service.dart';
 import 'package:reva/home/components/bronzeCard.dart';
 import 'package:reva/services/service_manager.dart';
 import 'package:reva/home/create_post_card.dart';
@@ -629,7 +630,28 @@ class _HomeScreenState extends State<HomeScreen> {
                       title: 'Want NFC Card?',
                       subtitle: 'unlock your premium silver NFC Card.',
                       connectionsLeft: nfcConnectionsLeft,
-                      onClaim: () {},
+                      onClaim: () async {
+                        final nfcService = NfcCardService();
+                        final requestData = {
+                          "note": "Requesting premium silver NFC card"
+                        };
+                        try {
+                          final response = await nfcService.requestNfcCard(requestData);
+                          if (response["success"] == true) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("NFC Card requested successfully!")),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(response["message"] ?? "Failed to request NFC Card.")),
+                            );
+                          }
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Error: $e")),
+                          );
+                        }
+                      },
                       onBuy: () {},
                     ),
                     subscription: SubscriptionStatusData(

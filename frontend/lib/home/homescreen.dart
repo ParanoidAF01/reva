@@ -44,6 +44,11 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    // Ensure user profile data is loaded for dynamic fields
+    Future.microtask(() {
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      userProvider.loadUserData();
+    });
     fetchUserEvents();
     fetchUpcomingEvents();
     fetchMyPosts();
@@ -180,16 +185,16 @@ class _HomeScreenState extends State<HomeScreen> {
         builder: (context, userProvider, child) {
           final userData = userProvider.userData ?? {};
           final String userName = userProvider.userName;
-          final String userLocation = userData['location'] ?? "Delhi NCR";
-          final String userExperience = userData['experience'] ?? "4+ years";
-          final String userLanguages = userData['languages'] ?? "Hindi, English";
+          final String userLocation = userData['location'] ?? "";
+          final String userExperience = userData['experience'] ?? "";
+          final String userLanguages = userData['languages'] ?? "";
           final String profileImage = userData['profileImage'] ?? 'assets/dummyprofile.png';
           final int revaConnections = userData['connections'] ?? 0;
           final int pendingRequests = userData['pendingRequests'] ?? 0;
           final int pendingConnects = userData['pendingConnects'] ?? 0;
-          final int achievementProgress = userData['achievementProgress'] ?? 0;
-          final int achievementMax = userData['achievementMax'] ?? 100;
-          final int achievementCurrent = userData['achievementCurrent'] ?? achievementProgress;
+          final int achievementMax = 100;
+          final int achievementProgress = userEvents.length;
+          final int achievementCurrent = userEvents.length;
           final int nfcConnectionsLeft = userData['nfcConnectionsLeft'] ?? 0;
           // Use API-fetched subscription status
           // final bool subscriptionActive = userData['subscriptionActive'] ?? true;
@@ -372,7 +377,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       tag3: tag3,
                       kycStatus: kycStatus,
                     )
-                  else if (userEvents.length >= 60)
+                  else if (userEvents.length >= 80)
                     GoldCard(
                       name: userName,
                       location: userLocation,
@@ -467,7 +472,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                     label: 'Your progress',
                     unlockText: 'to Unlock',
-                    unlockCard: 'Silver card',
+                    unlockCard: 'Gold card',
                     width: width,
                   ),
                   SizedBox(height: height * 0.01),
@@ -797,7 +802,11 @@ class _DynamicProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Removed unused barWidth and barHeight
-    double progressPercent = progress / max;
+    double progressPercent = (progress / max).clamp(0.0, 1.0);
+    // Ensure at least a small visible bar for 1 event
+    if (progress > 0 && progressPercent < 0.04) {
+      progressPercent = 0.04;
+    }
     return Container(
       width: double.infinity,
       margin: EdgeInsets.symmetric(vertical: width * 0.005),
@@ -877,7 +886,7 @@ class _DynamicProgressBar extends StatelessWidget {
                       TextSpan(
                         text: unlockCard,
                         style: GoogleFonts.dmSans(
-                          color: const Color(0xFF999999),
+                          color: const Color.fromARGB(255, 188, 198, 6),
                           fontWeight: FontWeight.bold,
                           fontSize: width * 0.048,
                         ),

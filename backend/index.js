@@ -6,9 +6,14 @@ import connectDB from "./src/utils/db.js";
 import indexRouting from "./src/route/indexRoute.js";
 import { errorHandler, notFound } from "./src/middlewares/errorHandler.js";
 
+import { adminJs, adminRouter } from "./src/admin/admin.js";
+
 const app = express();
 
 connectDB();
+
+// AdminJS route
+app.use(adminJs.options.rootPath, adminRouter);
 
 app.use(cors({
     origin: env.security.corsOrigin,

@@ -28,7 +28,7 @@ const env = {
     },
 
     security: {
-        bcryptRounds: parseInt(process.env.BCRYPT_ROUNDS) || 12,
+        bcryptRounds: process.env.BCRYPT_ROUNDS || 12,
     },
 
     razorpay: {

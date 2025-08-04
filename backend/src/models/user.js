@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
     mpin: {
         type: String,
         required: true,
-        length: 6
+        minlength: 1
     },
     fullName: {
         type: String,
@@ -90,10 +90,16 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre('save', async function (next) {
-    if (!this.isModified('mpin')) return next();
+    if (!this.isModified('mpin') || !this.mpin) return next();
+
+    if (!this.mpin || typeof this.mpin !== 'string' || this.mpin.length < 1) {
+        return next(new Error('MPIN is required'));
+    }
 
     try {
-        const salt = await bcrypt.genSalt(env.security.bcryptRounds);
+        // Ensure rounds is a number
+        const rounds = Number(env.security.bcryptRounds) || 12;
+        const salt = await bcrypt.genSalt(rounds);
         this.mpin = await bcrypt.hash(this.mpin, salt);
         next();
     } catch (error) {

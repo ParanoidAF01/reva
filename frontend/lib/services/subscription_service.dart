@@ -1,6 +1,21 @@
 import 'api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class SubscriptionService {
+  Future<Map<String, dynamic>?> getCachedSubscription() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cached = prefs.getString('subscription_cache');
+    if (cached != null) {
+      return Map<String, dynamic>.from(jsonDecode(cached));
+    }
+    return null;
+  }
+
+  Future<void> cacheSubscription(Map<String, dynamic> data) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('subscription_cache', jsonEncode(data));
+  }
   final ApiService _apiService = ApiService();
 
   // Check subscription status

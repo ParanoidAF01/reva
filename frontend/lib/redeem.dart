@@ -298,7 +298,7 @@ class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateM
 
   void _openCheckout() {
     var options = {
-      'key': 'rzp_test_Kby5R7mlfU75pU',
+      'key': 'rzp_test_QyOoTjd4T2z2Nj',
       'amount': 500000, // ₹5000 in paise
       'name': 'REVA',
       'description': 'Unlock Achievement Card',

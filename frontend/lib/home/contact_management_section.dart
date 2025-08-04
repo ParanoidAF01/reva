@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:reva/redeem.dart';
 
 class ContactManagementSection extends StatelessWidget {
   final List<ContactCardData> contacts;
@@ -169,8 +170,20 @@ class NfcCardData {
 class SubscriptionStatusData {
   final bool active;
   final int daysLeft;
+  final String plan;
+  final int amountPaid;
+  final String startDate;
+  final String endDate;
   final VoidCallback onRenew;
-  SubscriptionStatusData({required this.active, required this.daysLeft, required this.onRenew});
+  SubscriptionStatusData({
+    required this.active,
+    required this.daysLeft,
+    required this.plan,
+    required this.amountPaid,
+    required this.startDate,
+    required this.endDate,
+    required this.onRenew,
+  });
 }
 
 class AchievementCard extends StatelessWidget {
@@ -262,6 +275,10 @@ class NfcCardWidget extends StatelessWidget {
   const NfcCardWidget({super.key, required this.data});
   @override
   Widget build(BuildContext context) {
+    // Achievement unlocked if connectionsLeft >= 500
+    final int requiredConnections = 500;
+    final bool achievementUnlocked = data.connectionsLeft >= requiredConnections;
+    final int remainingConnections = achievementUnlocked ? 0 : (requiredConnections - data.connectionsLeft);
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -281,11 +298,17 @@ class NfcCardWidget extends StatelessWidget {
                 children: [
                   Text(data.title, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: Colors.white)),
                   GestureDetector(
-                    onTap: data.onBuy,
+                    onTap: achievementUnlocked
+                        ? null
+                        : () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(builder: (context) => RedeemPage()),
+                            );
+                          },
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF23262B),
+                        color: achievementUnlocked ? Colors.grey : const Color(0xFF23262B),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: Colors.white24),
                       ),
@@ -299,18 +322,27 @@ class NfcCardWidget extends StatelessWidget {
               const SizedBox(height: 10),
               RichText(
                 text: TextSpan(
-                  text: 'You are ',
+                  text: achievementUnlocked
+                      ? 'Achievement unlocked!'
+                      : 'You need ',
                   style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
-                  children: [
-                    TextSpan(
-                      text: data.connectionsLeft.toString(),
-                      style: GoogleFonts.dmSans(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 22),
-                    ),
-                    TextSpan(
-                      text: ' connections away to claim it.',
-                      style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
-                    ),
-                  ],
+                  children: achievementUnlocked
+                      ? [
+                          TextSpan(
+                            text: '',
+                            style: GoogleFonts.dmSans(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 22),
+                          ),
+                        ]
+                      : [
+                          TextSpan(
+                            text: remainingConnections.toString(),
+                            style: GoogleFonts.dmSans(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 22),
+                          ),
+                          TextSpan(
+                            text: ' more connections to unlock achievement.',
+                            style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
+                          ),
+                        ],
                 ),
               ),
               const SizedBox(height: 32), // Add more space for button overlap
@@ -323,11 +355,13 @@ class NfcCardWidget extends StatelessWidget {
           bottom: -24,
           child: Center(
             child: ElevatedButton.icon(
-              onPressed: data.onClaim,
+              onPressed: achievementUnlocked
+                  ? data.onClaim
+                  : null,
               icon: const Icon(Icons.lock, color: Colors.white, size: 18),
               label: Text('Claim now', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF01416A),
+                backgroundColor: achievementUnlocked ? const Color(0xFF01416A) : Colors.grey,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
                 elevation: 2,
@@ -369,6 +403,26 @@ class SubscriptionStatusCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
+          Row(
+            children: [
+              Text('Plan: ', style: GoogleFonts.dmSans(color: Colors.white70, fontWeight: FontWeight.w500, fontSize: 15)),
+              Text(data.plan.isNotEmpty ? data.plan[0].toUpperCase() + data.plan.substring(1) : '-', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
+              const SizedBox(width: 16),
+              Text('Paid: ', style: GoogleFonts.dmSans(color: Colors.white70, fontWeight: FontWeight.w500, fontSize: 15)),
+              Text('₹${data.amountPaid}', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Text('Start: ', style: GoogleFonts.dmSans(color: Colors.white70, fontWeight: FontWeight.w500, fontSize: 13)),
+              Text(_formatDate(data.endDate, isStart: true), style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13)),
+              const SizedBox(width: 16),
+              Text('End: ', style: GoogleFonts.dmSans(color: Colors.white70, fontWeight: FontWeight.w500, fontSize: 13)),
+              Text(_formatDate(data.endDate), style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13)),
+            ],
+          ),
+          const SizedBox(height: 8),
           RichText(
             text: TextSpan(
               text: '${data.daysLeft}',
@@ -382,7 +436,10 @@ class SubscriptionStatusCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Text('Your subscription is expiring soon.\nRenew to keep accessing all features.', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
+          Text(data.active
+              ? 'Your subscription is active.'
+              : 'Your subscription is expiring soon.\nRenew to keep accessing all features.',
+              style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
           const SizedBox(height: 14),
           SizedBox(
             width: double.infinity,
@@ -400,5 +457,19 @@ class SubscriptionStatusCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatDate(String dateStr, {bool isStart = false}) {
+    try {
+      final dt = DateTime.tryParse(dateStr);
+      if (dt == null) return '-';
+      if (isStart && dt.isAfter(DateTime.now())) {
+        // If start date is after now, show today
+        return '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}';
+      }
+      return '${dt.day}/${dt.month}/${dt.year}';
+    } catch (_) {
+      return '-';
+    }
   }
 }

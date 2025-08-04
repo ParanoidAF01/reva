@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:reva/home/components/goldCard.dart';
 import 'package:reva/home/components/silverCard.dart';
-import 'package:reva/services/nfc_card_service.dart';
 import 'package:reva/home/components/bronzeCard.dart';
 import 'package:reva/services/service_manager.dart';
 import 'package:reva/home/create_post_card.dart';
@@ -11,7 +10,6 @@ import 'package:reva/peopleyoumayknow/peopleyoumayknow.dart';
 import 'package:reva/peopleyoumayknow/peopleyoumayknowtile.dart';
 import 'package:reva/home/contact_management_section.dart';
 import 'package:reva/qr/profile_qr_screen.dart';
-import 'package:reva/services/profile_service.dart';
 import 'package:reva/events/event_detail_screen.dart';
 import 'package:reva/events/eventscreen.dart';
 import 'package:reva/posts/createpost.dart';
@@ -40,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int subscriptionDaysLeft = 0;
   bool subscriptionActive = true;
   bool isLoadingSubscription = true;
+  Map<String, dynamic>? subscriptionDetails;
 
   @override
   void initState() {
@@ -58,27 +57,47 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> fetchSubscriptionStatus() async {
     try {
+      // Try to load from cache first
+      final cached = await ServiceManager.instance.subscription.getCachedSubscription();
+      if (cached != null) {
+        subscriptionDetails = cached['subscription'];
+        subscriptionActive = cached['isSubscribed'] ?? false;
+        subscriptionDaysLeft = _calculateDaysLeft(cached['subscription']);
+        isLoadingSubscription = false;
+        setState(() {});
+      }
+      // Always fetch latest from API
       final response = await ServiceManager.instance.subscription.checkSubscription();
       if (response['success'] == true) {
-        setState(() {
-          subscriptionDaysLeft = response['data']['daysLeft'] ?? 0;
-          subscriptionActive = response['data']['active'] ?? true;
-          isLoadingSubscription = false;
-        });
+        // Cache the response
+        await ServiceManager.instance.subscription.cacheSubscription(response['data']);
+        subscriptionDetails = response['data']['subscription'];
+        subscriptionActive = response['data']['isSubscribed'] ?? false;
+        subscriptionDaysLeft = _calculateDaysLeft(response['data']['subscription']);
+        isLoadingSubscription = false;
+        setState(() {});
       } else {
-        setState(() {
-          subscriptionDaysLeft = 0;
-          subscriptionActive = false;
-          isLoadingSubscription = false;
-        });
+        subscriptionDetails = null;
+        subscriptionActive = false;
+        subscriptionDaysLeft = 0;
+        isLoadingSubscription = false;
+        setState(() {});
       }
     } catch (e) {
-      setState(() {
-        subscriptionDaysLeft = 0;
-        subscriptionActive = false;
-        isLoadingSubscription = false;
-      });
+      subscriptionDetails = null;
+      subscriptionActive = false;
+      subscriptionDaysLeft = 0;
+      isLoadingSubscription = false;
+      setState(() {});
     }
+  }
+
+  int _calculateDaysLeft(Map<String, dynamic>? subscription) {
+    if (subscription == null || subscription['endDate'] == null) return 0;
+    final endDate = DateTime.tryParse(subscription['endDate']);
+    if (endDate == null) return 0;
+    final now = DateTime.now();
+    return endDate.difference(now).inDays;
   }
 
   Future<void> fetchUserEvents() async {
@@ -179,6 +198,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
+    // Prepare subscription fields safely
+    final String plan = subscriptionDetails?['plan']?.toString() ?? '-';
+    final int amountPaid = (subscriptionDetails?['amountPaid'] is int)
+        ? (subscriptionDetails?['amountPaid'] ?? 0)
+        : int.tryParse(subscriptionDetails?['amountPaid']?.toString() ?? '0') ?? 0;
+    final String startDate = subscriptionDetails?['startDate']?.toString() ?? '-';
+    final String endDate = subscriptionDetails?['endDate']?.toString() ?? '-';
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
       body: Consumer<UserProvider>(
@@ -196,14 +222,6 @@ class _HomeScreenState extends State<HomeScreen> {
           final int achievementProgress = userEvents.length;
           final int achievementCurrent = userEvents.length;
           final int nfcConnectionsLeft = userData['nfcConnectionsLeft'] ?? 0;
-          // Use API-fetched subscription status
-          // final bool subscriptionActive = userData['subscriptionActive'] ?? true;
-          // final int subscriptionDaysLeft = userData['subscriptionDaysLeft'] ?? 0;
-          String phone = '';
-          final String tag1 = userData['tag1'] ?? "Commercial";
-          final String tag2 = userData['tag2'] ?? "Plots";
-          final String tag3 = userData['tag3'] ?? "Rental";
-          final String kycStatus = userData['kycStatus'] ?? "KYC Approved";
           return SingleChildScrollView(
             child: Padding(
               padding: EdgeInsets.all(width * 0.05),
@@ -361,10 +379,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       location: userLocation,
                       experience: userExperience,
                       languages: userLanguages,
-                      tag1: tag1,
-                      tag2: tag2,
-                      tag3: tag3,
-                      kycStatus: kycStatus,
+                      tag1: userData['tag1'] ?? "Commercial",
+                      tag2: userData['tag2'] ?? "Plots",
+                      tag3: userData['tag3'] ?? "Rental",
+                      kycStatus: userData['kycStatus'] ?? "KYC Approved",
                     )
                   else if (userEvents.length >= 20 && userEvents.length < 60)
                     SilverCard(
@@ -372,10 +390,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       location: userLocation,
                       experience: userExperience,
                       languages: userLanguages,
-                      tag1: tag1,
-                      tag2: tag2,
-                      tag3: tag3,
-                      kycStatus: kycStatus,
+                      tag1: userData['tag1'] ?? "Commercial",
+                      tag2: userData['tag2'] ?? "Plots",
+                      tag3: userData['tag3'] ?? "Rental",
+                      kycStatus: userData['kycStatus'] ?? "KYC Approved",
                     )
                   else if (userEvents.length >= 80)
                     GoldCard(
@@ -383,10 +401,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       location: userLocation,
                       experience: userExperience,
                       languages: userLanguages,
-                      tag1: tag1,
-                      tag2: tag2,
-                      tag3: tag3,
-                      kycStatus: kycStatus,
+                      tag1: userData['tag1'] ?? "Commercial",
+                      tag2: userData['tag2'] ?? "Plots",
+                      tag3: userData['tag3'] ?? "Rental",
+                      kycStatus: userData['kycStatus'] ?? "KYC Approved",
                     ),
                   SizedBox(height: height * 0.02),
                   SizedBox(
@@ -634,37 +652,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       subtitle: 'unlock a gift on you 100th attend event',
                     ),
                     nfcCard: NfcCardData(
-                      title: 'Want NFC Card?',
-                      subtitle: 'unlock your premium silver NFC Card.',
+                      title: 'NFC Card',
+                      subtitle: 'Tap to claim your NFC card',
                       connectionsLeft: nfcConnectionsLeft,
-                      onClaim: () async {
-                        final nfcService = NfcCardService();
-                        final requestData = {
-                          "note": "Requesting premium silver NFC card"
-                        };
-                        try {
-                          final response = await nfcService.requestNfcCard(requestData);
-                          if (response["success"] == true) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("NFC Card requested successfully!")),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text(response["message"] ?? "Failed to request NFC Card.")),
-                            );
-                          }
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Error: $e")),
-                          );
-                        }
-                      },
+                      onClaim: () {},
                       onBuy: () {},
                     ),
                     subscription: SubscriptionStatusData(
                       active: subscriptionActive,
                       daysLeft: subscriptionDaysLeft,
                       onRenew: () {},
+                      plan: plan,
+                      amountPaid: amountPaid,
+                      startDate: startDate,
+                      endDate: endDate,
                     ),
                   ),
                 ],

@@ -21,6 +21,52 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   final List<String> locations = ['New Delhi', 'Mumbai', 'Bangalore', 'Chennai'];
   final List<String> experiences = ['Less than 1 year', '1 year', '2 years', '3+ years'];
 
+  // Validation helpers
+  bool _isValidFullName(String name) => name.trim().isNotEmpty;
+  bool _isValidDesignation(String designation) => designation.trim().isNotEmpty;
+  bool _isValidLocation(String location) => locations.contains(location);
+  bool _isValidExperience(String exp) => experiences.contains(exp);
+  bool _isValidDate(String date) {
+    // Accepts dd/mm/yyyy or dd-mm-yyyy
+    final regex = RegExp(r'^(0[1-9]|[12][0-9]|3[01])[\/\-](0[1-9]|1[0-2])[\/\-](19|20)\d{2}$');
+    return regex.hasMatch(date.trim());
+  }
+
+  void _validateAndProceed() {
+    final name = fullNameController.text;
+    final dob = dobController.text;
+    final designation = designationController.text;
+    final location = selectedLocation;
+    final experience = selectedExperience;
+
+    String? error;
+    if (!_isValidFullName(name)) {
+      error = "Please enter your full name.";
+    } else if (!_isValidDate(dob)) {
+      error = "Please enter a valid date of birth (dd/mm/yyyy).";
+    } else if (!_isValidDesignation(designation)) {
+      error = "Please enter your designation.";
+    } else if (!_isValidLocation(location)) {
+      error = "Please select a valid location.";
+    } else if (!_isValidExperience(experience)) {
+      error = "Please select your real estate experience.";
+    }
+
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const OrganisationDetailsScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -89,10 +135,43 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                CustomTextField(
-                  label: "Date of Birth",
-                  hint: "09/09/2003",
-                  controller: dobController,
+                GestureDetector(
+                  onTap: () async {
+                    FocusScope.of(context).unfocus();
+                    DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime(2000, 1, 1),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: const ColorScheme.dark(
+                              primary: Color(0xFF0262AB),
+                              onPrimary: Colors.white,
+                              surface: Color(0xFF22252A),
+                              onSurface: Colors.white,
+                            ),
+                            dialogBackgroundColor: Color(0xFF23262B),
+                          ),
+                          child: child!,
+                        );
+                      },
+                    );
+                    if (picked != null) {
+                      String formatted = "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
+                      setState(() {
+                        dobController.text = formatted;
+                      });
+                    }
+                  },
+                  child: AbsorbPointer(
+                    child: CustomTextField(
+                      label: "Date of Birth",
+                      hint: "09/09/2003",
+                      controller: dobController,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
 
@@ -149,14 +228,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const OrganisationDetailsScreen(),
-                        ),
-                      );
-                    },
+                    onPressed: _validateAndProceed,
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(

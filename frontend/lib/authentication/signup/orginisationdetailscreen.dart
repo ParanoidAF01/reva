@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:reva/authentication/login.dart';
 import 'package:reva/authentication/signup/ekycscreen.dart';
 import '../components/mytextfield.dart';
 
@@ -22,6 +23,40 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
 
   final List<String> companyTypes = ['New Delhi', 'Private Ltd', 'LLP', 'Proprietorship'];
   final List<String> gstinOptions = ['Less than 1 year', '1 year', '2 years', '3+ years'];
+  
+  // Validation helpers
+  bool _isValidCompanyName(String name) => name.trim().isNotEmpty;
+  bool _isValidIncorporationDate(String date) {
+    final regex = RegExp(r'^(0[1-9]|[12][0-9]|3[01])[\/\-](0[1-9]|1[0-2])[\/\-](19|20)\d{2}$');
+    return regex.hasMatch(date.trim());
+  }
+  bool _isValidCompanyType(String type) => companyTypes.contains(type);
+  
+  void _validateAndProceed() {
+    final name = companyNameController.text;
+    final date = incorporationDateController.text;
+    final type = selectedCompanyType;
+    
+    String? error;
+    if (!_isValidCompanyName(name)) {
+      error = "Please enter your company/firm name.";
+    } else if (!_isValidIncorporationDate(date)) {
+      error = "Please enter a valid incorporation date (dd/mm/yyyy).";
+    } else if (!isRegistered) {
+      error = "Please confirm your company is registered.";
+    } else if (!_isValidCompanyType(type)) {
+      error = "Please select a valid company type.";
+    }
+    
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    
+    Navigator.push(context, MaterialPageRoute(builder: (context)=> const EKycScreen()));
+  }
 
   @override
   void dispose() {
@@ -137,10 +172,43 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                CustomTextField(
-                  label: 'Incorporation Date',
-                  hint: '09/09/2003',
-                  controller: incorporationDateController,
+                GestureDetector(
+                  onTap: () async {
+                    FocusScope.of(context).unfocus();
+                    DateTime? picked = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime(2000, 1, 1),
+                      firstDate: DateTime(1900),
+                      lastDate: DateTime.now(),
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: const ColorScheme.dark(
+                              primary: Color(0xFF0262AB),
+                              onPrimary: Colors.white,
+                              surface: Color(0xFF22252A),
+                              onSurface: Colors.white,
+                            ),
+                            dialogBackgroundColor: Color(0xFF23262B),
+                          ),
+                          child: child!,
+                        );
+                      },
+                    );
+                    if (picked != null) {
+                      String formatted = "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
+                      setState(() {
+                        incorporationDateController.text = formatted;
+                      });
+                    }
+                  },
+                  child: AbsorbPointer(
+                    child: CustomTextField(
+                      label: 'Incorporation Date',
+                      hint: '09/09/2003',
+                      controller: incorporationDateController,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 16),
 
@@ -168,11 +236,9 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     _buildGradientButton('Skip', width, (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const EKycScreen()));
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const LoginScreen()));
                     }),
-                    _buildGradientButton('Next', width, (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const EKycScreen()));
-                    }),
+                    _buildGradientButton('Next', width, _validateAndProceed),
                   ],
                 ),
               ],

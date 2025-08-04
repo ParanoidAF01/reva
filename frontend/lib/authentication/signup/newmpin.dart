@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/authentication/login.dart';
 import 'package:reva/authentication/signup/CompleteProfileScreen.dart';
+import 'package:reva/authentication/signup/signup.dart';
 
 import '../components/mytextfield.dart';
 
@@ -78,7 +79,7 @@ class _NewMPINState extends State<NewMPIN> {
                           height: height * 0.065,
                           child: ElevatedButton(
                             onPressed: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=> const CompleteProfileScreen()));
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const LoginScreen()));
                             },
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.zero,
@@ -98,7 +99,7 @@ class _NewMPINState extends State<NewMPIN> {
                               ),
                               child: const Center(
                                 child: Text(
-                                  'Login',
+                                  'Change MPIN',
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -117,16 +118,16 @@ class _NewMPINState extends State<NewMPIN> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               const Text(
-                                "Already have an account! ",
+                                "Don't have an account! ",
                                 style: TextStyle(color: Color(0xFFD8D8DD)
                                 ),
                               ),
                               InkWell(
                                 onTap: () {
-                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>  const LoginScreen()));
+                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>  const SignUp()));
                                 },
                                 child: const Text(
-                                  "SignUP",
+                                  "Sign UP",
                                   style: TextStyle(
                                     color: Color(0xFF3B9FED),
                                     fontWeight: FontWeight.w600,

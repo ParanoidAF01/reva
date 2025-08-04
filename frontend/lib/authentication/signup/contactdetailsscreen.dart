@@ -17,6 +17,24 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
   TextEditingController websitePortfolio= TextEditingController();
   TextEditingController socialMediaLinks= TextEditingController();
   TextEditingController alternateMobileNumbers= TextEditingController();
+  // Validation helpers
+  bool _isValidMobile(String mobile) => RegExp(r'^[0-9]{10}$').hasMatch(mobile.trim());
+
+  void _validateAndProceed() {
+    final mobile = primaryMobileNumber.text;
+    String? error;
+    if (!_isValidMobile(mobile)) {
+      error = "Please enter a valid 10-digit mobile number.";
+    }
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    Navigator.push(context,MaterialPageRoute(builder: (context)=> const PreferencesScreen()) );
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -114,9 +132,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(context,MaterialPageRoute(builder: (context)=> const PreferencesScreen()) );
-                    },
+                    onPressed: _validateAndProceed,
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
@@ -136,6 +152,43 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                       child: const Center(
                         child: Text(
                           'Next',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/login');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Ink(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'Skip',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,

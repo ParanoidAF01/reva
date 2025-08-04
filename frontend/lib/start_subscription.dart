@@ -41,6 +41,7 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF22252A),
         elevation: 0,
+        leading: Container(),
         actions: [
           FutureBuilder<bool>(
             future: AuthService().isLoggedIn(),

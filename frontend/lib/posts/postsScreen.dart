@@ -55,18 +55,8 @@ class _PostsScreenState extends State<PostsScreen> {
 
   List<dynamic> get _filteredPosts {
     return _posts.where((post) {
-      final matchesSearch = _searchText.isEmpty ||
-          (post['name'] as String)
-              .toLowerCase()
-              .contains(_searchText.toLowerCase()) ||
-          (post['role'] as String)
-              .toLowerCase()
-              .contains(_searchText.toLowerCase()) ||
-          (post['text'] ?? '')
-              .toLowerCase()
-              .contains(_searchText.toLowerCase());
-      final matchesBadge =
-          _selectedBadge == null || post['badge'] == _selectedBadge;
+      final matchesSearch = _searchText.isEmpty || (post['name'] as String).toLowerCase().contains(_searchText.toLowerCase()) || (post['role'] as String).toLowerCase().contains(_searchText.toLowerCase()) || (post['text'] ?? '').toLowerCase().contains(_searchText.toLowerCase());
+      final matchesBadge = _selectedBadge == null || post['badge'] == _selectedBadge;
       return matchesSearch && matchesBadge;
     }).toList();
   }
@@ -80,9 +70,7 @@ class _PostsScreenState extends State<PostsScreen> {
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child:
-                      Text(_error!, style: const TextStyle(color: Colors.red)))
+              ? Center(child: Text(_error!, style: const TextStyle(color: Colors.red)))
               : SingleChildScrollView(
                   child: SafeArea(
                     child: Column(
@@ -104,19 +92,16 @@ class _PostsScreenState extends State<PostsScreen> {
                                   child: Row(
                                     children: [
                                       const SizedBox(width: 12),
-                                      const Icon(Icons.search,
-                                          color: Colors.white54, size: 22),
+                                      const Icon(Icons.search, color: Colors.white54, size: 22),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: TextField(
                                           controller: _searchController,
-                                          style: const TextStyle(
-                                              color: Colors.white),
+                                          style: const TextStyle(color: Colors.white),
                                           cursorColor: Colors.white54,
                                           decoration: const InputDecoration(
                                             hintText: 'Search...',
-                                            hintStyle:
-                                                TextStyle(color: Colors.white54),
+                                            hintStyle: TextStyle(color: Colors.white54),
                                             border: InputBorder.none,
                                           ),
                                           onChanged: (val) {
@@ -151,18 +136,13 @@ class _PostsScreenState extends State<PostsScreen> {
                                     });
                                   },
                                   style: TextButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 22),
-                                    shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12)),
+                                    padding: const EdgeInsets.symmetric(horizontal: 22),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                     backgroundColor: Colors.transparent,
                                   ),
                                   child: const Text(
                                     'Search',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 16),
+                                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
                                   ),
                                 ),
                               ),
@@ -172,37 +152,27 @@ class _PostsScreenState extends State<PostsScreen> {
                                 child: DropdownButton<String>(
                                   dropdownColor: const Color(0xFF2B2F34),
                                   value: _selectedBadge,
-                                  hint: const Text('Filter',
-                                      style: TextStyle(color: Colors.white54)),
-                                  icon: const Icon(Icons.filter_list,
-                                      color: Colors.white),
+                                  hint: const Text('Filter', style: TextStyle(color: Colors.white54)),
+                                  icon: const Icon(Icons.filter_list, color: Colors.white),
                                   items: [
                                     DropdownMenuItem(
                                       value: null,
-                                      child: Text('All',
-                                          style: GoogleFonts.dmSans(
-                                              color: Colors.white)),
+                                      child: Text('All', style: GoogleFonts.dmSans(color: Colors.white)),
                                     ),
                                     DropdownMenuItem(
                                       value: 'silver',
                                       child: Row(children: [
-                                        Image.asset('assets/silverpostbadge.png',
-                                            height: 16),
+                                        Image.asset('assets/silverpostbadge.png', height: 16),
                                         const SizedBox(width: 6),
-                                        Text('Silver',
-                                            style: GoogleFonts.dmSans(
-                                                color: Colors.white))
+                                        Text('Silver', style: GoogleFonts.dmSans(color: Colors.white))
                                       ]),
                                     ),
                                     DropdownMenuItem(
                                       value: 'bronze',
                                       child: Row(children: [
-                                        Image.asset('assets/bronzepostbadge.png',
-                                            height: 16),
+                                        Image.asset('assets/bronzepostbadge.png', height: 16),
                                         const SizedBox(width: 6),
-                                        Text('Bronze',
-                                            style: GoogleFonts.dmSans(
-                                                color: Colors.white))
+                                        Text('Bronze', style: GoogleFonts.dmSans(color: Colors.white))
                                       ]),
                                     ),
                                   ],
@@ -222,18 +192,17 @@ class _PostsScreenState extends State<PostsScreen> {
                         ..._filteredPosts.asMap().entries.map((entry) {
                           final idx = entry.key;
                           final post = entry.value;
+                          final author = post['author'] ?? {};
+                          final comments = post['comments'] ?? [];
                           return Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: width * 0.04,
-                                vertical: height * 0.012),
+                            padding: EdgeInsets.symmetric(horizontal: width * 0.04, vertical: height * 0.012),
                             child: Container(
                               width: double.infinity,
                               decoration: BoxDecoration(
                                 color: const Color(0xFF23262B),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 16, horizontal: 16),
+                              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -242,143 +211,196 @@ class _PostsScreenState extends State<PostsScreen> {
                                     children: [
                                       CircleAvatar(
                                         radius: 22,
-                                        backgroundImage:
-                                            post['profile'] != null &&
-                                                    post['profile']
-                                                        .toString()
-                                                        .startsWith('http')
-                                                ? NetworkImage(post['profile'])
-                                                : AssetImage(post['profile'] ??
-                                                        'assets/dummyprofile.png')
-                                                    as ImageProvider,
+                                        backgroundColor: Colors.blueGrey,
+                                        child: Text(
+                                          author['fullName'] != null && author['fullName'].isNotEmpty ? author['fullName'][0].toUpperCase() : '?',
+                                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                        ),
                                       ),
                                       const SizedBox(width: 10),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Row(
-                                              children: [
-                                                Text(post['name'] ?? '',
-                                                    style: GoogleFonts.dmSans(
-                                                        fontWeight:
-                                                            FontWeight.w700,
-                                                        color: Colors.white,
-                                                        fontSize: 16)),
-                                                const SizedBox(width: 6),
-                                                if (post['badgeAsset'] != null)
-                                                  (post['badgeAsset']
-                                                          .toString()
-                                                          .startsWith('http'))
-                                                      ? Image.network(
-                                                          post['badgeAsset'],
-                                                          height: 18)
-                                                      : Image.asset(
-                                                          post['badgeAsset'],
-                                                          height: 18),
-                                              ],
-                                            ),
-                                            Text(post['role'] ?? '',
-                                                style: GoogleFonts.dmSans(
-                                                    color: Colors.white70,
-                                                    fontSize: 13)),
+                                            Text(author['fullName'] ?? 'Unknown', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 16)),
+                                            Text(post['category'] ?? '', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
                                             const SizedBox(height: 2),
-                                            Row(
-                                              children: [
-                                                Text(post['time'] ?? '',
-                                                    style: GoogleFonts.dmSans(
-                                                        color: Colors.white54,
-                                                        fontSize: 12)),
-                                                const SizedBox(width: 4),
-                                                const Icon(Icons.public,
-                                                    color: Colors.white54,
-                                                    size: 13),
-                                              ],
-                                            ),
+                                            Text(post['createdAt'] ?? '', style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 12)),
                                           ],
                                         ),
                                       ),
-                                      const Icon(Icons.more_horiz,
-                                          color: Colors.white54),
+                                      const Icon(Icons.more_horiz, color: Colors.white54),
                                     ],
                                   ),
-                                  if (post['text'] != null) ...[
+                                  if (post['content'] != null) ...[
                                     const SizedBox(height: 10),
-                                    Text(post['text'],
-                                        style: GoogleFonts.dmSans(
-                                            color: Colors.white, fontSize: 15)),
+                                    Text(post['content'], style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
                                   ],
-                                  if (post['image'] != null) ...[
-                                    const SizedBox(height: 10),
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: post['image']
-                                              .toString()
-                                              .startsWith('http')
-                                          ? Image.network(post['image'],
-                                              height: 140,
+                                  const SizedBox(height: 10),
+                                  Text('${comments.length} comments', style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 13)),
+                                  const SizedBox(height: 10),
+                                  // Comments List
+                                  // Dropdown to show/hide comments (per post)
+                                  Builder(
+                                    builder: (context) {
+                                      // Use a map to track dropdown state per post
+                                      post['showComments'] ??= false;
+                                      return Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                post['showComments'] = !post['showComments'];
+                                              });
+                                            },
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  post['showComments'] ? Icons.arrow_drop_up : Icons.arrow_drop_down,
+                                                  color: Colors.white54,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text('View Comments', style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 13)),
+                                              ],
+                                            ),
+                                          ),
+                                          if (post['showComments'])
+                                            Container(
                                               width: double.infinity,
-                                              fit: BoxFit.cover)
-                                          : Image.asset(post['image'],
-                                              height: 140,
-                                              width: double.infinity,
-                                              fit: BoxFit.cover),
+                                              margin: const EdgeInsets.only(top: 8),
+                                              child: Column(
+                                                children: List.generate(comments.length, (cIdx) {
+                                                  final comment = comments[cIdx];
+                                                  return Container(
+                                                    margin: const EdgeInsets.symmetric(vertical: 4.0),
+                                                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+                                                    decoration: BoxDecoration(
+                                                      color: const Color(0xFF2B2F34),
+                                                      borderRadius: BorderRadius.circular(8),
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+                                                        CircleAvatar(
+                                                          radius: 14,
+                                                          backgroundColor: Colors.blueGrey,
+                                                          child: Text(
+                                                            comment['author'] != null && comment['author']['fullName'] != null && comment['author']['fullName'].isNotEmpty ? comment['author']['fullName'][0].toUpperCase() : '?',
+                                                            style: const TextStyle(color: Colors.white, fontSize: 12),
+                                                          ),
+                                                        ),
+                                                        const SizedBox(width: 8),
+                                                        Expanded(
+                                                          child: Text(comment['content'] ?? '', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 13)),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                }),
+                                              ),
+                                            ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                  // Add Comment Input
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 6.0),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: TextField(
+                                            controller: post['commentController'] ??= TextEditingController(),
+                                            decoration: InputDecoration(
+                                              hintText: 'Add a comment...',
+                                              hintStyle: GoogleFonts.dmSans(color: Colors.white54, fontSize: 13),
+                                              filled: true,
+                                              fillColor: const Color(0xFF2B2F34),
+                                              border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(8),
+                                                borderSide: BorderSide.none,
+                                              ),
+                                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                            ),
+                                            style: GoogleFonts.dmSans(color: Colors.white, fontSize: 13),
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon: const Icon(Icons.send, color: Colors.white70, size: 20),
+                                          onPressed: () async {
+                                            final commentText = post['commentController'].text.trim();
+                                            if (commentText.isEmpty) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('Comment cannot be empty')),
+                                              );
+                                              return;
+                                            }
+                                            final response = await ServiceManager.instance.posts.addComment(
+                                              post['_id'].toString(),
+                                              {
+                                                'content': commentText
+                                              }, // Use 'content' as required by API
+                                            );
+                                            if (response['success'] == true) {
+                                              setState(() {
+                                                comments.add({
+                                                  'content': commentText,
+                                                  'author': {
+                                                    'fullName': 'You'
+                                                  }
+                                                });
+                                                post['commentController'].clear();
+                                              });
+                                            } else {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text(response['message'] ?? 'Failed to add comment')),
+                                              );
+                                            }
+                                          },
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                  const SizedBox(height: 10),
-                                  Text('${post['comments'] ?? 0} comments',
-                                      style: GoogleFonts.dmSans(
-                                          color: Colors.white54, fontSize: 13)),
-                                  const SizedBox(height: 10),
+                                  ),
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: [
                                       GestureDetector(
-                                        onTap: () {
-                                          setState(() {
-                                            if (idx < _likedPosts.length) {
-                                              _likedPosts[idx] =
-                                                  !_likedPosts[idx];
-                                            }
-                                          });
+                                        onTap: () async {
+                                          final response = await ServiceManager.instance.posts.toggleLike(post['_id'].toString());
+                                          if (response['success'] == true) {
+                                            setState(() {
+                                              if (idx < _likedPosts.length) {
+                                                _likedPosts[idx] = !_likedPosts[idx];
+                                              }
+                                            });
+                                          } else {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text(response['message'] ?? 'Failed to like post')),
+                                            );
+                                          }
                                         },
-                                        child: Column(
+                                        child: Row(
                                           children: [
                                             Icon(
-                                              (idx < _likedPosts.length &&
-                                                      _likedPosts[idx])
-                                                  ? Icons.thumb_up_alt
-                                                  : Icons.thumb_up_alt_outlined,
-                                              color: (idx < _likedPosts.length &&
-                                                      _likedPosts[idx])
-                                                  ? Colors.white
-                                                  : Colors.white70,
+                                              (idx < _likedPosts.length && _likedPosts[idx]) ? Icons.thumb_up_alt : Icons.thumb_up_alt_outlined,
+                                              color: (idx < _likedPosts.length && _likedPosts[idx]) ? Colors.white : Colors.white70,
                                             ),
-                                            const SizedBox(height: 2),
-                                            Text('Like',
-                                                style: GoogleFonts.dmSans(
-                                                    color: Colors.white70,
-                                                    fontSize: 13)),
+                                            const SizedBox(width: 4),
+                                            Text('Like', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
                                           ],
                                         ),
                                       ),
                                       GestureDetector(
                                         onTap: () {},
-                                        child: _postAction(
-                                            Icons.mode_comment_outlined,
-                                            'Comment'),
+                                        child: _postAction(Icons.mode_comment_outlined, 'Comment'),
                                       ),
                                       GestureDetector(
                                         onTap: () {},
-                                        child: _postAction(
-                                            Icons.share_outlined, 'Share'),
+                                        child: _postAction(Icons.share_outlined, 'Share'),
                                       ),
                                       GestureDetector(
                                         onTap: () {},
-                                        child: _postAction(
-                                            Icons.send_outlined, 'Send'),
+                                        child: _postAction(Icons.send_outlined, 'Send'),
                                       ),
                                     ],
                                   ),
@@ -400,8 +422,7 @@ class _PostsScreenState extends State<PostsScreen> {
       children: [
         Icon(icon, color: Colors.white70, size: 22),
         const SizedBox(height: 2),
-        Text(label,
-            style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
+        Text(label, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
       ],
     );
   }

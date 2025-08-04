@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:reva/home/components/GoldCard.dart';
+import 'package:reva/home/components/goldCard.dart';
+import 'package:reva/home/components/silverCard.dart';
+import 'package:reva/home/components/bronzeCard.dart';
+import 'package:reva/services/service_manager.dart';
 import 'package:reva/home/create_post_card.dart';
 import 'package:reva/peopleyoumayknow/peopleyoumayknow.dart';
 import 'package:reva/peopleyoumayknow/peopleyoumayknowtile.dart';
@@ -16,8 +19,154 @@ import 'package:reva/providers/user_provider.dart';
 // import 'package:reva/qr/profile_qr_screen.dart';
 // Make sure ProfileQrScreen is a widget class in this file.
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  List<dynamic> userEvents = [];
+  List<dynamic> upcomingEvents = [];
+  List<dynamic> myPosts = [];
+  List<dynamic> peopleYouMayKnow = [];
+  bool isLoadingEvents = true;
+  bool isLoadingUpcomingEvents = true;
+  bool isLoadingPosts = true;
+  bool isLoadingPeople = true;
+  int subscriptionDaysLeft = 0;
+  bool subscriptionActive = true;
+  bool isLoadingSubscription = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchUserEvents();
+    fetchUpcomingEvents();
+    fetchMyPosts();
+    fetchPeopleYouMayKnow();
+    fetchSubscriptionStatus();
+  }
+
+  Future<void> fetchSubscriptionStatus() async {
+    try {
+      final response = await ServiceManager.instance.subscription.checkSubscription();
+      if (response['success'] == true) {
+        setState(() {
+          subscriptionDaysLeft = response['data']['daysLeft'] ?? 0;
+          subscriptionActive = response['data']['active'] ?? true;
+          isLoadingSubscription = false;
+        });
+      } else {
+        setState(() {
+          subscriptionDaysLeft = 0;
+          subscriptionActive = false;
+          isLoadingSubscription = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        subscriptionDaysLeft = 0;
+        subscriptionActive = false;
+        isLoadingSubscription = false;
+      });
+    }
+  }
+
+  Future<void> fetchUserEvents() async {
+    try {
+      final response = await ServiceManager.instance.events.getMyEvents();
+      if (response['success'] == true) {
+        setState(() {
+          userEvents = response['data']['events'] ?? [];
+          isLoadingEvents = false;
+        });
+      } else {
+        setState(() {
+          userEvents = [];
+          isLoadingEvents = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        userEvents = [];
+        isLoadingEvents = false;
+      });
+    }
+  }
+
+  Future<void> fetchUpcomingEvents() async {
+    try {
+      final response = await ServiceManager.instance.events.getAllEvents();
+      if (response['success'] == true) {
+        setState(() {
+          upcomingEvents = response['data']['events'] ?? [];
+          isLoadingUpcomingEvents = false;
+        });
+      } else {
+        setState(() {
+          upcomingEvents = [];
+          isLoadingUpcomingEvents = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        upcomingEvents = [];
+        isLoadingUpcomingEvents = false;
+      });
+    }
+  }
+
+  Future<void> fetchMyPosts() async {
+    try {
+      final response = await ServiceManager.instance.posts.getMyPosts();
+      if (response['success'] == true) {
+        setState(() {
+          myPosts = response['data']['posts'] ?? [];
+          isLoadingPosts = false;
+        });
+      } else {
+        setState(() {
+          myPosts = [];
+          isLoadingPosts = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        myPosts = [];
+        isLoadingPosts = false;
+      });
+    }
+  }
+
+  Future<void> fetchPeopleYouMayKnow() async {
+    try {
+      final response = await ServiceManager.instance.connections.getConnectionSuggestions();
+      if (response['success'] == true) {
+        final suggestions = response['data']['suggestions'] ?? [];
+        final mapped = suggestions.map((person) => {
+          'name': person['fullName'] ?? 'Unknown',
+          'image': person['profile'] ?? 'assets/dummyprofile.png',
+          'mobileNumber': person['mobileNumber'] ?? '',
+        }).toList();
+        setState(() {
+          peopleYouMayKnow = mapped;
+          isLoadingPeople = false;
+        });
+      } else {
+        setState(() {
+          peopleYouMayKnow = [];
+          isLoadingPeople = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        peopleYouMayKnow = [];
+        isLoadingPeople = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,455 +174,475 @@ class HomeScreen extends StatelessWidget {
     var height = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(width * 0.05),
-          child: Column(
-            children: [
-              SizedBox(height: height * 0.045),
-              // Custom Top Navbar
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      body: Consumer<UserProvider>(
+        builder: (context, userProvider, child) {
+          final userData = userProvider.userData ?? {};
+          final String userName = userProvider.userName;
+          final String userLocation = userData['location'] ?? "Delhi NCR";
+          final String userExperience = userData['experience'] ?? "4+ years";
+          final String userLanguages = userData['languages'] ?? "Hindi, English";
+          final String profileImage = userData['profileImage'] ?? 'assets/dummyprofile.png';
+          final int revaConnections = userData['connections'] ?? 0;
+          final int pendingRequests = userData['pendingRequests'] ?? 0;
+          final int pendingConnects = userData['pendingConnects'] ?? 0;
+          final int achievementProgress = userData['achievementProgress'] ?? 0;
+          final int achievementMax = userData['achievementMax'] ?? 100;
+          final int achievementCurrent = userData['achievementCurrent'] ?? achievementProgress;
+          final int nfcConnectionsLeft = userData['nfcConnectionsLeft'] ?? 0;
+          // Use API-fetched subscription status
+          // final bool subscriptionActive = userData['subscriptionActive'] ?? true;
+          // final int subscriptionDaysLeft = userData['subscriptionDaysLeft'] ?? 0;
+          final String phone = userData['phone'] ?? '9876543210';
+          final String mpin = userData['mpin'] ?? '1234';
+          final String tag1 = userData['tag1'] ?? "Commercial";
+          final String tag2 = userData['tag2'] ?? "Plots";
+          final String tag3 = userData['tag3'] ?? "Rental";
+          final String kycStatus = userData['kycStatus'] ?? "KYC Approved";
+          return SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(width * 0.05),
+              child: Column(
                 children: [
-                  // Logo
-                  Image.asset(
-                    "assets/fulllogo.png",
-                    height: width * 0.18,
-                  ),
-                  const Spacer(),
-                  // Notification Icon with subtle glow and navigation
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.pushNamed(context, '/notification');
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF23262B),
-                        shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.white.withOpacity(0.07),
-                            blurRadius: 12,
-                            spreadRadius: 2,
-                          ),
-                        ],
-                      ),
-                      // Removed padding from image
-                      child: Image.asset(
-                        "assets/bellicon.png",
-                        height: width * 0.1,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: height * 0.025),
-              // Profile Row
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // Profile Image
-                  CircleAvatar(
-                    radius: width * 0.09,
-                    backgroundImage: const AssetImage('assets/dummyprofile.png'),
-                  ),
-                  SizedBox(width: width * 0.04),
-                  // Hello & Name
-                  Column(
+                  SizedBox(height: height * 0.045),
+                  // Custom Top Navbar
+                  Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Hello!",
-                        style: GoogleFonts.dmSans(
-                          fontWeight: FontWeight.w400,
-                          fontSize: width * 0.045,
-                          color: Colors.white,
+                      // Logo
+                      Image.asset(
+                        "assets/fulllogo.png",
+                        height: width * 0.18,
+                      ),
+                      const Spacer(),
+                      // Notification Icon with subtle glow and navigation
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, '/notification');
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF23262B),
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.white.withOpacity(0.07),
+                                blurRadius: 12,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                          // Removed padding from image
+                          child: Image.asset(
+                            "assets/bellicon.png",
+                            height: width * 0.1,
+                          ),
                         ),
                       ),
-                      Consumer<UserProvider>(
-                        builder: (context, userProvider, child) {
-                          return Text(
-                            "${userProvider.userName},",
+                    ],
+                  ),
+                  SizedBox(height: height * 0.025),
+                  // Profile Row
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Profile Image
+                      CircleAvatar(
+                        radius: width * 0.09,
+                        backgroundImage: AssetImage(profileImage),
+                      ),
+                      SizedBox(width: width * 0.04),
+                      // Hello & Name
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Hello!",
+                            style: GoogleFonts.dmSans(
+                              fontWeight: FontWeight.w400,
+                              fontSize: width * 0.045,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            "$userName,",
                             style: GoogleFonts.dmSans(
                               fontWeight: FontWeight.w700,
                               fontSize: width * 0.07,
                               color: Colors.white,
                             ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                  const Spacer(),
-                  // Edit Button
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.edit, color: Color(0xFF22252A)),
-                      onPressed: () {
-                        // TODO: Edit profile action
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: height * 0.03),
-              // Search Bar & Filter Button
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: width * 0.13,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF2B2F34),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: EdgeInsets.symmetric(horizontal: width * 0.03),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.search,
-                              color: Colors.white70, size: 22),
-                          SizedBox(width: width * 0.02),
-                          const Expanded(
-                            child: TextField(
-                              style: TextStyle(color: Colors.white),
-                              cursorColor: Colors.white54,
-                              decoration: InputDecoration(
-                                hintText: 'Search ...',
-                                hintStyle: TextStyle(color: Colors.white54),
-                                border: InputBorder.none,
-                              ),
-                            ),
                           ),
                         ],
                       ),
-                    ),
-                  ),
-                  SizedBox(width: width * 0.03),
-                  // Filter Button
-                  Container(
-                    height: width * 0.13,
-                    width: width * 0.13,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF0262AB), Color(0xFF01345A)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: IconButton(
-                      icon: const Icon(Icons.filter_list,
-                          color: Colors.white, size: 26),
-                      onPressed: () {
-                        // TODO: Filter action
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: height * 0.03),
-              // Example dynamic data for GoldCard
-              Consumer<UserProvider>(
-                builder: (context, userProvider, child) {
-                  final String userName = userProvider.userName;
-                  final String userLocation =
-                      userProvider.userData?['location'] ?? "Delhi NCR";
-                  final String userExperience =
-                      userProvider.userData?['experience'] ?? "4+ years";
-                  final String userLanguages =
-                      userProvider.userData?['languages'] ?? "Hindi, English";
-                  const String tag1 = "Commercial";
-                  const String tag2 = "Plots";
-                  const String tag3 = "Rental";
-                  const String kycStatus = "KYC Approved";
-                  return Column(
-                    children: [
-                      GoldCard(
-                        name: userName,
-                        location: userLocation,
-                        experience: userExperience,
-                        languages: userLanguages,
-                        tag1: tag1,
-                        tag2: tag2,
-                        tag3: tag3,
-                        kycStatus: kycStatus,
-                      ),
-                      SizedBox(height: height * 0.02),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF01416A),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                          ),
-                          icon: const Icon(Icons.qr_code,
-                              color: Colors.white, size: 22),
-                          label: Text(
-                            'View my Profile QR',
-                            style: GoogleFonts.dmSans(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
+                      const Spacer(),
+                      // Edit Button
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.edit, color: Color(0xFF22252A)),
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ProfileQrScreen(
-                                  mpin: '1234', // Replace with real user data
-                                  phone:
-                                      '9876543210', // Replace with real user data
-                                ),
-                              ),
-                            );
+                            // TODO: Edit profile action
                           },
                         ),
                       ),
                     ],
-                  );
-                },
-              ),
-              SizedBox(height: height * 0.03),
-              // Stats row (REVA Connections, Pending Requests, Pending Connects)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: _customStatCard(
-                      icon: Icons.people_alt,
-                      label1: 'REVA',
-                      label2: 'Connections',
-                      value: '384',
-                      width: width,
-                    ),
                   ),
-                  SizedBox(width: width * 0.025),
-                  Expanded(
-                    child: _customStatCard(
-                      icon: Icons.hourglass_empty,
-                      label1: 'Pending',
-                      label2: 'Requests',
-                      value: '40',
-                      width: width,
-                    ),
-                  ),
-                  SizedBox(width: width * 0.025),
-                  Expanded(
-                    child: _customStatCard(
-                      icon: Icons.link,
-                      label1: 'Pending',
-                      label2: 'Connects',
-                      value: '3',
-                      width: width,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: height * 0.04),
-              // Dynamic Progress bar section
-              _DynamicProgressBar(
-                progress: 196,
-                max: 500,
-                tickPositions: const [0, 196, 500],
-                label: 'Your progress',
-                unlockText: 'to Unlock',
-                unlockCard: 'Silver card',
-                width: width,
-              ),
-              SizedBox(height: height * 0.05),
-              // Upcoming Events Section
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Upcoming Events',
-                  style: GoogleFonts.dmSans(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              SizedBox(height: height * 0.03),
-              const _UpcomingEventsCarousel(
-                events: [
-                  {
-                    'image': 'assets/eventdummyimage.png',
-                    'price': '₹599',
-                    'title': 'Mumbai Realty Connect',
-                    'location': 'Mumbai',
-                    'registered': 108,
-                  },
-                  // Add more events here as needed
-                ],
-              ),
-              const SizedBox(height: 10),
-              // Page indicator is inside the carousel
-              SizedBox(height: height * 0.04),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF01416A),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const EventScreen()),
-                    );
-                  },
-                  child: Text(
-                    'Explore All Events',
-                    style: GoogleFonts.dmSans(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ),
-              // Upcoming Events Section
-
-              const SizedBox(width: 8),
-              Icon(Icons.arrow_forward,
-                  color: Colors.white, size: height * 0.045),
-
-              // People you may know section (placeholder for now)
-              SizedBox(height: height * 0.04),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'People you may know',
-                      style: GoogleFonts.dmSans(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 18,
+                  SizedBox(height: height * 0.03),
+                  // Search Bar & Filter Button
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          height: width * 0.13,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF2B2F34),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: width * 0.03),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.search, color: Colors.white70, size: 22),
+                              SizedBox(width: width * 0.02),
+                              const Expanded(
+                                child: TextField(
+                                  style: TextStyle(color: Colors.white),
+                                  cursorColor: Colors.white54,
+                                  decoration: InputDecoration(
+                                    hintText: 'Search ...',
+                                    hintStyle: TextStyle(color: Colors.white54),
+                                    border: InputBorder.none,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
+                      SizedBox(width: width * 0.03),
+                      // Filter Button
+                      Container(
+                        height: width * 0.13,
+                        width: width * 0.13,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFF0262AB),
+                              Color(0xFF01345A)
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.filter_list, color: Colors.white, size: 26),
+                          onPressed: () {
+                            // TODO: Filter action
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: height * 0.03),
+                  // Show cards based on userEvents length
+                  if (isLoadingEvents)
+                    const Center(child: CircularProgressIndicator())
+                  else if (userEvents.length < 20)
+                    BronzeCard(
+                      name: userName,
+                      location: userLocation,
+                      experience: userExperience,
+                      languages: userLanguages,
+                      tag1: tag1,
+                      tag2: tag2,
+                      tag3: tag3,
+                      kycStatus: kycStatus,
+                    )
+                  else if (userEvents.length >= 20 && userEvents.length < 60)
+                    SilverCard(
+                      name: userName,
+                      location: userLocation,
+                      experience: userExperience,
+                      languages: userLanguages,
+                      tag1: tag1,
+                      tag2: tag2,
+                      tag3: tag3,
+                      kycStatus: kycStatus,
+                    )
+                  else if (userEvents.length >= 60)
+                    GoldCard(
+                      name: userName,
+                      location: userLocation,
+                      experience: userExperience,
+                      languages: userLanguages,
+                      tag1: tag1,
+                      tag2: tag2,
+                      tag3: tag3,
+                      kycStatus: kycStatus,
                     ),
-                    TextButton(
+                  SizedBox(height: height * 0.02),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF01416A),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      icon: const Icon(Icons.qr_code, color: Colors.white, size: 22),
+                      label: Text(
+                        'View my Profile QR',
+                        style: GoogleFonts.dmSans(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
                       onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const PeopleYouMayKnow()),
+                            builder: (context) => ProfileQrScreen(
+                              mpin: mpin,
+                              phone: phone,
+                              name: userName,
+                            ),
+                          ),
                         );
                       },
-                      child: Text('See all',
+                    ),
+                  ),
+                  SizedBox(height: height * 0.03),
+                  // Stats row (REVA Connections, Pending Requests, Pending Connects)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: _customStatCard(
+                          icon: Icons.people_alt,
+                          label1: 'REVA',
+                          label2: 'Connections',
+                          value: revaConnections.toString(),
+                          width: width,
+                        ),
+                      ),
+                      SizedBox(width: width * 0.025),
+                      Expanded(
+                        child: _customStatCard(
+                          icon: Icons.hourglass_empty,
+                          label1: 'Pending',
+                          label2: 'Requests',
+                          value: pendingRequests.toString(),
+                          width: width,
+                        ),
+                      ),
+                      SizedBox(width: width * 0.025),
+                      Expanded(
+                        child: _customStatCard(
+                          icon: Icons.link,
+                          label1: 'Pending',
+                          label2: 'Connects',
+                          value: pendingConnects.toString(),
+                          width: width,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: height * 0.04),
+                  // Dynamic Progress bar section
+                  _DynamicProgressBar(
+                    progress: achievementProgress,
+                    max: achievementMax,
+                    tickPositions: [
+                      0,
+                      achievementCurrent,
+                      achievementMax
+                    ],
+                    label: 'Your progress',
+                    unlockText: 'to Unlock',
+                    unlockCard: 'Silver card',
+                    width: width,
+                  ),
+                  SizedBox(height: height * 0.01),
+                  // Events Attended Progress
+                  Row(
+                    children: [
+                      Icon(Icons.event_available, color: Colors.white70, size: 22),
+                      const SizedBox(width: 8),
+                      Text('Events Attended:', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 15)),
+                      const SizedBox(width: 8),
+                      Text(userEvents.length.toString(), style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                    ],
+                  ),
+                  SizedBox(height: height * 0.05),
+                  // Upcoming Events Section
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Upcoming Events',
+                      style: GoogleFonts.dmSans(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: height * 0.03),
+                  if (isLoadingUpcomingEvents)
+                    const Center(child: CircularProgressIndicator())
+                  else
+                    _UpcomingEventsCarousel(
+                      events: upcomingEvents
+                          .map((event) => {
+                                'image': event['image'] ?? 'assets/eventdummyimage.png',
+                                'price': event['price'] ?? '',
+                                'title': event['title'] ?? '',
+                                'location': event['location'] ?? '',
+                                'registered': event['registered'] ?? 0,
+                              })
+                          .toList(),
+                    ),
+                  const SizedBox(height: 10),
+                  // Page indicator is inside the carousel
+                  SizedBox(height: height * 0.04),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF01416A),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const EventScreen()),
+                        );
+                      },
+                      child: Text(
+                        'Explore All Events',
+                        style: GoogleFonts.dmSans(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(Icons.arrow_forward, color: Colors.white, size: height * 0.045),
+
+                  // People you may know section
+                  SizedBox(height: height * 0.04),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'People you may know',
                           style: GoogleFonts.dmSans(
-                              color: const Color(0xFFB2C2D9),
-                              fontWeight: FontWeight.w500)),
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 18,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const PeopleYouMayKnow()),
+                            );
+                          },
+                          child: Text('See all', style: GoogleFonts.dmSans(color: const Color(0xFFB2C2D9), fontWeight: FontWeight.w500)),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              SizedBox(height: height * 0.02),
-              // Use responsive PeopleYouMayKnowCard and ensure no vertical overflow
-              SizedBox(
-                height: width * 0.52, // Responsive height based on width
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 5, // Example count, replace with dynamic data
-                  separatorBuilder: (context, index) =>
-                      SizedBox(width: width * 0.04),
-                  itemBuilder: (context, index) {
-                    return SizedBox(
-                      width: width * 0.42, // Responsive width for card
-                      child: const PeopleYouMayKnowCard(),
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: height * 0.03),
-              // Create Post Card Section (dynamic)
-              CreatePostCard(
-                usedPosts: 0, // Replace with your dynamic value
-                maxPosts: 2, // Replace with your dynamic value
-                onCreatePost: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => const FractionallySizedBox(
-                      heightFactor: 0.98,
-                      child: SharePostScreen(),
+                  ),
+                  SizedBox(height: height * 0.02),
+                  if (isLoadingPeople)
+                    const Center(child: CircularProgressIndicator())
+                  else
+                    SizedBox(
+                      height: width * 0.52,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: peopleYouMayKnow.length,
+                        separatorBuilder: (context, index) => SizedBox(width: width * 0.04),
+                        itemBuilder: (context, index) {
+                          final person = peopleYouMayKnow[index];
+                          return SizedBox(
+                            width: width * 0.42,
+                            child: PeopleYouMayKnowCard(
+                              name: person['fullName'] ?? person['name'] ?? 'Unknown',
+                              image: person['profile'] ?? person['image'] ?? 'assets/dummyprofile.png',
+                              // Add more fields as needed
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  );
-                },
-              ),
-              const SizedBox(height: 32),
-              // Contact Management Section
-              ContactManagementSection(
-                contacts: [
-                  ContactCardData(
-                      icon: Image.asset('assets/builder.png', width: 28),
-                      count: '48',
-                      label: 'Builder'),
-                  ContactCardData(
-                      icon: Image.asset('assets/loan.png', width: 28),
-                      count: '12',
-                      label: 'Loan Provider'),
-                  ContactCardData(
-                      icon: Image.asset('assets/interior.png', width: 28),
-                      count: '11',
-                      label: 'Interior Designer'),
-                  ContactCardData(
-                      icon: Image.asset('assets/material.png', width: 28),
-                      count: '30',
-                      label: 'Material Supplier'),
-                  ContactCardData(
-                      icon: Image.asset('assets/legal.png', width: 28),
-                      count: '48',
-                      label: 'Legal Advisor'),
-                  ContactCardData(
-                      icon: Image.asset('assets/vastu.png', width: 28),
-                      count: '12',
-                      label: 'Vastu Consultant'),
-                  ContactCardData(
-                      icon: Image.asset('assets/homebuyer.png', width: 28),
-                      count: '11',
-                      label: 'Home Buyer'),
-                  ContactCardData(
-                      icon: Image.asset('assets/investor.png', width: 28),
-                      count: '30',
-                      label: 'Property Investor'),
+                  SizedBox(height: height * 0.03),
+                  // Create Post Card Section (dynamic)
+                  CreatePostCard(
+                    usedPosts: myPosts.length,
+                    maxPosts: 2, // If you have a max from API, use it here
+                    onCreatePost: () {
+                      showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) => const FractionallySizedBox(
+                          heightFactor: 0.98,
+                          child: SharePostScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 32),
+                  // Contact Management Section
+                  ContactManagementSection(
+                    contacts: [
+                      ContactCardData(icon: Image.asset('assets/builder.png', width: 28), count: userData['builderCount']?.toString() ?? '0', label: 'Builder'),
+                      ContactCardData(icon: Image.asset('assets/loan.png', width: 28), count: userData['loanProviderCount']?.toString() ?? '0', label: 'Loan Provider'),
+                      ContactCardData(icon: Image.asset('assets/interior.png', width: 28), count: userData['interiorDesignerCount']?.toString() ?? '0', label: 'Interior Designer'),
+                      ContactCardData(icon: Image.asset('assets/material.png', width: 28), count: userData['materialSupplierCount']?.toString() ?? '0', label: 'Material Supplier'),
+                      ContactCardData(icon: Image.asset('assets/legal.png', width: 28), count: userData['legalAdvisorCount']?.toString() ?? '0', label: 'Legal Advisor'),
+                      ContactCardData(icon: Image.asset('assets/vastu.png', width: 28), count: userData['vastuConsultantCount']?.toString() ?? '0', label: 'Vastu Consultant'),
+                      ContactCardData(icon: Image.asset('assets/homebuyer.png', width: 28), count: userData['homeBuyerCount']?.toString() ?? '0', label: 'Home Buyer'),
+                      ContactCardData(icon: Image.asset('assets/investor.png', width: 28), count: userData['propertyInvestorCount']?.toString() ?? '0', label: 'Property Investor'),
+                    ],
+                    achievement: AchievementData(
+                      progress: achievementProgress,
+                      max: achievementMax,
+                      current: achievementCurrent,
+                      label: 'Achievement',
+                      subtitle: 'unlock a gift on you 100th attend event',
+                    ),
+                    nfcCard: NfcCardData(
+                      title: 'Want NFC Card?',
+                      subtitle: 'unlock your premium silver NFC Card.',
+                      connectionsLeft: nfcConnectionsLeft,
+                      onClaim: () {},
+                      onBuy: () {},
+                    ),
+                    subscription: SubscriptionStatusData(
+                      active: subscriptionActive,
+                      daysLeft: subscriptionDaysLeft,
+                      onRenew: () {},
+                    ),
+                  ),
                 ],
-                achievement: AchievementData(
-                  progress: 32,
-                  max: 100,
-                  current: 32,
-                  label: 'Achievement',
-                  subtitle: 'unlock a gift on you 100th attend event',
-                ),
-                nfcCard: NfcCardData(
-                  title: 'Want NFC Card?',
-                  subtitle: 'unlock your premium silver NFC Card.',
-                  connectionsLeft: 406,
-                  onClaim: () {},
-                  onBuy: () {},
-                ),
-                subscription: SubscriptionStatusData(
-                  active: true,
-                  daysLeft: 29,
-                  onRenew: () {},
-                ),
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -509,8 +678,7 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: cardWidth * 0.06, vertical: cardHeight * 0.045),
+        padding: EdgeInsets.symmetric(horizontal: cardWidth * 0.06, vertical: cardHeight * 0.045),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -579,25 +747,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // Tick dot for progress bar
-// Tick dot for progress bar with adjustable size and color
-  Widget _tickDot({bool gradient = false, double size = 5}) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: gradient ? const Color(0xFF0269B6) : const Color(0xFFEDF5FF),
-        gradient: gradient
-            ? const LinearGradient(
-                colors: [Color(0xFF0269B6), Color(0xFF002E50)],
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-              )
-            : null,
-      ),
-    );
-  }
+  // ...existing code...
 }
 
 // Dynamic Progress Bar Widget
@@ -622,14 +772,12 @@ class _DynamicProgressBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double barWidth = width;
-    double barHeight = 18;
+    // Removed unused barWidth and barHeight
     double progressPercent = progress / max;
     return Container(
       width: double.infinity,
       margin: EdgeInsets.symmetric(vertical: width * 0.005),
-      padding: EdgeInsets.symmetric(
-          horizontal: width * 0.03, vertical: width * 0.025),
+      padding: EdgeInsets.symmetric(horizontal: width * 0.03, vertical: width * 0.025),
       decoration: BoxDecoration(
         color: const Color(0xFF292B32),
         borderRadius: BorderRadius.circular(width * 0.03),
@@ -664,8 +812,7 @@ class _DynamicProgressBar extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Center(
-                  child: Icon(Icons.lock,
-                      color: Colors.amber[200], size: width * 0.045),
+                  child: Icon(Icons.lock, color: Colors.amber[200], size: width * 0.045),
                 ),
               ),
             ],
@@ -727,9 +874,13 @@ class _DynamicProgressBar extends StatelessWidget {
               final tickSize = width * 0.015;
               final barWidth = constraints.maxWidth;
               // 4 dots at 20, 40, 60, 80 percent
-              final List<int> ticks = [20, 40, 60, 80];
-              List<double> tickOffsets =
-                  ticks.map((tick) => (tick / 100) * barWidth).toList();
+              final List<int> ticks = [
+                20,
+                40,
+                60,
+                80
+              ];
+              List<double> tickOffsets = ticks.map((tick) => (tick / 100) * barWidth).toList();
               return Stack(
                 children: [
                   // Background bar
@@ -748,15 +899,17 @@ class _DynamicProgressBar extends StatelessWidget {
                       gradient: const LinearGradient(
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
-                        colors: [Color(0xFF0269B6), Color(0xFF002E50)],
+                        colors: [
+                          Color(0xFF0269B6),
+                          Color(0xFF002E50)
+                        ],
                       ),
                       borderRadius: BorderRadius.circular(width * 0.08),
                     ),
                   ),
                   // Ticks
                   ...List.generate(ticks.length, (i) {
-                    final isOnBlue =
-                        tickOffsets[i] <= barWidth * progressPercent;
+                    final isOnBlue = tickOffsets[i] <= barWidth * progressPercent;
                     return Positioned(
                       left: tickOffsets[i] - tickSize / 2,
                       top: (barHeight - tickSize) / 2,
@@ -765,8 +918,7 @@ class _DynamicProgressBar extends StatelessWidget {
                         height: tickSize,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color:
-                              isOnBlue ? const Color(0xFFEDF5FF) : const Color(0xFF0269B6),
+                          color: isOnBlue ? const Color(0xFFEDF5FF) : const Color(0xFF0269B6),
                           border: Border.all(color: Colors.white, width: 1),
                         ),
                       ),
@@ -780,21 +932,9 @@ class _DynamicProgressBar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('0',
-                  style: GoogleFonts.dmSans(
-                      color: Colors.white,
-                      fontSize: width * 0.025,
-                      fontWeight: FontWeight.w600)),
-              Text('$progress',
-                  style: GoogleFonts.dmSans(
-                      color: Colors.white,
-                      fontSize: width * 0.03,
-                      fontWeight: FontWeight.w600)),
-              Text('$max',
-                  style: GoogleFonts.dmSans(
-                      color: Colors.white,
-                      fontSize: width * 0.025,
-                      fontWeight: FontWeight.w600)),
+              Text('0', style: GoogleFonts.dmSans(color: Colors.white, fontSize: width * 0.025, fontWeight: FontWeight.w600)),
+              Text('$progress', style: GoogleFonts.dmSans(color: Colors.white, fontSize: width * 0.03, fontWeight: FontWeight.w600)),
+              Text('$max', style: GoogleFonts.dmSans(color: Colors.white, fontSize: width * 0.025, fontWeight: FontWeight.w600)),
             ],
           ),
         ],
@@ -809,8 +949,7 @@ class _UpcomingEventsCarousel extends StatefulWidget {
   const _UpcomingEventsCarousel({required this.events});
 
   @override
-  State<_UpcomingEventsCarousel> createState() =>
-      _UpcomingEventsCarouselState();
+  State<_UpcomingEventsCarousel> createState() => _UpcomingEventsCarouselState();
 }
 
 class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
@@ -931,12 +1070,11 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
                               ),
                             ),
                             onPressed: () {
-                              // Navigate to event detail page with a sample eventId (replace with real id if available)
+                              // Pass the actual event title as eventId to EventDetailScreen
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      const EventDetailScreen(eventId: '1'),
+                                  builder: (context) => EventDetailScreen(eventId: event['title'] ?? ''),
                                 ),
                               );
                             },
@@ -969,9 +1107,7 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
               width: _currentPage == i ? 10 : 7,
               height: _currentPage == i ? 10 : 7,
               decoration: BoxDecoration(
-                color: _currentPage == i
-                    ? const Color(0xFF1976D2)
-                    : Colors.white24,
+                color: _currentPage == i ? const Color(0xFF1976D2) : Colors.white24,
                 shape: BoxShape.circle,
               ),
             ),

@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/notification/notificationTile.dart';
 import 'package:reva/notification/notification_model.dart';
 import '../services/service_manager.dart';
+import 'package:provider/provider.dart';
+import 'package:reva/providers/user_provider.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -13,13 +15,19 @@ class NotificationScreen extends StatefulWidget {
 
 class _NotificationScreenState extends State<NotificationScreen> {
   List<NotificationModel> notifications = [];
+  String? currentUserId;
   bool isLoading = true;
   String? error;
 
   @override
   void initState() {
     super.initState();
-    fetchNotifications();
+    // Get current user id from provider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final userProvider = context.read<UserProvider>();
+      currentUserId = userProvider.userData?['_id'] ?? userProvider.userData?['user']?['_id'];
+      fetchNotifications();
+    });
   }
 
   Future<void> fetchNotifications() async {
@@ -28,14 +36,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
       error = null;
     });
     try {
-      final response =
-          await ServiceManager.instance.notifications.getMyNotifications();
+      final response = await ServiceManager.instance.notifications.getMyNotifications();
       if (response['success'] == true) {
-        final List<dynamic> notificationsData =
-            response['data']['notifications'] ?? [];
-        notifications = notificationsData
-            .map((e) => NotificationModel.fromJson(e))
-            .toList();
+        final List<dynamic> notificationsData = response['data']['notifications'] ?? [];
+        print('DEBUG: notificationsData = $notificationsData');
+        // Always include notifications where current user is the recipient
+        // Filter notifications by sender email matching current user's email
+        final userProvider = context.read<UserProvider>();
+        final currentUserEmail = userProvider.userData?['email'] ?? userProvider.userData?['user']?['email'] ?? '';
+        notifications = notificationsData.map((e) => NotificationModel.fromJson(e)).where((n) {
+          final senderEmail = n.senderEmail.toString();
+          return senderEmail == currentUserEmail;
+        }).toList();
+        print('DEBUG: filtered notifications = $notifications');
       } else {
         error = response['message'] ?? 'Failed to load notifications';
       }
@@ -57,8 +70,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.only(
-                  top: height * 0.025, left: 16, right: 16, bottom: 8),
+              padding: EdgeInsets.only(top: height * 0.025, left: 16, right: 16, bottom: 8),
               child: Row(
                 children: [
                   InkWell(
@@ -71,8 +83,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         color: Color(0xFF23262B),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.arrow_back_ios_new_rounded,
-                          color: Colors.white, size: 18),
+                      child: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
                     ),
                   ),
                   const Spacer(),
@@ -92,15 +103,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : error != null
-                      ? Center(
-                          child: Text(error!,
-                              style: const TextStyle(color: Colors.red)))
+                      ? Center(child: Text(error!, style: const TextStyle(color: Colors.red)))
                       : ListView.builder(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: width * 0.05, vertical: 8),
+                          padding: EdgeInsets.symmetric(horizontal: width * 0.05, vertical: 8),
                           itemCount: notifications.length,
-                          itemBuilder: (context, index) => NotificationTile(
-                              notification: notifications[index]),
+                          itemBuilder: (context, index) => NotificationTile(notification: notifications[index]),
                         ),
             ),
           ],

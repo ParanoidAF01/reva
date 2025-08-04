@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class PeopleYouMayKnowCard extends StatelessWidget {
-  const PeopleYouMayKnowCard({super.key});
+  final String name;
+  final String image;
+  const PeopleYouMayKnowCard({super.key, required this.name, required this.image});
 
   @override
   Widget build(BuildContext context) {
@@ -48,14 +50,14 @@ class PeopleYouMayKnowCard extends StatelessWidget {
                       ),
                       child: CircleAvatar(
                         radius: width * 0.08,
-                        backgroundImage: const AssetImage('assets/dummyprofile.png'),
+                        backgroundImage: AssetImage(image),
                       ),
                     ),
                   ),
-                  const Center(
+                  Center(
                     child: Text(
-                      'Aryna Gupta',
-                      style: TextStyle(
+                      name,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                         fontSize: 14.5,

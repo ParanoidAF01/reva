@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/authentication/login.dart';
-import 'package:reva/bottomnavigation/bottomnavigation.dart';
-import 'package:reva/start_subscription.dart';
 
 import '../components/mytextfield.dart';
 

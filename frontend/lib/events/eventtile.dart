@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:reva/events/event_model.dart';
-import 'package:reva/events/eventscreen.dart';
+import 'package:reva/events/event_model.dart' as event_model;
+import 'package:reva/events/event_detail_screen.dart';
 
 class EventTile extends StatelessWidget {
-  final EventModel event;
+  final event_model.EventModel event;
   const EventTile({super.key, required this.event});
 
   @override
@@ -73,7 +73,7 @@ class EventTile extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const EventScreen(),
+                              builder: (context) => EventDetailScreen(eventId: event.title),
                             ),
                           );
                         },
@@ -108,17 +108,12 @@ class EventTile extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        clipBehavior: Clip
-                            .antiAlias, // Ensures children respect border radius
+                        clipBehavior: Clip.antiAlias, // Ensures children respect border radius
                         child: Stack(
                           children: [
                             // Full-size image
                             Positioned.fill(
-                              child: event.imageUrl.isNotEmpty
-                                  ? Image.network(event.imageUrl,
-                                      fit: BoxFit.cover)
-                                  : Image.asset("assets/eventdummyimage.png",
-                                      fit: BoxFit.cover),
+                              child: event.imageUrl.isNotEmpty ? Image.network(event.imageUrl, fit: BoxFit.cover) : Image.asset("assets/eventdummyimage.png", fit: BoxFit.cover),
                             ),
 
                             // Bottom black gradient
@@ -126,8 +121,7 @@ class EventTile extends StatelessWidget {
                               bottom: 0,
                               left: 0,
                               right: 0,
-                              height:
-                                  40, // adjust height of black shade if needed
+                              height: 40, // adjust height of black shade if needed
                               child: Container(
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(

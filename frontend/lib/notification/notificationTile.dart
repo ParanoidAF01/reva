@@ -30,7 +30,11 @@ class NotificationTile extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 18,
-                        backgroundImage: notification.avatarUrl.isNotEmpty ? NetworkImage(notification.avatarUrl) : const AssetImage('assets/dummyprofile.png') as ImageProvider,
+                        backgroundColor: Colors.blueGrey,
+                        child: Text(
+                          notification.senderName.isNotEmpty ? notification.senderName[0].toUpperCase() : '?',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
@@ -38,11 +42,18 @@ class NotificationTile extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              notification.userName,
+                              notification.senderName,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w600,
                                 fontSize: 15,
+                              ),
+                            ),
+                            Text(
+                              'To: ${notification.recipientId}',
+                              style: const TextStyle(
+                                color: Colors.white54,
+                                fontSize: 12,
                               ),
                             ),
                           ],
@@ -50,7 +61,7 @@ class NotificationTile extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        notification.timeAgo,
+                        '${notification.createdAt.hour}:${notification.createdAt.minute}',
                         style: const TextStyle(
                           color: Color(0xFFB0B0B0),
                           fontSize: 13,
@@ -79,25 +90,6 @@ class NotificationTile extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-          ),
-          Positioned(
-            top: 8,
-            right: 8,
-            child: Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: const Color(0xFF23262B),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 4,
-                  ),
-                ],
-              ),
-              child: notification.statusIconUrl.isNotEmpty ? Image.network(notification.statusIconUrl, width: 20, height: 20, color: const Color(0xFFB0B0B0)) : Image.asset('assets/double.png', width: 20, height: 20, color: const Color(0xFFB0B0B0)),
             ),
           ),
         ],

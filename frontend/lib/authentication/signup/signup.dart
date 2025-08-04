@@ -4,11 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:reva/authentication/login.dart';
 
 import 'package:reva/authentication/signup/CompleteProfileScreen.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:reva/services/auth_service.dart';
 import 'package:reva/providers/user_provider.dart';
 
-import '../components/mytextfield.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});

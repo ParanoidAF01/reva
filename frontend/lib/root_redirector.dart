@@ -5,7 +5,6 @@ import 'package:reva/authentication/welcomescreen.dart';
 import 'package:reva/bottomnavigation/bottomnavigation.dart';
 import 'package:reva/services/auth_service.dart';
 import 'package:reva/providers/user_provider.dart';
-import 'package:reva/start_subscription.dart';
 
 class RootRedirector extends StatefulWidget {
   const RootRedirector({super.key});

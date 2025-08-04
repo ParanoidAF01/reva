@@ -3,8 +3,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/contacts/contacts.dart';
 import 'package:reva/peopleyoumayknow/peopleyoumayknowtile.dart';
 import 'package:reva/request/requestscreen.dart';
+import 'package:reva/services/service_manager.dart';
 
 import '../notification/notification.dart';
+import 'package:provider/provider.dart';
+
+// Provider for people you may know data
+class PeopleYouMayKnowProvider extends ChangeNotifier {
+  List<dynamic> _people = [];
+  List<dynamic> get people => _people;
+  void setPeople(List<dynamic> people) {
+    _people = people;
+    notifyListeners();
+  }
+}
 
 class PeopleYouMayKnow extends StatelessWidget {
   const PeopleYouMayKnow({super.key});
@@ -13,6 +25,60 @@ class PeopleYouMayKnow extends StatelessWidget {
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
+    return ChangeNotifierProvider(
+      create: (_) => PeopleYouMayKnowProvider(),
+      child: _PeopleYouMayKnowBody(height: height, width: width),
+    );
+  }
+}
+
+class _PeopleYouMayKnowBody extends StatefulWidget {
+  final double height;
+  final double width;
+  const _PeopleYouMayKnowBody({required this.height, required this.width});
+
+  @override
+  State<_PeopleYouMayKnowBody> createState() => _PeopleYouMayKnowBodyState();
+}
+
+class _PeopleYouMayKnowBodyState extends State<_PeopleYouMayKnowBody> {
+  bool _fetched = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_fetched) {
+      _fetchPeople();
+      _fetched = true;
+    }
+  }
+
+  Future<void> _fetchPeople() async {
+    try {
+      final response = await ServiceManager.instance.connections.getConnectionSuggestions();
+      if (response['success'] == true) {
+        final suggestions = response['data']['suggestions'] ?? [];
+        // Map API fields to card fields
+        final mapped = suggestions
+            .map((person) => {
+                  'name': person['fullName'] ?? 'Unknown',
+                  'image': person['profile'] ?? 'assets/dummyprofile.png',
+                  'mobileNumber': person['mobileNumber'] ?? '',
+                })
+            .toList();
+        Provider.of<PeopleYouMayKnowProvider>(context, listen: false).setPeople(mapped);
+      } else {
+        Provider.of<PeopleYouMayKnowProvider>(context, listen: false).setPeople([]);
+      }
+    } catch (e) {
+      Provider.of<PeopleYouMayKnowProvider>(context, listen: false).setPeople([]);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final height = widget.height;
+    final width = widget.width;
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
       body: SingleChildScrollView(
@@ -84,7 +150,10 @@ class PeopleYouMayKnow extends StatelessWidget {
                       width: width * 0.2,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
+                          colors: [
+                            Color(0xFF0262AB),
+                            Color(0xFF01345A)
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -178,20 +247,27 @@ class PeopleYouMayKnow extends StatelessWidget {
             // Grid View for Cards
             Padding(
               padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // 2 cards per row
-                  crossAxisSpacing:
-                      width * 0.03, // Horizontal spacing between cards
-                  mainAxisSpacing:
-                      height * 0.02, // Vertical spacing between cards
-                  childAspectRatio: 0.65, // Adjusted for better proportions
-                ),
-                itemCount: 7, // Number of cards
-                itemBuilder: (context, index) {
-                  return const PeopleYouMayKnowCard();
+              child: Consumer<PeopleYouMayKnowProvider>(
+                builder: (context, provider, child) {
+                  final people = provider.people;
+                  return GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: width * 0.03,
+                      mainAxisSpacing: height * 0.02,
+                      childAspectRatio: 0.65,
+                    ),
+                    itemCount: people.length,
+                    itemBuilder: (context, index) {
+                      final person = people[index];
+                      return PeopleYouMayKnowCard(
+                        name: person['name'] ?? 'Unknown',
+                        image: person['image'] ?? 'assets/dummyprofile.png',
+                      );
+                    },
+                  );
                 },
               ),
             ),

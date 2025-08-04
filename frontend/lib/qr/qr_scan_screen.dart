@@ -12,6 +12,9 @@ class QrScanScreen extends StatefulWidget {
 class _QrScanScreenState extends State<QrScanScreen> {
   String? scannedData;
   bool isScanned = false;
+  String? connectedUserName;
+  String? connectedUserLocation;
+  bool kycApproved = false;
 
   @override
   Widget build(BuildContext context) {
@@ -32,8 +35,7 @@ class _QrScanScreenState extends State<QrScanScreen> {
                 style: TextStyle(color: Colors.white54, fontSize: 14),
               ),
               IconButton(
-                icon:
-                    const Icon(Icons.notifications_none, color: Colors.white54),
+                icon: const Icon(Icons.notifications_none, color: Colors.white54),
                 onPressed: () {},
               ),
             ],
@@ -73,11 +75,20 @@ class _QrScanScreenState extends State<QrScanScreen> {
                           onDetect: (capture) async {
                             if (isScanned) return;
                             final List<Barcode> barcodes = capture.barcodes;
-                            if (barcodes.isNotEmpty &&
-                                barcodes.first.rawValue != null) {
+                            if (barcodes.isNotEmpty && barcodes.first.rawValue != null) {
                               setState(() {
                                 scannedData = barcodes.first.rawValue;
                                 isScanned = true;
+                              });
+                              // Simulate API response for demo, replace with actual API call
+                              // Example: final response = await ServiceManager.instance.connections.connectViaQR(...);
+                              // connectedUserName = response['data']['connectedUser']['fullName'];
+                              // connectedUserLocation = response['data']['connectedUser']['location'];
+                              // kycApproved = response['data']['connectedUser']['kycApproved'];
+                              setState(() {
+                                connectedUserName = 'Scanned User'; // Replace with actual name from API
+                                connectedUserLocation = 'Scanned Location'; // Replace with actual location from API
+                                kycApproved = true; // Replace with actual KYC status from API
                               });
 
                               // Log what QR sees
@@ -92,8 +103,7 @@ class _QrScanScreenState extends State<QrScanScreen> {
 
                               if (rawData.contains('phone:')) {
                                 // Extract phone number from "mpin:xxx,phone:xxx" format
-                                final phoneMatch =
-                                    RegExp(r'phone:(\d+)').firstMatch(rawData);
+                                final phoneMatch = RegExp(r'phone:(\d+)').firstMatch(rawData);
                                 if (phoneMatch != null) {
                                   phoneNumber = phoneMatch.group(1);
                                   print('Extracted Phone Number: $phoneNumber');
@@ -101,31 +111,26 @@ class _QrScanScreenState extends State<QrScanScreen> {
                               } else {
                                 // Assume raw data is phone number
                                 phoneNumber = rawData;
-                                print(
-                                    'Using raw data as phone number: $phoneNumber');
+                                print('Using raw data as phone number: $phoneNumber');
                               }
 
                               // Handle QR connection
                               try {
-                                final response = await ServiceManager
-                                    .instance.connections
-                                    .connectViaQR({
+                                final response = await ServiceManager.instance.connections.connectViaQR({
                                   'mobileNumber': phoneNumber ?? scannedData!,
                                 });
 
                                 if (response['success'] == true) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(
-                                          'Successfully connected with ${response['data']['connectedUser']['fullName']}'),
+                                      content: Text('Successfully connected with ${response['data']['connectedUser']['fullName']}'),
                                       backgroundColor: Colors.green,
                                     ),
                                   );
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(response['message'] ??
-                                          'Connection failed'),
+                                      content: Text(response['message'] ?? 'Connection failed'),
                                       backgroundColor: Colors.red,
                                     ),
                                   );
@@ -153,10 +158,8 @@ class _QrScanScreenState extends State<QrScanScreen> {
                           height: 32,
                           decoration: const BoxDecoration(
                             border: Border(
-                              top: BorderSide(
-                                  color: Color(0xFF1976D2), width: 4),
-                              left: BorderSide(
-                                  color: Color(0xFF1976D2), width: 4),
+                              top: BorderSide(color: Color(0xFF1976D2), width: 4),
+                              left: BorderSide(color: Color(0xFF1976D2), width: 4),
                             ),
                           ),
                         ),
@@ -169,10 +172,8 @@ class _QrScanScreenState extends State<QrScanScreen> {
                           height: 32,
                           decoration: const BoxDecoration(
                             border: Border(
-                              top: BorderSide(
-                                  color: Color(0xFF1976D2), width: 4),
-                              right: BorderSide(
-                                  color: Color(0xFF1976D2), width: 4),
+                              top: BorderSide(color: Color(0xFF1976D2), width: 4),
+                              right: BorderSide(color: Color(0xFF1976D2), width: 4),
                             ),
                           ),
                         ),
@@ -185,10 +186,8 @@ class _QrScanScreenState extends State<QrScanScreen> {
                           height: 32,
                           decoration: const BoxDecoration(
                             border: Border(
-                              bottom: BorderSide(
-                                  color: Color(0xFF1976D2), width: 4),
-                              left: BorderSide(
-                                  color: Color(0xFF1976D2), width: 4),
+                              bottom: BorderSide(color: Color(0xFF1976D2), width: 4),
+                              left: BorderSide(color: Color(0xFF1976D2), width: 4),
                             ),
                           ),
                         ),
@@ -201,10 +200,8 @@ class _QrScanScreenState extends State<QrScanScreen> {
                           height: 32,
                           decoration: const BoxDecoration(
                             border: Border(
-                              bottom: BorderSide(
-                                  color: Color(0xFF1976D2), width: 4),
-                              right: BorderSide(
-                                  color: Color(0xFF1976D2), width: 4),
+                              bottom: BorderSide(color: Color(0xFF1976D2), width: 4),
+                              right: BorderSide(color: Color(0xFF1976D2), width: 4),
                             ),
                           ),
                         ),
@@ -218,38 +215,39 @@ class _QrScanScreenState extends State<QrScanScreen> {
                 left: left,
                 top: top + frameSize + 24,
                 width: frameSize,
-                child: const Column(
+                child: Column(
                   children: [
                     Text(
-                      'Ayush Kumar.',
-                      style: TextStyle(
+                      connectedUserName ?? 'Scan a QR to connect',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
-                      'Delhi NCR',
-                      style: TextStyle(
+                      connectedUserLocation ?? '',
+                      style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 16,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.check_circle, color: Colors.green, size: 18),
-                        SizedBox(width: 6),
-                        Text(
-                          'KYC approved',
-                          style: TextStyle(color: Colors.white70, fontSize: 15),
-                        ),
-                      ],
-                    ),
+                    const SizedBox(height: 10),
+                    if (kycApproved)
+                      const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.green, size: 18),
+                          SizedBox(width: 6),
+                          Text(
+                            'KYC approved',
+                            style: TextStyle(color: Colors.white70, fontSize: 15),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ),

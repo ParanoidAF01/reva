@@ -59,7 +59,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> fetchSubscriptionStatus() async {
     try {
       // Try to load from cache first
-      final cached = await ServiceManager.instance.subscription.getCachedSubscription();
+      final cached =
+          await ServiceManager.instance.subscription.getCachedSubscription();
       if (cached != null) {
         subscriptionDetails = cached['subscription'];
         subscriptionActive = cached['isSubscribed'] ?? false;
@@ -68,13 +69,16 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {});
       }
       // Always fetch latest from API
-      final response = await ServiceManager.instance.subscription.checkSubscription();
+      final response =
+          await ServiceManager.instance.subscription.checkSubscription();
       if (response['success'] == true) {
         // Cache the response
-        await ServiceManager.instance.subscription.cacheSubscription(response['data']);
+        await ServiceManager.instance.subscription
+            .cacheSubscription(response['data']);
         subscriptionDetails = response['data']['subscription'];
         subscriptionActive = response['data']['isSubscribed'] ?? false;
-        subscriptionDaysLeft = _calculateDaysLeft(response['data']['subscription']);
+        subscriptionDaysLeft =
+            _calculateDaysLeft(response['data']['subscription']);
         isLoadingSubscription = false;
         setState(() {});
       } else {
@@ -169,7 +173,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> fetchPeopleYouMayKnow() async {
     try {
-      final response = await ServiceManager.instance.connections.getConnectionSuggestions();
+      final response =
+          await ServiceManager.instance.connections.getConnectionSuggestions();
       if (response['success'] == true) {
         final suggestions = response['data']['suggestions'] ?? [];
         final mapped = suggestions
@@ -196,7 +201,6 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
   }
-  
 
   @override
   Widget build(BuildContext context) {
@@ -206,8 +210,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final String plan = subscriptionDetails?['plan']?.toString() ?? '-';
     final int amountPaid = (subscriptionDetails?['amountPaid'] is int)
         ? (subscriptionDetails?['amountPaid'] ?? 0)
-        : int.tryParse(subscriptionDetails?['amountPaid']?.toString() ?? '0') ?? 0;
-    final String startDate = subscriptionDetails?['startDate']?.toString() ?? '-';
+        : int.tryParse(subscriptionDetails?['amountPaid']?.toString() ?? '0') ??
+            0;
+    final String startDate =
+        subscriptionDetails?['startDate']?.toString() ?? '-';
     final String endDate = subscriptionDetails?['endDate']?.toString() ?? '-';
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
@@ -218,8 +224,11 @@ class _HomeScreenState extends State<HomeScreen> {
           final String userLocation = userData['location'] ?? "";
           final String userExperience = userData['experience'] ?? "";
           final String userLanguages = userData['languages'] ?? "";
-          final String profileImage = userData['profileImage'] ?? 'assets/dummyprofile.png';
-          final int revaConnections = (userData['connections'] is List) ? (userData['connections'] as List).length : 0;
+          final String profileImage =
+              userData['profileImage'] ?? 'assets/dummyprofile.png';
+          final int revaConnections = (userData['connections'] is List)
+              ? (userData['connections'] as List).length
+              : 0;
           final int pendingRequests = userData['pendingRequests'] ?? 0;
           final int pendingConnects = userData['pendingConnects'] ?? 0;
           final int achievementMax = 100;
@@ -309,11 +318,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: IconButton(
-                          icon: const Icon(Icons.settings, color: Color(0xFF22252A)),
+                          icon: const Icon(Icons.settings,
+                              color: Color(0xFF22252A)),
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const WalletScreen()),
+                              MaterialPageRoute(
+                                  builder: (context) => const WalletScreen()),
                             );
                           },
                         ),
@@ -322,61 +333,61 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   SizedBox(height: height * 0.03),
                   // Search Bar & Filter Button
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          height: width * 0.13,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF2B2F34),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: width * 0.03),
-                          child: Row(
-                            children: [
-                              const Icon(Icons.search, color: Colors.white70, size: 22),
-                              SizedBox(width: width * 0.02),
-                              const Expanded(
-                                child: TextField(
-                                  style: TextStyle(color: Colors.white),
-                                  cursorColor: Colors.white54,
-                                  decoration: InputDecoration(
-                                    hintText: 'Search ...',
-                                    hintStyle: TextStyle(color: Colors.white54),
-                                    border: InputBorder.none,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: width * 0.03),
-                      // Filter Button
-                      Container(
-                        height: width * 0.13,
-                        width: width * 0.13,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [
-                              Color(0xFF0262AB),
-                              Color(0xFF01345A)
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.filter_list, color: Colors.white, size: 26),
-                          onPressed: () {
-                            // TODO: Filter action
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: height * 0.03),
+                  // Row(
+                  //   children: [
+                  //     Expanded(
+                  //       child: Container(
+                  //         height: width * 0.13,
+                  //         decoration: BoxDecoration(
+                  //           color: const Color(0xFF2B2F34),
+                  //           borderRadius: BorderRadius.circular(12),
+                  //         ),
+                  //         padding: EdgeInsets.symmetric(horizontal: width * 0.03),
+                  //         child: Row(
+                  //           children: [
+                  //             const Icon(Icons.search, color: Colors.white70, size: 22),
+                  //             SizedBox(width: width * 0.02),
+                  //             const Expanded(
+                  //               child: TextField(
+                  //                 style: TextStyle(color: Colors.white),
+                  //                 cursorColor: Colors.white54,
+                  //                 decoration: InputDecoration(
+                  //                   hintText: 'Search ...',
+                  //                   hintStyle: TextStyle(color: Colors.white54),
+                  //                   border: InputBorder.none,
+                  //                 ),
+                  //               ),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       ),
+                  //     ),
+                  //     SizedBox(width: width * 0.03),
+                  //     // Filter Button
+                  //     Container(
+                  //       height: width * 0.13,
+                  //       width: width * 0.13,
+                  //       decoration: BoxDecoration(
+                  //         gradient: const LinearGradient(
+                  //           colors: [
+                  //             Color(0xFF0262AB),
+                  //             Color(0xFF01345A)
+                  //           ],
+                  //           begin: Alignment.topLeft,
+                  //           end: Alignment.bottomRight,
+                  //         ),
+                  //         borderRadius: BorderRadius.circular(12),
+                  //       ),
+                  //       child: IconButton(
+                  //         icon: const Icon(Icons.filter_list, color: Colors.white, size: 26),
+                  //         onPressed: () {
+                  //           // TODO: Filter action
+                  //         },
+                  //       ),
+                  //     ),
+                  //   ],
+                  // ),
+                  // SizedBox(height: height * 0.03),
                   // Show cards based on userEvents length
                   if (isLoadingEvents)
                     const Center(child: CircularProgressIndicator())
@@ -424,7 +435,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
-                      icon: const Icon(Icons.qr_code, color: Colors.white, size: 22),
+                      icon: const Icon(Icons.qr_code,
+                          color: Colors.white, size: 22),
                       label: Text(
                         'View my Profile QR',
                         style: GoogleFonts.dmSans(
@@ -490,11 +502,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   _DynamicProgressBar(
                     progress: achievementProgress,
                     max: achievementMax,
-                    tickPositions: [
-                      0,
-                      achievementCurrent,
-                      achievementMax
-                    ],
+                    tickPositions: [0, achievementCurrent, achievementMax],
                     label: 'Your progress',
                     unlockText: 'to Unlock',
                     unlockCard: 'Gold card',
@@ -504,11 +512,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Events Attended Progress
                   Row(
                     children: [
-                      Icon(Icons.event_available, color: Colors.white70, size: 22),
+                      Icon(Icons.event_available,
+                          color: Colors.white70, size: 22),
                       const SizedBox(width: 8),
-                      Text('Events Attended:', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 15)),
+                      Text('Events Attended:',
+                          style: GoogleFonts.dmSans(
+                              color: Colors.white70, fontSize: 15)),
                       const SizedBox(width: 8),
-                      Text(userEvents.length.toString(), style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text(userEvents.length.toString(),
+                          style: GoogleFonts.dmSans(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16)),
                     ],
                   ),
                   SizedBox(height: height * 0.05),
@@ -531,7 +546,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     _UpcomingEventsCarousel(
                       events: upcomingEvents
                           .map((event) => {
-                                'image': event['image'] ?? 'assets/eventdummyimage.png',
+                                'image': event['image'] ??
+                                    'assets/eventdummyimage.png',
                                 'price': event['price'] ?? '',
                                 'title': event['title'] ?? '',
                                 'location': event['location'] ?? '',
@@ -555,7 +571,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const EventScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => const EventScreen()),
                         );
                       },
                       child: Text(
@@ -569,7 +586,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Icon(Icons.arrow_forward, color: Colors.white, size: height * 0.045),
+                  Icon(Icons.arrow_forward,
+                      color: Colors.white, size: height * 0.045),
 
                   // People you may know section
                   SizedBox(height: height * 0.04),
@@ -590,10 +608,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const PeopleYouMayKnow()),
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PeopleYouMayKnow()),
                             );
                           },
-                          child: Text('See all', style: GoogleFonts.dmSans(color: const Color(0xFFB2C2D9), fontWeight: FontWeight.w500)),
+                          child: Text('See all',
+                              style: GoogleFonts.dmSans(
+                                  color: const Color(0xFFB2C2D9),
+                                  fontWeight: FontWeight.w500)),
                         ),
                       ],
                     ),
@@ -607,15 +630,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: ListView.separated(
                         scrollDirection: Axis.horizontal,
                         itemCount: peopleYouMayKnow.length,
-                        separatorBuilder: (context, index) => SizedBox(width: width * 0.04),
+                        separatorBuilder: (context, index) =>
+                            SizedBox(width: width * 0.04),
                         itemBuilder: (context, index) {
                           final person = peopleYouMayKnow[index];
                           return SizedBox(
                             width: width * 0.42,
                             child: PeopleYouMayKnowCard(
-                              name: person['fullName'] ?? person['name'] ?? 'Unknown',
-                              image: person['profile'] ?? person['image'] ?? 'assets/dummyprofile.png',
-                              userId: person['userId'] ?? '', // Pass userId as required
+                              name: person['fullName'] ??
+                                  person['name'] ??
+                                  'Unknown',
+                              image: person['profile'] ??
+                                  person['image'] ??
+                                  'assets/dummyprofile.png',
+                              userId: person['userId'] ??
+                                  '', // Pass userId as required
                               // Add more fields as needed
                             ),
                           );
@@ -643,14 +672,55 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Contact Management Section
                   ContactManagementSection(
                     contacts: [
-                      ContactCardData(icon: Image.asset('assets/builder.png', width: 28), count: userData['builderCount']?.toString() ?? '0', label: 'Builder', userId: userData['id'] ?? ''),
-                      ContactCardData(icon: Image.asset('assets/loan.png', width: 28), count: userData['loanProviderCount']?.toString() ?? '0', label: 'Loan Provider', userId: userData['id'] ?? ''),
-                      ContactCardData(icon: Image.asset('assets/interior.png', width: 28), count: userData['interiorDesignerCount']?.toString() ?? '0', label: 'Interior Designer', userId: userData['id'] ?? ''),
-                      ContactCardData(icon: Image.asset('assets/material.png', width: 28), count: userData['materialSupplierCount']?.toString() ?? '0', label: 'Material Supplier', userId: userData['id'] ?? ''),
-                      ContactCardData(icon: Image.asset('assets/legal.png', width: 28), count: userData['legalAdvisorCount']?.toString() ?? '0', label: 'Legal Advisor', userId: userData['id'] ?? ''),
-                      ContactCardData(icon: Image.asset('assets/vastu.png', width: 28), count: userData['vastuConsultantCount']?.toString() ?? '0', label: 'Vastu Consultant', userId: userData['id'] ?? ''),
-                      ContactCardData(icon: Image.asset('assets/homebuyer.png', width: 28), count: userData['homeBuyerCount']?.toString() ?? '0', label: 'Home Buyer', userId: userData['id'] ?? ''),
-                      ContactCardData(icon: Image.asset('assets/investor.png', width: 28), count: userData['propertyInvestorCount']?.toString() ?? '0', label: 'Property Investor', userId: userData['id'] ?? ''),
+                      ContactCardData(
+                          icon: Image.asset('assets/builder.png', width: 28),
+                          count: userData['builderCount']?.toString() ?? '0',
+                          label: 'Builder',
+                          userId: userData['id'] ?? ''),
+                      ContactCardData(
+                          icon: Image.asset('assets/loan.png', width: 28),
+                          count:
+                              userData['loanProviderCount']?.toString() ?? '0',
+                          label: 'Loan Provider',
+                          userId: userData['id'] ?? ''),
+                      ContactCardData(
+                          icon: Image.asset('assets/interior.png', width: 28),
+                          count:
+                              userData['interiorDesignerCount']?.toString() ??
+                                  '0',
+                          label: 'Interior Designer',
+                          userId: userData['id'] ?? ''),
+                      ContactCardData(
+                          icon: Image.asset('assets/material.png', width: 28),
+                          count:
+                              userData['materialSupplierCount']?.toString() ??
+                                  '0',
+                          label: 'Material Supplier',
+                          userId: userData['id'] ?? ''),
+                      ContactCardData(
+                          icon: Image.asset('assets/legal.png', width: 28),
+                          count:
+                              userData['legalAdvisorCount']?.toString() ?? '0',
+                          label: 'Legal Advisor',
+                          userId: userData['id'] ?? ''),
+                      ContactCardData(
+                          icon: Image.asset('assets/vastu.png', width: 28),
+                          count: userData['vastuConsultantCount']?.toString() ??
+                              '0',
+                          label: 'Vastu Consultant',
+                          userId: userData['id'] ?? ''),
+                      ContactCardData(
+                          icon: Image.asset('assets/homebuyer.png', width: 28),
+                          count: userData['homeBuyerCount']?.toString() ?? '0',
+                          label: 'Home Buyer',
+                          userId: userData['id'] ?? ''),
+                      ContactCardData(
+                          icon: Image.asset('assets/investor.png', width: 28),
+                          count:
+                              userData['propertyInvestorCount']?.toString() ??
+                                  '0',
+                          label: 'Property Investor',
+                          userId: userData['id'] ?? ''),
                     ],
                     achievement: AchievementData(
                       progress: achievementProgress,
@@ -716,7 +786,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: cardWidth * 0.06, vertical: cardHeight * 0.045),
+        padding: EdgeInsets.symmetric(
+            horizontal: cardWidth * 0.06, vertical: cardHeight * 0.045),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -732,7 +803,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     shape: BoxShape.circle,
                   ),
                   child: Center(
-                    child: Icon(icon, color: const Color(0xFFBDBDBD), size: iconSize),
+                    child: Icon(icon,
+                        color: const Color(0xFFBDBDBD), size: iconSize),
                   ),
                 ),
                 SizedBox(width: cardWidth * 0.04),
@@ -819,7 +891,8 @@ class _DynamicProgressBar extends StatelessWidget {
     return Container(
       width: double.infinity,
       margin: EdgeInsets.symmetric(vertical: width * 0.005),
-      padding: EdgeInsets.symmetric(horizontal: width * 0.03, vertical: width * 0.025),
+      padding: EdgeInsets.symmetric(
+          horizontal: width * 0.03, vertical: width * 0.025),
       decoration: BoxDecoration(
         color: const Color(0xFF292B32),
         borderRadius: BorderRadius.circular(width * 0.03),
@@ -854,7 +927,8 @@ class _DynamicProgressBar extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Center(
-                  child: Icon(Icons.lock, color: Colors.amber[200], size: width * 0.045),
+                  child: Icon(Icons.lock,
+                      color: Colors.amber[200], size: width * 0.045),
                 ),
               ),
             ],
@@ -916,13 +990,9 @@ class _DynamicProgressBar extends StatelessWidget {
               final tickSize = width * 0.015;
               final barWidth = constraints.maxWidth;
               // 4 dots at 20, 40, 60, 80 percent
-              final List<int> ticks = [
-                20,
-                40,
-                60,
-                80
-              ];
-              List<double> tickOffsets = ticks.map((tick) => (tick / 100) * barWidth).toList();
+              final List<int> ticks = [20, 40, 60, 80];
+              List<double> tickOffsets =
+                  ticks.map((tick) => (tick / 100) * barWidth).toList();
               return Stack(
                 children: [
                   // Background bar
@@ -941,17 +1011,15 @@ class _DynamicProgressBar extends StatelessWidget {
                       gradient: const LinearGradient(
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
-                        colors: [
-                          Color(0xFF0269B6),
-                          Color(0xFF002E50)
-                        ],
+                        colors: [Color(0xFF0269B6), Color(0xFF002E50)],
                       ),
                       borderRadius: BorderRadius.circular(width * 0.08),
                     ),
                   ),
                   // Ticks
                   ...List.generate(ticks.length, (i) {
-                    final isOnBlue = tickOffsets[i] <= barWidth * progressPercent;
+                    final isOnBlue =
+                        tickOffsets[i] <= barWidth * progressPercent;
                     return Positioned(
                       left: tickOffsets[i] - tickSize / 2,
                       top: (barHeight - tickSize) / 2,
@@ -960,7 +1028,9 @@ class _DynamicProgressBar extends StatelessWidget {
                         height: tickSize,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: isOnBlue ? const Color(0xFFEDF5FF) : const Color(0xFF0269B6),
+                          color: isOnBlue
+                              ? const Color(0xFFEDF5FF)
+                              : const Color(0xFF0269B6),
                           border: Border.all(color: Colors.white, width: 1),
                         ),
                       ),
@@ -974,9 +1044,21 @@ class _DynamicProgressBar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('0', style: GoogleFonts.dmSans(color: Colors.white, fontSize: width * 0.025, fontWeight: FontWeight.w600)),
-              Text('$progress', style: GoogleFonts.dmSans(color: Colors.white, fontSize: width * 0.03, fontWeight: FontWeight.w600)),
-              Text('$max', style: GoogleFonts.dmSans(color: Colors.white, fontSize: width * 0.025, fontWeight: FontWeight.w600)),
+              Text('0',
+                  style: GoogleFonts.dmSans(
+                      color: Colors.white,
+                      fontSize: width * 0.025,
+                      fontWeight: FontWeight.w600)),
+              Text('$progress',
+                  style: GoogleFonts.dmSans(
+                      color: Colors.white,
+                      fontSize: width * 0.03,
+                      fontWeight: FontWeight.w600)),
+              Text('$max',
+                  style: GoogleFonts.dmSans(
+                      color: Colors.white,
+                      fontSize: width * 0.025,
+                      fontWeight: FontWeight.w600)),
             ],
           ),
         ],
@@ -991,7 +1073,8 @@ class _UpcomingEventsCarousel extends StatefulWidget {
   const _UpcomingEventsCarousel({required this.events});
 
   @override
-  State<_UpcomingEventsCarousel> createState() => _UpcomingEventsCarouselState();
+  State<_UpcomingEventsCarousel> createState() =>
+      _UpcomingEventsCarouselState();
 }
 
 class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
@@ -1116,7 +1199,8 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => EventDetailScreen(eventId: event['title'] ?? ''),
+                                  builder: (context) => EventDetailScreen(
+                                      eventId: event['title'] ?? ''),
                                 ),
                               );
                             },
@@ -1149,7 +1233,9 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
               width: _currentPage == i ? 10 : 7,
               height: _currentPage == i ? 10 : 7,
               decoration: BoxDecoration(
-                color: _currentPage == i ? const Color(0xFF1976D2) : Colors.white24,
+                color: _currentPage == i
+                    ? const Color(0xFF1976D2)
+                    : Colors.white24,
                 shape: BoxShape.circle,
               ),
             ),

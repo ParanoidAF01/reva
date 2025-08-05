@@ -265,6 +265,7 @@ class _PeopleYouMayKnowBodyState extends State<_PeopleYouMayKnowBody> {
                       return PeopleYouMayKnowCard(
                         name: person['name'] ?? 'Unknown',
                         image: person['image'] ?? 'assets/dummyprofile.png',
+                        userId: person['userId'] ?? '',
                       );
                     },
                   );

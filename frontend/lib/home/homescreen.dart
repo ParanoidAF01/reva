@@ -196,6 +196,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
     }
   }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -614,6 +615,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: PeopleYouMayKnowCard(
                               name: person['fullName'] ?? person['name'] ?? 'Unknown',
                               image: person['profile'] ?? person['image'] ?? 'assets/dummyprofile.png',
+                              userId: person['userId'] ?? '', // Pass userId as required
                               // Add more fields as needed
                             ),
                           );
@@ -641,14 +643,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Contact Management Section
                   ContactManagementSection(
                     contacts: [
-                      ContactCardData(icon: Image.asset('assets/builder.png', width: 28), count: userData['builderCount']?.toString() ?? '0', label: 'Builder'),
-                      ContactCardData(icon: Image.asset('assets/loan.png', width: 28), count: userData['loanProviderCount']?.toString() ?? '0', label: 'Loan Provider'),
-                      ContactCardData(icon: Image.asset('assets/interior.png', width: 28), count: userData['interiorDesignerCount']?.toString() ?? '0', label: 'Interior Designer'),
-                      ContactCardData(icon: Image.asset('assets/material.png', width: 28), count: userData['materialSupplierCount']?.toString() ?? '0', label: 'Material Supplier'),
-                      ContactCardData(icon: Image.asset('assets/legal.png', width: 28), count: userData['legalAdvisorCount']?.toString() ?? '0', label: 'Legal Advisor'),
-                      ContactCardData(icon: Image.asset('assets/vastu.png', width: 28), count: userData['vastuConsultantCount']?.toString() ?? '0', label: 'Vastu Consultant'),
-                      ContactCardData(icon: Image.asset('assets/homebuyer.png', width: 28), count: userData['homeBuyerCount']?.toString() ?? '0', label: 'Home Buyer'),
-                      ContactCardData(icon: Image.asset('assets/investor.png', width: 28), count: userData['propertyInvestorCount']?.toString() ?? '0', label: 'Property Investor'),
+                      ContactCardData(icon: Image.asset('assets/builder.png', width: 28), count: userData['builderCount']?.toString() ?? '0', label: 'Builder', userId: userData['id'] ?? ''),
+                      ContactCardData(icon: Image.asset('assets/loan.png', width: 28), count: userData['loanProviderCount']?.toString() ?? '0', label: 'Loan Provider', userId: userData['id'] ?? ''),
+                      ContactCardData(icon: Image.asset('assets/interior.png', width: 28), count: userData['interiorDesignerCount']?.toString() ?? '0', label: 'Interior Designer', userId: userData['id'] ?? ''),
+                      ContactCardData(icon: Image.asset('assets/material.png', width: 28), count: userData['materialSupplierCount']?.toString() ?? '0', label: 'Material Supplier', userId: userData['id'] ?? ''),
+                      ContactCardData(icon: Image.asset('assets/legal.png', width: 28), count: userData['legalAdvisorCount']?.toString() ?? '0', label: 'Legal Advisor', userId: userData['id'] ?? ''),
+                      ContactCardData(icon: Image.asset('assets/vastu.png', width: 28), count: userData['vastuConsultantCount']?.toString() ?? '0', label: 'Vastu Consultant', userId: userData['id'] ?? ''),
+                      ContactCardData(icon: Image.asset('assets/homebuyer.png', width: 28), count: userData['homeBuyerCount']?.toString() ?? '0', label: 'Home Buyer', userId: userData['id'] ?? ''),
+                      ContactCardData(icon: Image.asset('assets/investor.png', width: 28), count: userData['propertyInvestorCount']?.toString() ?? '0', label: 'Property Investor', userId: userData['id'] ?? ''),
                     ],
                     achievement: AchievementData(
                       progress: achievementProgress,

@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class PeopleYouMayKnowCard extends StatelessWidget {
   final String name;
   final String image;
-  const PeopleYouMayKnowCard({super.key, required this.name, required this.image});
+  final String userId;
+  const PeopleYouMayKnowCard({super.key, required this.name, required this.image, required this.userId});
 
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-
     return Center(
       child: SizedBox(
-        width: width * 0.38, // wider tile
-        height: width * 0.56, // taller tile
+        width: width * 0.38,
+        height: width * 0.56,
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
           decoration: BoxDecoration(
@@ -22,123 +25,107 @@ class PeopleYouMayKnowCard extends StatelessWidget {
               fit: BoxFit.cover,
             ),
           ),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.max,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(3),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.45),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.lock, color: Colors.white, size: 16),
-                      ),
-                    ],
-                  ),
-                  Center(
-                    child: Container(
-                      margin: const EdgeInsets.only(top: 1, bottom: 2),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 1),
-                      ),
-                      child: CircleAvatar(
-                        radius: width * 0.08,
-                        backgroundImage: AssetImage(image),
-                      ),
+                  Container(
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.45),
+                      shape: BoxShape.circle,
                     ),
+                    child: const Icon(Icons.lock, color: Colors.white, size: 16),
                   ),
-                  Center(
-                    child: Text(
-                      name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14.5,
-                      ),
-                    ),
+                ],
+              ),
+              Center(
+                child: Container(
+                  margin: const EdgeInsets.only(top: 1, bottom: 2),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 1),
                   ),
-                  const SizedBox(height: 0.5),
-                  const Center(
-                    child: Text(
-                      'buyer/seller/\ninvestor',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFFB1B5BA),
-                        fontSize: 11.5,
-                        height: 1.1,
-                      ),
-                    ),
+                  child: CircleAvatar(
+                    radius: width * 0.08,
+                    backgroundImage: AssetImage(image),
                   ),
-                  const SizedBox(height: 2),
-                  const Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Text(
-                        'Mumbai',
-                        style: TextStyle(
-                          color: Color(0xFFB1B5BA),
-                          fontSize: 10.5,
-                        ),
-                      ),
-                    ],
+                ),
+              ),
+              Center(
+                child: Text(
+                  name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14.5,
                   ),
-                  const SizedBox(height: 2),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => const Dialog(
-                            backgroundColor: Colors.transparent,
-                            insetPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-                            child: _ProfilePreviewCard(
-                              name: 'Aryna Gupta',
-                              location: 'Mumbai',
-                              experience: '4+ years',
-                              languages: 'Hindi, English',
-                              tags: [
-                                'Commercial',
-                                'Plots',
-                                'Rental'
-                              ],
-                              totalConnections: '****',
-                              eventsAttended: '***',
-                              phone: '+91 **********',
-                              email: 'a****************',
-                              image: 'assets/dummyprofile.png',
-                            ),
-                          ),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF01416A),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Connect',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
+                ),
+              ),
+              const SizedBox(height: 0.5),
+              const Center(
+                child: Text(
+                  'buyer/seller/\ninvestor',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFFB1B5BA),
+                    fontSize: 11.5,
+                    height: 1.1,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    'Mumbai',
+                    style: TextStyle(
+                      color: Color(0xFFB1B5BA),
+                      fontSize: 10.5,
                     ),
                   ),
                 ],
-              );
-            },
+              ),
+              const SizedBox(height: 2),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => Dialog(
+                        backgroundColor: Colors.transparent,
+                        insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
+                        child: _ProfilePreviewCard(
+                          name: name,
+                          location: 'Mumbai',
+                          experience: '******',
+                          languages: '******',
+                          tags: [],
+                          totalConnections: '******',
+                          eventsAttended: '******',
+                          phone: '******',
+                          email: '******',
+                          image: image,
+                          userId: userId,
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF01416A),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    elevation: 0,
+                  ),
+                  child: const Text('Connect', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -157,7 +144,9 @@ class _ProfilePreviewCard extends StatelessWidget {
   final String phone;
   final String email;
   final String image;
+  final String userId;
   const _ProfilePreviewCard({
+    super.key,
     required this.name,
     required this.location,
     required this.experience,
@@ -168,10 +157,12 @@ class _ProfilePreviewCard extends StatelessWidget {
     required this.phone,
     required this.email,
     required this.image,
+    required this.userId,
   });
 
   @override
   Widget build(BuildContext context) {
+    TextEditingController messageController = TextEditingController();
     final width = MediaQuery.of(context).size.width;
     return Container(
       decoration: BoxDecoration(
@@ -297,10 +288,62 @@ class _ProfilePreviewCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
+          ElevatedButton(
+            onPressed: () async {
+              final response = await sendConnectionRequest(userId, messageController.text);
+              print('Connection request response:');
+              print(response);
+              if (response['success'] == true) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Connection request sent!')),
+                );
+                Navigator.of(context).pop();
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text(response['message'] ?? 'Error sending request')),
+                );
+              }
+            },
+            child: const Text('Send Connection Request'),
+          ),
+          TextField(
+            controller: messageController,
+            decoration: const InputDecoration(hintText: 'Add a message (optional)'),
+          ),
         ],
       ),
     );
   }
+}
+
+Future<Map<String, dynamic>> sendConnectionRequest(String toUserId, String message) async {
+  // Use the common API service and access token from secure storage
+  final url = Uri.parse('https://reva-pwsw.onrender.com/api/v1/connection/request');
+  final storage = const FlutterSecureStorage();
+  final accessToken = await storage.read(key: 'accessToken');
+  final response = await http.post(
+    url,
+    headers: {
+      'Authorization': 'Bearer ${accessToken ?? ''}',
+      'Content-Type': 'application/json',
+    },
+    body: jsonEncode({
+      'toUserId': toUserId,
+      'message': message,
+    }),
+  );
+  return jsonDecode(response.body);
+}
+
+Future<Map<String, dynamic>> getSentConnectionRequests(String jwt) async {
+  final url = Uri.parse('https://reva-pwsw.onrender.com/api/v1/connection/sent-requests');
+  final response = await http.get(
+    url,
+    headers: {
+      'Authorization': 'Bearer $jwt',
+    },
+  );
+  return jsonDecode(response.body);
 }
 
 class _ProfileStatBox extends StatelessWidget {

@@ -80,9 +80,9 @@ class ContactManagementSection extends StatelessWidget {
                       String email = '****';
                       String avatar = 'assets/dummyprofile.png';
                       try {
-                        // Replace with actual userId if available in ContactCardData
-                        if (c.label != null && c.label.isNotEmpty) {
-                          final response = await ServiceManager.instance.profile.getProfileById(c.label);
+                        // Use userId for API fetch
+                        if (c.userId.isNotEmpty) {
+                          final response = await ServiceManager.instance.profile.getProfileById(c.userId);
                           if (response['success'] == true && response['data'] != null) {
                             final data = response['data'];
                             name = data['fullName'] ?? '****';
@@ -219,7 +219,8 @@ class ContactCardData {
   final Widget icon;
   final String count;
   final String label;
-  ContactCardData({required this.icon, required this.count, required this.label});
+  final String userId;
+  ContactCardData({required this.icon, required this.count, required this.label, required this.userId});
 }
 
 class AchievementData {

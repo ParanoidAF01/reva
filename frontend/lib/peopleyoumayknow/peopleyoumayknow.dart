@@ -304,24 +304,29 @@ class _PeopleYouMayKnowBodyState extends State<_PeopleYouMayKnowBody> {
                     );
                   }
 
-                  return GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: width * 0.03,
-                      mainAxisSpacing: height * 0.02,
-                      childAspectRatio: 0.65,
+                  return RefreshIndicator(
+                    onRefresh: _fetchPeople,
+                    color: const Color(0xFF0262AB),
+                    backgroundColor: const Color(0xFF22252A),
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: width * 0.03,
+                        mainAxisSpacing: height * 0.02,
+                        childAspectRatio: 0.65,
+                      ),
+                      itemCount: people.length,
+                      itemBuilder: (context, index) {
+                        final person = people[index];
+                        return PeopleYouMayKnowCard(
+                          name: person['name'] ?? 'Unknown',
+                          image: person['image'] ?? 'assets/dummyprofile.png',
+                          userId: person['userId'] ?? '',
+                        );
+                      },
                     ),
-                    itemCount: people.length,
-                    itemBuilder: (context, index) {
-                      final person = people[index];
-                      return PeopleYouMayKnowCard(
-                        name: person['name'] ?? 'Unknown',
-                        image: person['image'] ?? 'assets/dummyprofile.png',
-                        userId: person['userId'] ?? '',
-                      );
-                    },
                   );
                 },
               ),

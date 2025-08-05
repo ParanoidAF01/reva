@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:reva/services/service_manager.dart';
+import 'package:reva/qr/qr_scan_screen.dart';
 
 class RequestTile extends StatelessWidget {
   final String name;
   final String image;
   final String mobileNumber;
   final String requestId;
+  final VoidCallback? onRefresh;
 
   const RequestTile({
     super.key,
@@ -13,36 +15,17 @@ class RequestTile extends StatelessWidget {
     required this.image,
     required this.mobileNumber,
     required this.requestId,
+    this.onRefresh,
   });
 
   Future<void> _handleAccept(BuildContext context) async {
-    try {
-      final response = await ServiceManager.instance.connections
-          .acceptConnectionRequest(requestId);
-      if (response['success'] == true) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Connection request accepted'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        // TODO: Refresh the requests list
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response['message'] ?? 'Failed to accept request'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Failed to accept request'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+    // Navigate to QR scan screen instead of calling accept endpoint
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const QrScanScreen(),
+      ),
+    );
   }
 
   Future<void> _handleReject(BuildContext context) async {
@@ -56,7 +39,8 @@ class RequestTile extends StatelessWidget {
             backgroundColor: Colors.orange,
           ),
         );
-        // TODO: Refresh the requests list
+        // Refresh the requests list
+        onRefresh?.call();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -137,7 +121,7 @@ class RequestTile extends StatelessWidget {
               child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 child: Text(
-                  'Accept',
+                  'Scan QR',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,

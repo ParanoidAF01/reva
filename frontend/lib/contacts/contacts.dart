@@ -233,15 +233,24 @@ class _ContactsBodyState extends State<_ContactsBody> {
                   );
                 }
 
-                return Column(
-                  children: provider.contacts.map((contact) {
-                    return ContactTile(
-                      name: contact['fullName'] ?? 'Unknown',
-                      image: contact['profile'] ?? 'assets/dummyprofile.png',
-                      mobileNumber: contact['mobileNumber'] ?? '',
-                      userId: contact['_id'] ?? '',
-                    );
-                  }).toList(),
+                return RefreshIndicator(
+                  onRefresh: _fetchContacts,
+                  color: const Color(0xFF0262AB),
+                  backgroundColor: const Color(0xFF22252A),
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      children: provider.contacts.map((contact) {
+                        return ContactTile(
+                          name: contact['fullName'] ?? 'Unknown',
+                          image:
+                              contact['profile'] ?? 'assets/dummyprofile.png',
+                          mobileNumber: contact['mobileNumber'] ?? '',
+                          userId: contact['_id'] ?? '',
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 );
               },
             ),

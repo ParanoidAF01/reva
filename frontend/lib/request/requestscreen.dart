@@ -65,8 +65,20 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
     try {
       final response =
           await ServiceManager.instance.connections.getPendingRequests();
+      print('PENDING REQUESTS RESPONSE:');
+      print('Response: $response');
+
       if (response['success'] == true) {
         final requests = response['data']['pendingRequests'] ?? [];
+        print('Requests data: $requests');
+
+        // Log each request to see the structure
+        for (int i = 0; i < requests.length; i++) {
+          print('Request $i: ${requests[i]}');
+          print('Request $i fullName: ${requests[i]['fullName']}');
+          print('Request $i fromUser: ${requests[i]['fromUser']}');
+        }
+
         provider.setRequests(requests);
       } else {
         provider.setRequests([]);
@@ -190,59 +202,71 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
             // Requests List
             Consumer<PendingRequestsProvider>(
               builder: (context, provider, child) {
-                if (provider.isLoading) {
-                  return const Center(
-                    child: CircularProgressIndicator(
-                      color: Color(0xFF0262AB),
-                    ),
-                  );
-                }
-
-                if (provider.requests.isEmpty) {
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-                    child: Center(
-                      child: Column(
-                        children: [
-                          SizedBox(height: height * 0.1),
-                          Icon(
-                            Icons.person_add_disabled,
-                            size: 64,
-                            color: Colors.white54,
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            'No pending requests',
-                            style: GoogleFonts.dmSans(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white54,
+                return RefreshIndicator(
+                  onRefresh: _fetchPendingRequests,
+                  color: const Color(0xFF0262AB),
+                  backgroundColor: const Color(0xFF22252A),
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      children: [
+                        if (provider.isLoading)
+                          const Center(
+                            child: CircularProgressIndicator(
+                              color: Color(0xFF0262AB),
                             ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'You don\'t have any pending connection requests',
-                            style: GoogleFonts.dmSans(
-                              fontSize: 14,
-                              color: Colors.white38,
+                          )
+                        else if (provider.requests.isEmpty)
+                          Padding(
+                            padding:
+                                EdgeInsets.symmetric(horizontal: width * 0.05),
+                            child: Center(
+                              child: Column(
+                                children: [
+                                  SizedBox(height: height * 0.1),
+                                  Icon(
+                                    Icons.person_add_disabled,
+                                    size: 64,
+                                    color: Colors.white54,
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'No pending requests',
+                                    style: GoogleFonts.dmSans(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white54,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'You don\'t have any pending connection requests',
+                                    style: GoogleFonts.dmSans(
+                                      fontSize: 14,
+                                      color: Colors.white38,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
                             ),
-                            textAlign: TextAlign.center,
+                          )
+                        else
+                          Column(
+                            children: provider.requests.map((request) {
+                              return RequestTile(
+                                name: request['fullName'] ?? 'Unknown',
+                                image: request['profile'] ??
+                                    'assets/dummyprofile.png',
+                                mobileNumber: request['mobileNumber'] ?? '',
+                                requestId: request['_id'] ?? '',
+                                onRefresh: _fetchPendingRequests,
+                              );
+                            }).toList(),
                           ),
-                        ],
-                      ),
+                      ],
                     ),
-                  );
-                }
-
-                return Column(
-                  children: provider.requests.map((request) {
-                    return RequestTile(
-                      name: request['fullName'] ?? 'Unknown',
-                      image: request['profile'] ?? 'assets/dummyprofile.png',
-                      mobileNumber: request['mobileNumber'] ?? '',
-                      requestId: request['_id'] ?? '',
-                    );
-                  }).toList(),
+                  ),
                 );
               },
             ),

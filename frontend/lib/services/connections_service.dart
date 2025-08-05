@@ -29,14 +29,11 @@ class ConnectionsService {
     return await _apiService.get('/connections/pending-requests');
   }
 
-  // Accept connection request
-  Future<Map<String, dynamic>> acceptConnectionRequest(String requestId) async {
-    return await _apiService.put('/connections/accept/$requestId', {});
-  }
-
   // Reject connection request
   Future<Map<String, dynamic>> rejectConnectionRequest(String requestId) async {
-    return await _apiService.put('/connections/reject/$requestId', {});
+    return await _apiService.put('/connections/request/$requestId/respond', {
+      'action': 'reject',
+    });
   }
 
   // Send connection request

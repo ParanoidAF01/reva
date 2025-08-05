@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:reva/services/service_manager.dart';
 import 'package:reva/shared/profile_modal.dart';
 
 class PeopleYouMayKnowCard extends StatelessWidget {

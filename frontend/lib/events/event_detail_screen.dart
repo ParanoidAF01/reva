@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/services/api_service.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:reva/services/events_service.dart';
-import 'package:reva/services/auth_service.dart';
 
 class EventDetailScreen extends StatefulWidget {
   final String eventId;

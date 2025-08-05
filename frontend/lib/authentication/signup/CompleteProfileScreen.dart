@@ -151,8 +151,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                               onPrimary: Colors.white,
                               surface: Color(0xFF22252A),
                               onSurface: Colors.white,
-                            ),
-                            dialogBackgroundColor: Color(0xFF23262B),
+                            ), dialogTheme: DialogThemeData(backgroundColor: Color(0xFF23262B)),
                           ),
                           child: child!,
                         );

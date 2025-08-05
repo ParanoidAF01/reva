@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:reva/home/components/goldCard.dart';
 import 'package:reva/home/components/silverCard.dart';
 import 'package:reva/home/components/bronzeCard.dart';
+import 'package:reva/profile/profile_screen.dart';
 import 'package:reva/services/service_manager.dart';
 import 'package:reva/home/create_post_card.dart';
 import 'package:reva/peopleyoumayknow/peopleyoumayknow.dart';
@@ -14,7 +15,9 @@ import 'package:reva/events/event_detail_screen.dart';
 import 'package:reva/events/eventscreen.dart';
 import 'package:reva/posts/createpost.dart';
 import 'package:reva/providers/user_provider.dart';
-import 'package:reva/wallet/walletscreen.dart';
+import 'package:reva/contacts/contacts.dart';
+import 'package:reva/request/requestscreen.dart';
+// import 'package:reva/wallet/walletscreen.dart';
 
 // Make sure the GoldCard widget is defined in GoldCard.dart
 // import 'package:reva/qr/profile_qr_screen.dart';
@@ -254,517 +257,560 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Padding(
                 padding: EdgeInsets.all(width * 0.05),
                 child: Column(
-                children: [
-                  SizedBox(height: height * 0.045),
-                  // Custom Top Navbar
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Logo
-                      Image.asset(
-                        "assets/fulllogo.png",
-                        height: width * 0.18,
-                      ),
-                      const Spacer(),
-                      // Notification Icon with subtle glow and navigation
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamed(context, '/notification');
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF23262B),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.white.withOpacity(0.07),
-                                blurRadius: 12,
-                                spreadRadius: 2,
-                              ),
-                            ],
-                          ),
-                          // Removed padding from image
-                          child: Image.asset(
-                            "assets/bellicon.png",
-                            height: width * 0.1,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: height * 0.025),
-                  // Profile Row
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Profile Image
-                      CircleAvatar(
-                        radius: width * 0.09,
-                        backgroundImage: AssetImage(profileImage),
-                      ),
-                      SizedBox(width: width * 0.04),
-                      // Hello & Name
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Hello!",
-                            style: GoogleFonts.dmSans(
-                              fontWeight: FontWeight.w400,
-                              fontSize: width * 0.045,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            "$userName,",
-                            style: GoogleFonts.dmSans(
-                              fontWeight: FontWeight.w700,
-                              fontSize: width * 0.07,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const Spacer(),
-                      // Settings Menu Button (redirects to WalletScreen)
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: IconButton(
-                          icon: const Icon(Icons.settings,
-                              color: Color(0xFF22252A)),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const WalletScreen()),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: height * 0.03),
-                  // Search Bar & Filter Button
-                  // Row(
-                  //   children: [
-                  //     Expanded(
-                  //       child: Container(
-                  //         height: width * 0.13,
-                  //         decoration: BoxDecoration(
-                  //           color: const Color(0xFF2B2F34),
-                  //           borderRadius: BorderRadius.circular(12),
-                  //         ),
-                  //         padding: EdgeInsets.symmetric(horizontal: width * 0.03),
-                  //         child: Row(
-                  //           children: [
-                  //             const Icon(Icons.search, color: Colors.white70, size: 22),
-                  //             SizedBox(width: width * 0.02),
-                  //             const Expanded(
-                  //               child: TextField(
-                  //                 style: TextStyle(color: Colors.white),
-                  //                 cursorColor: Colors.white54,
-                  //                 decoration: InputDecoration(
-                  //                   hintText: 'Search ...',
-                  //                   hintStyle: TextStyle(color: Colors.white54),
-                  //                   border: InputBorder.none,
-                  //                 ),
-                  //               ),
-                  //             ),
-                  //           ],
-                  //         ),
-                  //       ),
-                  //     ),
-                  //     SizedBox(width: width * 0.03),
-                  //     // Filter Button
-                  //     Container(
-                  //       height: width * 0.13,
-                  //       width: width * 0.13,
-                  //       decoration: BoxDecoration(
-                  //         gradient: const LinearGradient(
-                  //           colors: [
-                  //             Color(0xFF0262AB),
-                  //             Color(0xFF01345A)
-                  //           ],
-                  //           begin: Alignment.topLeft,
-                  //           end: Alignment.bottomRight,
-                  //         ),
-                  //         borderRadius: BorderRadius.circular(12),
-                  //       ),
-                  //       child: IconButton(
-                  //         icon: const Icon(Icons.filter_list, color: Colors.white, size: 26),
-                  //         onPressed: () {
-                  //           // TODO: Filter action
-                  //         },
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
-                  // SizedBox(height: height * 0.03),
-                  // Show cards based on userEvents length
-                  if (isLoadingEvents)
-                    const Center(child: CircularProgressIndicator())
-                  else if (userEvents.length < 20)
-                    BronzeCard(
-                      name: userName,
-                      location: userLocation,
-                      experience: userExperience,
-                      languages: userLanguages,
-                      tag1: userData['tag1'] ?? "Commercial",
-                      tag2: userData['tag2'] ?? "Plots",
-                      tag3: userData['tag3'] ?? "Rental",
-                      kycStatus: userData['kycStatus'] ?? "KYC Approved",
-                    )
-                  else if (userEvents.length >= 20 && userEvents.length < 60)
-                    SilverCard(
-                      name: userName,
-                      location: userLocation,
-                      experience: userExperience,
-                      languages: userLanguages,
-                      tag1: userData['tag1'] ?? "Commercial",
-                      tag2: userData['tag2'] ?? "Plots",
-                      tag3: userData['tag3'] ?? "Rental",
-                      kycStatus: userData['kycStatus'] ?? "KYC Approved",
-                    )
-                  else if (userEvents.length >= 80)
-                    GoldCard(
-                      name: userName,
-                      location: userLocation,
-                      experience: userExperience,
-                      languages: userLanguages,
-                      tag1: userData['tag1'] ?? "Commercial",
-                      tag2: userData['tag2'] ?? "Plots",
-                      tag3: userData['tag3'] ?? "Rental",
-                      kycStatus: userData['kycStatus'] ?? "KYC Approved",
-                    ),
-                  SizedBox(height: height * 0.02),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF01416A),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      icon: const Icon(Icons.qr_code,
-                          color: Colors.white, size: 22),
-                      label: Text(
-                        'View my Profile QR',
-                        style: GoogleFonts.dmSans(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                      onPressed: () {
-                        // Use phone number saved in UserProvider
-                        String phone = UserProvider.userPhoneNumber ?? '';
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProfileQrScreen(
-                              mpin: '', // Do not show mpin
-                              phone: phone,
-                              name: userName,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  SizedBox(height: height * 0.03),
-                  // Stats row (REVA Connections, Pending Requests, Pending Connects)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: _customStatCard(
-                          icon: Icons.people_alt,
-                          label1: 'REVA',
-                          label2: 'Connections',
-                          value: revaConnections.toString(),
-                          width: width,
-                        ),
-                      ),
-                      SizedBox(width: width * 0.025),
-                      Expanded(
-                        child: _customStatCard(
-                          icon: Icons.hourglass_empty,
-                          label1: 'Incoming',
-                          label2: 'Requests',
-                          value: pendingRequests.toString(),
-                          width: width,
-                        ),
-                      ),
-                      SizedBox(width: width * 0.025),
-                      Expanded(
-                        child: _customStatCard(
-                          icon: Icons.link,
-                          label1: 'Outgoing',
-                          label2: 'Requests',
-                          value: pendingConnects.toString(),
-                          width: width,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: height * 0.04),
-                  // Dynamic Progress bar section
-                  _DynamicProgressBar(
-                    progress: achievementProgress,
-                    max: achievementMax,
-                    tickPositions: [0, achievementCurrent, achievementMax],
-                    label: 'Your progress',
-                    unlockText: 'to Unlock',
-                    unlockCard: 'Gold card',
-                    width: width,
-                  ),
-                  SizedBox(height: height * 0.01),
-                  // Events Attended Progress
-                  Row(
-                    children: [
-                      Icon(Icons.event_available,
-                          color: Colors.white70, size: 22),
-                      const SizedBox(width: 8),
-                      Text('Events Attended:',
-                          style: GoogleFonts.dmSans(
-                              color: Colors.white70, fontSize: 15)),
-                      const SizedBox(width: 8),
-                      Text(userEvents.length.toString(),
-                          style: GoogleFonts.dmSans(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16)),
-                    ],
-                  ),
-                  SizedBox(height: height * 0.05),
-                  // Upcoming Events Section
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Upcoming Events',
-                      style: GoogleFonts.dmSans(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: height * 0.03),
-                  if (isLoadingUpcomingEvents)
-                    const Center(child: CircularProgressIndicator())
-                  else
-                    _UpcomingEventsCarousel(
-                      events: upcomingEvents
-                          .map((event) => {
-                                'image': event['image'] ??
-                                    'assets/eventdummyimage.png',
-                                'price': event['price'] ?? '',
-                                'title': event['title'] ?? '',
-                                'location': event['location'] ?? '',
-                                'registered': event['registered'] ?? 0,
-                              })
-                          .toList(),
-                    ),
-                  const SizedBox(height: 10),
-                  // Page indicator is inside the carousel
-                  SizedBox(height: height * 0.04),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF01416A),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                      ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const EventScreen()),
-                        );
-                      },
-                      child: Text(
-                        'Explore All Events',
-                        style: GoogleFonts.dmSans(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(Icons.arrow_forward,
-                      color: Colors.white, size: height * 0.045),
-
-                  // People you may know section
-                  SizedBox(height: height * 0.04),
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(height: height * 0.045),
+                    // Custom Top Navbar
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'People you may know',
-                          style: GoogleFonts.dmSans(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 18,
-                          ),
+                        // Logo
+                        Image.asset(
+                          "assets/fulllogo.png",
+                          height: width * 0.18,
                         ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const PeopleYouMayKnow()),
-                            );
+                        const Spacer(),
+                        // Notification Icon with subtle glow and navigation
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/notification');
                           },
-                          child: Text('See all',
-                              style: GoogleFonts.dmSans(
-                                  color: const Color(0xFFB2C2D9),
-                                  fontWeight: FontWeight.w500)),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF23262B),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.white.withOpacity(0.07),
+                                  blurRadius: 12,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            // Removed padding from image
+                            child: Image.asset(
+                              "assets/bellicon.png",
+                              height: width * 0.1,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  SizedBox(height: height * 0.02),
-                  if (isLoadingPeople)
-                    const Center(child: CircularProgressIndicator())
-                  else
+                    SizedBox(height: height * 0.025),
+                    // Profile Row
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Profile Image
+                        CircleAvatar(
+                          radius: width * 0.09,
+                          backgroundImage: AssetImage(profileImage),
+                        ),
+                        SizedBox(width: width * 0.04),
+                        // Hello & Name
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Hello!",
+                              style: GoogleFonts.dmSans(
+                                fontWeight: FontWeight.w400,
+                                fontSize: width * 0.045,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Text(
+                              "$userName,",
+                              style: GoogleFonts.dmSans(
+                                fontWeight: FontWeight.w700,
+                                fontSize: width * 0.07,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        // Settings Menu Button (redirects to WalletScreen)
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(Icons.person,
+                                color: Color(0xFF22252A)),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const ProfileScreen()),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: height * 0.03),
+                    // Search Bar & Filter Button
+                    // Row(
+                    //   children: [
+                    //     Expanded(
+                    //       child: Container(
+                    //         height: width * 0.13,
+                    //         decoration: BoxDecoration(
+                    //           color: const Color(0xFF2B2F34),
+                    //           borderRadius: BorderRadius.circular(12),
+                    //         ),
+                    //         padding: EdgeInsets.symmetric(horizontal: width * 0.03),
+                    //         child: Row(
+                    //           children: [
+                    //             const Icon(Icons.search, color: Colors.white70, size: 22),
+                    //             SizedBox(width: width * 0.02),
+                    //             const Expanded(
+                    //               child: TextField(
+                    //                 style: TextStyle(color: Colors.white),
+                    //                 cursorColor: Colors.white54,
+                    //                 decoration: InputDecoration(
+                    //                   hintText: 'Search ...',
+                    //                   hintStyle: TextStyle(color: Colors.white54),
+                    //                   border: InputBorder.none,
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //           ],
+                    //         ),
+                    //       ),
+                    //     ),
+                    //     SizedBox(width: width * 0.03),
+                    //     // Filter Button
+                    //     Container(
+                    //       height: width * 0.13,
+                    //       width: width * 0.13,
+                    //       decoration: BoxDecoration(
+                    //         gradient: const LinearGradient(
+                    //           colors: [
+                    //             Color(0xFF0262AB),
+                    //             Color(0xFF01345A)
+                    //           ],
+                    //           begin: Alignment.topLeft,
+                    //           end: Alignment.bottomRight,
+                    //         ),
+                    //         borderRadius: BorderRadius.circular(12),
+                    //       ),
+                    //       child: IconButton(
+                    //         icon: const Icon(Icons.filter_list, color: Colors.white, size: 26),
+                    //         onPressed: () {
+                    //           // TODO: Filter action
+                    //         },
+                    //       ),
+                    //     ),
+                    //   ],
+                    // ),
+                    // SizedBox(height: height * 0.03),
+                    // Show cards based on userEvents length
+                    if (isLoadingEvents)
+                      const Center(child: CircularProgressIndicator())
+                    else if (userEvents.length < 20)
+                      BronzeCard(
+                        name: userName,
+                        location: userLocation,
+                        experience: userExperience,
+                        languages: userLanguages,
+                        tag1: userData['tag1'] ?? "Commercial",
+                        tag2: userData['tag2'] ?? "Plots",
+                        tag3: userData['tag3'] ?? "Rental",
+                        kycStatus: userData['kycStatus'] ?? "KYC Approved",
+                      )
+                    else if (userEvents.length >= 20 && userEvents.length < 60)
+                      SilverCard(
+                        name: userName,
+                        location: userLocation,
+                        experience: userExperience,
+                        languages: userLanguages,
+                        tag1: userData['tag1'] ?? "Commercial",
+                        tag2: userData['tag2'] ?? "Plots",
+                        tag3: userData['tag3'] ?? "Rental",
+                        kycStatus: userData['kycStatus'] ?? "KYC Approved",
+                      )
+                    else if (userEvents.length >= 80)
+                      GoldCard(
+                        name: userName,
+                        location: userLocation,
+                        experience: userExperience,
+                        languages: userLanguages,
+                        tag1: userData['tag1'] ?? "Commercial",
+                        tag2: userData['tag2'] ?? "Plots",
+                        tag3: userData['tag3'] ?? "Rental",
+                        kycStatus: userData['kycStatus'] ?? "KYC Approved",
+                      ),
+                    SizedBox(height: height * 0.02),
                     SizedBox(
-                      height: width * 0.52,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: peopleYouMayKnow.length,
-                        separatorBuilder: (context, index) =>
-                            SizedBox(width: width * 0.04),
-                        itemBuilder: (context, index) {
-                          final person = peopleYouMayKnow[index];
-                          return SizedBox(
-                            width: width * 0.42,
-                            child: PeopleYouMayKnowCard(
-                              name: person['fullName'] ??
-                                  person['name'] ??
-                                  'Unknown',
-                              image: person['profile'] ??
-                                  person['image'] ??
-                                  'assets/dummyprofile.png',
-                              userId: person['userId'] ??
-                                  '', // Pass userId as required
-                              // Add more fields as needed
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF01416A),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        icon: const Icon(Icons.qr_code,
+                            color: Colors.white, size: 22),
+                        label: Text(
+                          'View my Profile QR',
+                          style: GoogleFonts.dmSans(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        onPressed: () {
+                          // Use phone number saved in UserProvider
+                          String phone = UserProvider.userPhoneNumber ?? '';
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProfileQrScreen(
+                                mpin: '', // Do not show mpin
+                                phone: phone,
+                                name: userName,
+                              ),
                             ),
                           );
                         },
                       ),
                     ),
-                  SizedBox(height: height * 0.03),
-                  // Create Post Card Section (dynamic)
-                  CreatePostCard(
-                    usedPosts: myPosts.length,
-                    maxPosts: 2, // If you have a max from API, use it here
-                    onCreatePost: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (context) => const FractionallySizedBox(
-                          heightFactor: 0.98,
-                          child: SharePostScreen(),
+                    SizedBox(height: height * 0.03),
+                    // Stats row (REVA Connections, Pending Requests, Pending Connects)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const Contacts(),
+                                ),
+                              );
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 150),
+                              child: _customStatCard(
+                                icon: Icons.people_alt,
+                                label1: 'REVA',
+                                label2: 'Connections',
+                                value: revaConnections.toString(),
+                                width: width,
+                              ),
+                            ),
+                          ),
                         ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 32),
-                  // Contact Management Section
-                  ContactManagementSection(
-                    contacts: [
-                      ContactCardData(
-                          icon: Image.asset('assets/builder.png', width: 28),
-                          count: userData['builderCount']?.toString() ?? '0',
-                          label: 'Builder',
-                          userId: userData['id'] ?? ''),
-                      ContactCardData(
-                          icon: Image.asset('assets/loan.png', width: 28),
-                          count:
-                              userData['loanProviderCount']?.toString() ?? '0',
-                          label: 'Loan Provider',
-                          userId: userData['id'] ?? ''),
-                      ContactCardData(
-                          icon: Image.asset('assets/interior.png', width: 28),
-                          count:
-                              userData['interiorDesignerCount']?.toString() ??
-                                  '0',
-                          label: 'Interior Designer',
-                          userId: userData['id'] ?? ''),
-                      ContactCardData(
-                          icon: Image.asset('assets/material.png', width: 28),
-                          count:
-                              userData['materialSupplierCount']?.toString() ??
-                                  '0',
-                          label: 'Material Supplier',
-                          userId: userData['id'] ?? ''),
-                      ContactCardData(
-                          icon: Image.asset('assets/legal.png', width: 28),
-                          count:
-                              userData['legalAdvisorCount']?.toString() ?? '0',
-                          label: 'Legal Advisor',
-                          userId: userData['id'] ?? ''),
-                      ContactCardData(
-                          icon: Image.asset('assets/vastu.png', width: 28),
-                          count: userData['vastuConsultantCount']?.toString() ??
-                              '0',
-                          label: 'Vastu Consultant',
-                          userId: userData['id'] ?? ''),
-                      ContactCardData(
-                          icon: Image.asset('assets/homebuyer.png', width: 28),
-                          count: userData['homeBuyerCount']?.toString() ?? '0',
-                          label: 'Home Buyer',
-                          userId: userData['id'] ?? ''),
-                      ContactCardData(
-                          icon: Image.asset('assets/investor.png', width: 28),
-                          count:
-                              userData['propertyInvestorCount']?.toString() ??
-                                  '0',
-                          label: 'Property Investor',
-                          userId: userData['id'] ?? ''),
-                    ],
-                    achievement: AchievementData(
+                        SizedBox(width: width * 0.025),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const RequestScreen(),
+                                ),
+                              );
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 150),
+                              child: _customStatCard(
+                                icon: Icons.hourglass_empty,
+                                label1: 'Incoming',
+                                label2: 'Requests',
+                                value: pendingRequests.toString(),
+                                width: width,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: width * 0.025),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const RequestScreen(),
+                                ),
+                              );
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 150),
+                              child: _customStatCard(
+                                icon: Icons.link,
+                                label1: 'Outgoing',
+                                label2: 'Requests',
+                                value: pendingConnects.toString(),
+                                width: width,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: height * 0.04),
+                    // Dynamic Progress bar section
+                    _DynamicProgressBar(
                       progress: achievementProgress,
                       max: achievementMax,
-                      current: achievementCurrent,
-                      label: 'Achievement',
-                      subtitle: 'unlock a gift on you 100th attend event',
+                      tickPositions: [0, achievementCurrent, achievementMax],
+                      label: 'Your progress',
+                      unlockText: 'to Unlock',
+                      unlockCard: 'Gold card',
+                      width: width,
                     ),
-                    nfcCard: NfcCardData(
-                      title: 'NFC Card',
-                      subtitle: 'Tap to claim your NFC card',
-                      connectionsLeft: nfcConnectionsLeft,
-                      onClaim: () {},
-                      onBuy: () {},
+                    SizedBox(height: height * 0.01),
+                    // Events Attended Progress
+                    Row(
+                      children: [
+                        Icon(Icons.event_available,
+                            color: Colors.white70, size: 22),
+                        const SizedBox(width: 8),
+                        Text('Events Attended:',
+                            style: GoogleFonts.dmSans(
+                                color: Colors.white70, fontSize: 15)),
+                        const SizedBox(width: 8),
+                        Text(userEvents.length.toString(),
+                            style: GoogleFonts.dmSans(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16)),
+                      ],
                     ),
-                    subscription: SubscriptionStatusData(
-                      active: subscriptionActive,
-                      daysLeft: subscriptionDaysLeft,
-                      onRenew: () {},
-                      plan: plan,
-                      amountPaid: amountPaid,
-                      startDate: startDate,
-                      endDate: endDate,
+                    SizedBox(height: height * 0.05),
+                    // Upcoming Events Section
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Upcoming Events',
+                        style: GoogleFonts.dmSans(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                    SizedBox(height: height * 0.03),
+                    if (isLoadingUpcomingEvents)
+                      const Center(child: CircularProgressIndicator())
+                    else
+                      _UpcomingEventsCarousel(
+                        events: upcomingEvents
+                            .map((event) => {
+                                  'image': event['image'] ??
+                                      'assets/eventdummyimage.png',
+                                  'price': event['price'] ?? '',
+                                  'title': event['title'] ?? '',
+                                  'location': event['location'] ?? '',
+                                  'registered': event['registered'] ?? 0,
+                                })
+                            .toList(),
+                      ),
+                    const SizedBox(height: 10),
+                    // Page indicator is inside the carousel
+                    SizedBox(height: height * 0.04),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF01416A),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const EventScreen()),
+                          );
+                        },
+                        child: Text(
+                          'Explore All Events',
+                          style: GoogleFonts.dmSans(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(Icons.arrow_forward,
+                        color: Colors.white, size: height * 0.045),
+
+                    // People you may know section
+                    SizedBox(height: height * 0.04),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'People you may know',
+                            style: GoogleFonts.dmSans(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 18,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const PeopleYouMayKnow()),
+                              );
+                            },
+                            child: Text('See all',
+                                style: GoogleFonts.dmSans(
+                                    color: const Color(0xFFB2C2D9),
+                                    fontWeight: FontWeight.w500)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: height * 0.02),
+                    if (isLoadingPeople)
+                      const Center(child: CircularProgressIndicator())
+                    else
+                      SizedBox(
+                        height: width * 0.52,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: peopleYouMayKnow.length,
+                          separatorBuilder: (context, index) =>
+                              SizedBox(width: width * 0.04),
+                          itemBuilder: (context, index) {
+                            final person = peopleYouMayKnow[index];
+                            return SizedBox(
+                              width: width * 0.42,
+                              child: PeopleYouMayKnowCard(
+                                name: person['fullName'] ??
+                                    person['name'] ??
+                                    'Unknown',
+                                image: person['profile'] ??
+                                    person['image'] ??
+                                    'assets/dummyprofile.png',
+                                userId: person['userId'] ??
+                                    '', // Pass userId as required
+                                // Add more fields as needed
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    SizedBox(height: height * 0.03),
+                    // Create Post Card Section (dynamic)
+                    CreatePostCard(
+                      usedPosts: myPosts.length,
+                      maxPosts: 2, // If you have a max from API, use it here
+                      onCreatePost: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => const FractionallySizedBox(
+                            heightFactor: 0.98,
+                            child: SharePostScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 32),
+                    // Contact Management Section
+                    ContactManagementSection(
+                      contacts: [
+                        ContactCardData(
+                            icon: Image.asset('assets/builder.png', width: 28),
+                            count: userData['builderCount']?.toString() ?? '0',
+                            label: 'Builder',
+                            userId: userData['id'] ?? ''),
+                        ContactCardData(
+                            icon: Image.asset('assets/loan.png', width: 28),
+                            count: userData['loanProviderCount']?.toString() ??
+                                '0',
+                            label: 'Loan Provider',
+                            userId: userData['id'] ?? ''),
+                        ContactCardData(
+                            icon: Image.asset('assets/interior.png', width: 28),
+                            count:
+                                userData['interiorDesignerCount']?.toString() ??
+                                    '0',
+                            label: 'Interior Designer',
+                            userId: userData['id'] ?? ''),
+                        ContactCardData(
+                            icon: Image.asset('assets/material.png', width: 28),
+                            count:
+                                userData['materialSupplierCount']?.toString() ??
+                                    '0',
+                            label: 'Material Supplier',
+                            userId: userData['id'] ?? ''),
+                        ContactCardData(
+                            icon: Image.asset('assets/legal.png', width: 28),
+                            count: userData['legalAdvisorCount']?.toString() ??
+                                '0',
+                            label: 'Legal Advisor',
+                            userId: userData['id'] ?? ''),
+                        ContactCardData(
+                            icon: Image.asset('assets/vastu.png', width: 28),
+                            count:
+                                userData['vastuConsultantCount']?.toString() ??
+                                    '0',
+                            label: 'Vastu Consultant',
+                            userId: userData['id'] ?? ''),
+                        ContactCardData(
+                            icon:
+                                Image.asset('assets/homebuyer.png', width: 28),
+                            count:
+                                userData['homeBuyerCount']?.toString() ?? '0',
+                            label: 'Home Buyer',
+                            userId: userData['id'] ?? ''),
+                        ContactCardData(
+                            icon: Image.asset('assets/investor.png', width: 28),
+                            count:
+                                userData['propertyInvestorCount']?.toString() ??
+                                    '0',
+                            label: 'Property Investor',
+                            userId: userData['id'] ?? ''),
+                      ],
+                      achievement: AchievementData(
+                        progress: achievementProgress,
+                        max: achievementMax,
+                        current: achievementCurrent,
+                        label: 'Achievement',
+                        subtitle: 'unlock a gift on you 100th attend event',
+                      ),
+                      nfcCard: NfcCardData(
+                        title: 'NFC Card',
+                        subtitle: 'Tap to claim your NFC card',
+                        connectionsLeft: nfcConnectionsLeft,
+                        onClaim: () {},
+                        onBuy: () {},
+                      ),
+                      subscription: SubscriptionStatusData(
+                        active: subscriptionActive,
+                        daysLeft: subscriptionDaysLeft,
+                        onRenew: () {},
+                        plan: plan,
+                        amountPaid: amountPaid,
+                        startDate: startDate,
+                        endDate: endDate,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
           );
         },
       ),

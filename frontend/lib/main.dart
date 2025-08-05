@@ -5,6 +5,8 @@ import 'root_redirector.dart';
 import 'notification/notification.dart';
 import 'wallet/walletscreen.dart';
 import 'providers/user_provider.dart';
+import 'contacts/contacts.dart';
+import 'request/requestscreen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,6 +28,8 @@ class MyApp extends StatelessWidget {
         routes: {
           '/notification': (context) => const NotificationScreen(),
           '/wallet': (context) => const WalletScreen(),
+          '/contacts': (context) => const Contacts(),
+          '/requests': (context) => const RequestScreen(),
         },
       ),
     );

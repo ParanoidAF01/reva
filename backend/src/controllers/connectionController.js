@@ -127,9 +127,24 @@ const getConnectionSuggestions = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found");
     }
 
+    const pendingRequests = await ConnectionRequest.find({
+        $or: [
+            { fromUser: currentUserId, status: "pending" },
+            { toUser: currentUserId, status: "pending" }
+        ]
+    });
+
+    const pendingUserIds = pendingRequests.map(request => {
+        if (request.fromUser.toString() === currentUserId.toString()) {
+            return request.toUser;
+        } else {
+            return request.fromUser;
+        }
+    });
+
     const query = {
         _id: {
-            $nin: [...currentUser.connections, currentUserId]
+            $nin: [...currentUser.connections, currentUserId, ...pendingUserIds]
         }
     };
 
@@ -217,7 +232,6 @@ const sendConnectionRequest = asyncHandler(async (req, res) => {
     const connectionRequest = await ConnectionRequest.create({
         fromUser: currentUserId,
         toUser: toUserId,
-        message: message || ""
     });
 
     await connectionRequest.populate([
@@ -238,8 +252,6 @@ const sendConnectionRequest = asyncHandler(async (req, res) => {
                 fromUser: connectionRequest.fromUser,
                 toUser: connectionRequest.toUser,
                 status: connectionRequest.status,
-                message: connectionRequest.message,
-                createdAt: connectionRequest.createdAt
             }
         }, "Connection request sent successfully")
     );

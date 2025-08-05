@@ -11,9 +11,18 @@ import 'package:provider/provider.dart';
 // Provider for people you may know data
 class PeopleYouMayKnowProvider extends ChangeNotifier {
   List<dynamic> _people = [];
+  bool _isLoading = false;
+
   List<dynamic> get people => _people;
+  bool get isLoading => _isLoading;
+
   void setPeople(List<dynamic> people) {
     _people = people;
+    notifyListeners();
+  }
+
+  void setLoading(bool loading) {
+    _isLoading = loading;
     notifyListeners();
   }
 }
@@ -42,20 +51,22 @@ class _PeopleYouMayKnowBody extends StatefulWidget {
 }
 
 class _PeopleYouMayKnowBodyState extends State<_PeopleYouMayKnowBody> {
-  bool _fetched = false;
-
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_fetched) {
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchPeople();
-      _fetched = true;
-    }
+    });
   }
 
   Future<void> _fetchPeople() async {
+    final provider =
+        Provider.of<PeopleYouMayKnowProvider>(context, listen: false);
+    provider.setLoading(true);
+
     try {
-      final response = await ServiceManager.instance.connections.getConnectionSuggestions();
+      final response =
+          await ServiceManager.instance.connections.getConnectionSuggestions();
       if (response['success'] == true) {
         final suggestions = response['data']['suggestions'] ?? [];
         // Map API fields to card fields
@@ -64,14 +75,18 @@ class _PeopleYouMayKnowBodyState extends State<_PeopleYouMayKnowBody> {
                   'name': person['fullName'] ?? 'Unknown',
                   'image': person['profile'] ?? 'assets/dummyprofile.png',
                   'mobileNumber': person['mobileNumber'] ?? '',
+                  'userId': person['_id'] ?? '',
                 })
             .toList();
-        Provider.of<PeopleYouMayKnowProvider>(context, listen: false).setPeople(mapped);
+        provider.setPeople(mapped);
       } else {
-        Provider.of<PeopleYouMayKnowProvider>(context, listen: false).setPeople([]);
+        provider.setPeople([]);
       }
     } catch (e) {
-      Provider.of<PeopleYouMayKnowProvider>(context, listen: false).setPeople([]);
+      print('Error fetching people suggestions: $e');
+      provider.setPeople([]);
+    } finally {
+      provider.setLoading(false);
     }
   }
 
@@ -90,9 +105,9 @@ class _PeopleYouMayKnowBodyState extends State<_PeopleYouMayKnowBody> {
               child: Row(
                 children: [
                   const TriangleIcon(size: 20, color: Colors.white),
-                  SizedBox(width: width * 0.15),
+                  SizedBox(width: width * 0.05),
                   Text(
-                    "People you know",
+                    "People you may know",
                     style: GoogleFonts.dmSans(
                       fontSize: 26,
                       fontWeight: FontWeight.w700,
@@ -150,10 +165,7 @@ class _PeopleYouMayKnowBodyState extends State<_PeopleYouMayKnowBody> {
                       width: width * 0.2,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF0262AB),
-                            Color(0xFF01345A)
-                          ],
+                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -221,7 +233,8 @@ class _PeopleYouMayKnowBodyState extends State<_PeopleYouMayKnowBody> {
                     // TODO: Implement find in contacts action
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const RequestScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const RequestScreen()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -249,7 +262,48 @@ class _PeopleYouMayKnowBodyState extends State<_PeopleYouMayKnowBody> {
               padding: EdgeInsets.symmetric(horizontal: width * 0.05),
               child: Consumer<PeopleYouMayKnowProvider>(
                 builder: (context, provider, child) {
+                  if (provider.isLoading) {
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        color: Color(0xFF0262AB),
+                      ),
+                    );
+                  }
+
                   final people = provider.people;
+                  if (people.isEmpty) {
+                    return Center(
+                      child: Column(
+                        children: [
+                          SizedBox(height: height * 0.1),
+                          Icon(
+                            Icons.people_outline,
+                            size: 64,
+                            color: Colors.white54,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'No suggestions found',
+                            style: GoogleFonts.dmSans(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white54,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'No people suggestions available at the moment',
+                            style: GoogleFonts.dmSans(
+                              fontSize: 14,
+                              color: Colors.white38,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
                   return GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),

@@ -24,6 +24,31 @@ class ConnectionsService {
     return await _apiService.get('/connections/suggestions');
   }
 
+  // Get pending requests
+  Future<Map<String, dynamic>> getPendingRequests() async {
+    return await _apiService.get('/connections/pending-requests');
+  }
+
+  // Accept connection request
+  Future<Map<String, dynamic>> acceptConnectionRequest(String requestId) async {
+    return await _apiService.put('/connections/accept/$requestId', {});
+  }
+
+  // Reject connection request
+  Future<Map<String, dynamic>> rejectConnectionRequest(String requestId) async {
+    return await _apiService.put('/connections/reject/$requestId', {});
+  }
+
+  // Send connection request
+  Future<Map<String, dynamic>> sendConnectionRequest(String toUserId) async {
+    print('SENDING CONNECTION REQUEST:');
+    print('toUserId: $toUserId');
+
+    return await _apiService.post('/connections/request', {
+      'toUserId': toUserId,
+    });
+  }
+
   // Remove connection
   Future<Map<String, dynamic>> removeConnection(String connectionId) async {
     return await _apiService.delete('/connections/$connectionId');

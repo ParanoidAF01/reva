@@ -1,39 +1,122 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/request/requesttile.dart';
+import 'package:reva/services/service_manager.dart';
+import 'package:provider/provider.dart';
 
 import '../notification/notification.dart';
+
+// Provider for pending requests data
+class PendingRequestsProvider extends ChangeNotifier {
+  List<dynamic> _requests = [];
+  bool _isLoading = false;
+
+  List<dynamic> get requests => _requests;
+  bool get isLoading => _isLoading;
+
+  void setRequests(List<dynamic> requests) {
+    _requests = requests;
+    notifyListeners();
+  }
+
+  void setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
+}
 
 class RequestScreen extends StatelessWidget {
   const RequestScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    var height= MediaQuery.of(context).size.height;
-    var width= MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
+    var width = MediaQuery.of(context).size.width;
+    return ChangeNotifierProvider(
+      create: (_) => PendingRequestsProvider(),
+      child: _RequestScreenBody(height: height, width: width),
+    );
+  }
+}
+
+class _RequestScreenBody extends StatefulWidget {
+  final double height;
+  final double width;
+  const _RequestScreenBody({required this.height, required this.width});
+
+  @override
+  State<_RequestScreenBody> createState() => _RequestScreenBodyState();
+}
+
+class _RequestScreenBodyState extends State<_RequestScreenBody> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchPendingRequests();
+    });
+  }
+
+  Future<void> _fetchPendingRequests() async {
+    final provider =
+        Provider.of<PendingRequestsProvider>(context, listen: false);
+    provider.setLoading(true);
+
+    try {
+      final response =
+          await ServiceManager.instance.connections.getPendingRequests();
+      if (response['success'] == true) {
+        final requests = response['data']['pendingRequests'] ?? [];
+        provider.setRequests(requests);
+      } else {
+        provider.setRequests([]);
+      }
+    } catch (e) {
+      print('Error fetching pending requests: $e');
+      provider.setRequests([]);
+    } finally {
+      provider.setLoading(false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var height = widget.height;
+    var width = widget.width;
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(height: height*0.1,),Padding(
-              padding:EdgeInsets.symmetric(horizontal: width*0.05),
+            SizedBox(
+              height: height * 0.1,
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: width * 0.05),
               child: Row(
                 children: [
-                  const TriangleIcon(size: 20 , color: Colors.white,),
-                  SizedBox(width: width*0.25,),
-                  Text("Requests", style: GoogleFonts.dmSans(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white
-                  ),)
-
+                  const TriangleIcon(
+                    size: 20,
+                    color: Colors.white,
+                  ),
+                  SizedBox(
+                    width: width * 0.25,
+                  ),
+                  Text(
+                    "Requests",
+                    style: GoogleFonts.dmSans(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white),
+                  )
                 ],
               ),
             ),
-            const SizedBox(height: 20,),
+            const SizedBox(
+              height: 20,
+            ),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: width*0.05),
+              padding: EdgeInsets.symmetric(horizontal: width * 0.05),
               child: Row(
                 children: [
                   Expanded(
@@ -46,7 +129,8 @@ class RequestScreen extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: width * 0.03),
                       child: Row(
                         children: [
-                          const Icon(Icons.search, color: Colors.white70, size: 22),
+                          const Icon(Icons.search,
+                              color: Colors.white70, size: 22),
                           SizedBox(width: width * 0.02),
                           const Expanded(
                             child: TextField(
@@ -99,13 +183,69 @@ class RequestScreen extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: height*0.03,),
-            const RequestTile(),
-            const RequestTile(),
-            const RequestTile(),
-            const RequestTile(),
-            const RequestTile(),
+            SizedBox(
+              height: height * 0.03,
+            ),
 
+            // Requests List
+            Consumer<PendingRequestsProvider>(
+              builder: (context, provider, child) {
+                if (provider.isLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      color: Color(0xFF0262AB),
+                    ),
+                  );
+                }
+
+                if (provider.requests.isEmpty) {
+                  return Padding(
+                    padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          SizedBox(height: height * 0.1),
+                          Icon(
+                            Icons.person_add_disabled,
+                            size: 64,
+                            color: Colors.white54,
+                          ),
+                          SizedBox(height: 16),
+                          Text(
+                            'No pending requests',
+                            style: GoogleFonts.dmSans(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white54,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            'You don\'t have any pending connection requests',
+                            style: GoogleFonts.dmSans(
+                              fontSize: 14,
+                              color: Colors.white38,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return Column(
+                  children: provider.requests.map((request) {
+                    return RequestTile(
+                      name: request['fullName'] ?? 'Unknown',
+                      image: request['profile'] ?? 'assets/dummyprofile.png',
+                      mobileNumber: request['mobileNumber'] ?? '',
+                      requestId: request['_id'] ?? '',
+                    );
+                  }).toList(),
+                );
+              },
+            ),
           ],
         ),
       ),

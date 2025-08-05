@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'root_redirector.dart';
 import 'notification/notification.dart';
+import 'wallet/walletscreen.dart';
 import 'providers/user_provider.dart';
 
 void main() {
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
         home: const RootRedirector(),
         routes: {
           '/notification': (context) => const NotificationScreen(),
+          '/wallet': (context) => const WalletScreen(),
         },
       ),
     );

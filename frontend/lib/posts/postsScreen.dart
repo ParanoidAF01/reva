@@ -11,6 +11,22 @@ class PostsScreen extends StatefulWidget {
 }
 
 class _PostsScreenState extends State<PostsScreen> {
+  String _formatTimestamp(String? isoString) {
+    if (isoString == null || isoString.isEmpty) return '';
+    try {
+      final dt = DateTime.parse(isoString).toLocal();
+      final now = DateTime.now();
+      final diff = now.difference(dt);
+      if (diff.inSeconds < 60) return '${diff.inSeconds}s ago';
+      if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+      if (diff.inHours < 24) return '${diff.inHours}h ago';
+      if (diff.inDays < 7) return '${diff.inDays}d ago';
+      return '${dt.day}/${dt.month}/${dt.year}';
+    } catch (_) {
+      return isoString;
+    }
+  }
+
   final TextEditingController _searchController = TextEditingController();
   String _searchText = '';
   String? _selectedBadge;
@@ -193,6 +209,9 @@ class _PostsScreenState extends State<PostsScreen> {
                           final idx = entry.key;
                           final post = entry.value;
                           final author = post['author'] ?? {};
+                          // Debug: print author object to verify structure
+                          // ignore: avoid_print
+                          print('Post author: ' + author.toString());
                           final comments = post['comments'] ?? [];
                           return Padding(
                             padding: EdgeInsets.symmetric(horizontal: width * 0.04, vertical: height * 0.012),
@@ -212,10 +231,17 @@ class _PostsScreenState extends State<PostsScreen> {
                                       CircleAvatar(
                                         radius: 22,
                                         backgroundColor: Colors.blueGrey,
-                                        child: Text(
-                                          author['fullName'] != null && author['fullName'].isNotEmpty ? author['fullName'][0].toUpperCase() : '?',
-                                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                        ),
+                                        backgroundImage: (author['profilePicture'] != null && author['profilePicture'].toString().isNotEmpty) ? NetworkImage(author['profilePicture']) : null,
+                                        child: (author['profilePicture'] == null || author['profilePicture'].toString().isEmpty)
+                                            ? Text(
+                                                (author['fullName'] != null && author['fullName'].isNotEmpty)
+                                                    ? author['fullName'][0].toUpperCase()
+                                                    : (author['name'] != null && author['name'].isNotEmpty)
+                                                        ? author['name'][0].toUpperCase()
+                                                        : '?',
+                                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                              )
+                                            : null,
                                       ),
                                       const SizedBox(width: 10),
                                       Expanded(
@@ -225,7 +251,7 @@ class _PostsScreenState extends State<PostsScreen> {
                                             Text(author['fullName'] ?? 'Unknown', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, color: Colors.white, fontSize: 16)),
                                             Text(post['category'] ?? '', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
                                             const SizedBox(height: 2),
-                                            Text(post['createdAt'] ?? '', style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 12)),
+                                            Text(_formatTimestamp(post['createdAt']), style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 12)),
                                           ],
                                         ),
                                       ),
@@ -243,7 +269,6 @@ class _PostsScreenState extends State<PostsScreen> {
                                   // Dropdown to show/hide comments (per post)
                                   Builder(
                                     builder: (context) {
-                                      // Use a map to track dropdown state per post
                                       post['showComments'] ??= false;
                                       return Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -284,10 +309,13 @@ class _PostsScreenState extends State<PostsScreen> {
                                                         CircleAvatar(
                                                           radius: 14,
                                                           backgroundColor: Colors.blueGrey,
-                                                          child: Text(
-                                                            comment['author'] != null && comment['author']['fullName'] != null && comment['author']['fullName'].isNotEmpty ? comment['author']['fullName'][0].toUpperCase() : '?',
-                                                            style: const TextStyle(color: Colors.white, fontSize: 12),
-                                                          ),
+                                                          backgroundImage: (comment['author'] != null && comment['author']['profilePicture'] != null && comment['author']['profilePicture'].toString().isNotEmpty) ? NetworkImage(comment['author']['profilePicture']) : null,
+                                                          child: (comment['author'] == null || comment['author']['profilePicture'] == null || comment['author']['profilePicture'].toString().isEmpty)
+                                                              ? Text(
+                                                                  comment['author'] != null && comment['author']['fullName'] != null && comment['author']['fullName'].isNotEmpty ? comment['author']['fullName'][0].toUpperCase() : '?',
+                                                                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                                                                )
+                                                              : null,
                                                         ),
                                                         const SizedBox(width: 8),
                                                         Expanded(
@@ -372,6 +400,10 @@ class _PostsScreenState extends State<PostsScreen> {
                                               if (idx < _likedPosts.length) {
                                                 _likedPosts[idx] = !_likedPosts[idx];
                                               }
+                                              // Optionally update like count from backend
+                                              if (response['data'] != null && response['data']['likes'] != null) {
+                                                post['likes'] = response['data']['likes'];
+                                              }
                                             });
                                           } else {
                                             ScaffoldMessenger.of(context).showSnackBar(
@@ -387,6 +419,10 @@ class _PostsScreenState extends State<PostsScreen> {
                                             ),
                                             const SizedBox(width: 4),
                                             Text('Like', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
+                                            if (post['likes'] != null && post['likes'] is List && post['likes'].length > 0) ...[
+                                              const SizedBox(width: 4),
+                                              Text('(${post['likes'].length})', style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 12)),
+                                            ]
                                           ],
                                         ),
                                       ),
@@ -404,6 +440,7 @@ class _PostsScreenState extends State<PostsScreen> {
                                       ),
                                     ],
                                   ),
+// ...existing code...
                                 ],
                               ),
                             ),

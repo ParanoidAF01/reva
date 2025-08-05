@@ -20,8 +20,8 @@ class ConnectionsService {
   }
 
   // Get connection suggestions
-  Future<Map<String, dynamic>> getConnectionSuggestions() async {
-    return await _apiService.get('/connections/suggestions');
+  Future<Map<String, dynamic>> getConnectionSuggestions({int page = 1, int limit = 50}) async {
+    return await _apiService.get('/connections/suggestions?page=$page&limit=$limit');
   }
 
   // Get pending requests (incoming)

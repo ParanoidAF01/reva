@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/contacts/contacts.dart';
-
+import 'package:reva/home/homescreen.dart';
 import 'package:reva/peopleyoumayknow/peopleyoumayknowtile.dart';
 import 'package:reva/request/requestscreen.dart';
 import 'package:reva/services/service_manager.dart';
@@ -69,14 +69,16 @@ class _PeopleYouMayKnowBodyState extends State<_PeopleYouMayKnowBody> {
   Future<void> _fetchPeople() async {
     final provider = Provider.of<PeopleYouMayKnowProvider>(context, listen: false);
     provider.setLoading(true);
+
     try {
-      final response = await ServiceManager.instance.connections.getConnectionSuggestions(limit: 50);
+      final response = await ServiceManager.instance.connections.getConnectionSuggestions();
       if (response['success'] == true) {
         final suggestions = response['data']['suggestions'] ?? [];
+        // Map API fields to card fields
         final mapped = suggestions
             .map((person) => {
                   'name': person['fullName'] ?? 'Unknown',
-                  'image': person['profilePicture'] ?? person['profile'] ?? 'assets/dummyprofile.png',
+                  'image': person['profile'] ?? 'assets/dummyprofile.png',
                   'mobileNumber': person['mobileNumber'] ?? '',
                   'userId': person['_id'] ?? '',
                 })
@@ -105,7 +107,9 @@ class _PeopleYouMayKnowBodyState extends State<_PeopleYouMayKnowBody> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+            );
           },
         ),
         title: Text(

@@ -58,13 +58,11 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
   }
 
   Future<void> _fetchPendingRequests() async {
-    final provider =
-        Provider.of<PendingRequestsProvider>(context, listen: false);
+    final provider = Provider.of<PendingRequestsProvider>(context, listen: false);
     provider.setLoading(true);
 
     try {
-      final response =
-          await ServiceManager.instance.connections.getPendingRequests();
+      final response = await ServiceManager.instance.connections.getPendingRequests();
       print('PENDING REQUESTS RESPONSE:');
       print('Response: $response');
 
@@ -97,36 +95,29 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
     var width = widget.width;
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF22252A),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text(
+          "Requests",
+          style: GoogleFonts.dmSans(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: false,
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(
-              height: height * 0.1,
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-              child: Row(
-                children: [
-                  const TriangleIcon(
-                    size: 20,
-                    color: Colors.white,
-                  ),
-                  SizedBox(
-                    width: width * 0.25,
-                  ),
-                  Text(
-                    "Requests",
-                    style: GoogleFonts.dmSans(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white),
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
+            const SizedBox(height: 20),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: width * 0.05),
               child: Row(
@@ -141,8 +132,7 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
                       padding: EdgeInsets.symmetric(horizontal: width * 0.03),
                       child: Row(
                         children: [
-                          const Icon(Icons.search,
-                              color: Colors.white70, size: 22),
+                          const Icon(Icons.search, color: Colors.white70, size: 22),
                           SizedBox(width: width * 0.02),
                           const Expanded(
                             child: TextField(
@@ -171,7 +161,10 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
                       width: width * 0.2,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
+                          colors: [
+                            Color(0xFF0262AB),
+                            Color(0xFF01345A)
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -218,8 +211,7 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
                           )
                         else if (provider.requests.isEmpty)
                           Padding(
-                            padding:
-                                EdgeInsets.symmetric(horizontal: width * 0.05),
+                            padding: EdgeInsets.symmetric(horizontal: width * 0.05),
                             child: Center(
                               child: Column(
                                 children: [
@@ -256,8 +248,7 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
                             children: provider.requests.map((request) {
                               return RequestTile(
                                 name: request['fullName'] ?? 'Unknown',
-                                image: request['profile'] ??
-                                    'assets/dummyprofile.png',
+                                image: request['profile'] ?? 'assets/dummyprofile.png',
                                 mobileNumber: request['mobileNumber'] ?? '',
                                 requestId: request['_id'] ?? '',
                                 onRefresh: _fetchPendingRequests,

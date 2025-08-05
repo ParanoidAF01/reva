@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../services/service_manager.dart';
-import 'package:reva/redeem.dart';
 
 class ContactManagementSection extends StatelessWidget {
   final List<ContactCardData> contacts;
@@ -21,10 +19,10 @@ class ContactManagementSection extends StatelessWidget {
     required this.nfcCard,
     required this.subscription,
     this.tileIconScale = 1.5,
-    this.tileCountFontScale = 0.8,
-    this.tileLabelFontScale = 0.8,
+    this.tileCountFontScale = 0.4,
+    this.tileLabelFontScale = 0.7,
     this.tilePaddingScale = 0.8,
-    this.tileRadiusScale = 1.0,
+    this.tileRadiusScale = 1,
   });
 
   @override
@@ -55,147 +53,74 @@ class ContactManagementSection extends StatelessWidget {
             crossAxisCount: 4,
             mainAxisSpacing: 0,
             crossAxisSpacing: 0,
-            childAspectRatio: 0.55, // Wider and taller tiles
+            childAspectRatio: 0.55,
           ),
           itemBuilder: (context, i) {
             final c = contacts[i];
             return LayoutBuilder(
               builder: (context, constraints) {
                 final double borderRadius = 22 * tileRadiusScale;
-                final double tileWidth = constraints.maxWidth * 0.95;
-                final double tileHeight = constraints.maxHeight * 1.18;
+                final double tileWidth = constraints.maxWidth * 0.9;
+                final double tileHeight = constraints.maxHeight * 1.0; // Use full height per tile
                 final double iconSize = tileHeight * 0.20 * tileIconScale;
                 final double countFont = tileHeight * 0.18 * tileCountFontScale;
                 final double labelFont = tileHeight * 0.11 * tileLabelFontScale;
                 final double avatarTop = -iconSize * 0.12;
                 return Center(
-                  child: GestureDetector(
-                    onTap: () async {
-                      // Fetch profile details from API
-                      String name = '****';
-                      String location = '****';
-                      String experience = '****';
-                      String languages = '****';
-                      String phone = '****';
-                      String email = '****';
-                      String avatar = 'assets/dummyprofile.png';
-                      try {
-                        // Use userId for API fetch
-                        if (c.userId.isNotEmpty) {
-                          final response = await ServiceManager.instance.profile.getProfileById(c.userId);
-                          if (response['success'] == true && response['data'] != null) {
-                            final data = response['data'];
-                            name = data['fullName'] ?? '****';
-                            location = data['location'] ?? '****';
-                            experience = data['experience'] ?? '****';
-                            languages = data['languages'] ?? '****';
-                            phone = data['mobileNumber'] ?? '****';
-                            email = data['email'] ?? '****';
-                            avatar = data['avatar'] ?? 'assets/dummyprofile.png';
-                          }
-                        }
-                      } catch (e) {}
-                      showModalBottomSheet(
-                        context: context,
-                        backgroundColor: const Color(0xFF23262B),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+                  child: SizedBox(
+                    width: tileWidth,
+                    height: tileHeight,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(borderRadius),
+                        image: const DecorationImage(
+                          image: AssetImage('assets/contactmanagement_tile.png'),
+                          fit: BoxFit.cover,
                         ),
-                        builder: (context) {
-                          return Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                CircleAvatar(
-                                  radius: 40,
-                                  backgroundImage: AssetImage(avatar),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(name, style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22)),
-                                const SizedBox(height: 4),
-                                Text(location, style: GoogleFonts.dmSans(color: Colors.white.withOpacity(0.7), fontWeight: FontWeight.w500, fontSize: 16)),
-                                const SizedBox(height: 8),
-                                Text('• $experience • $languages', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14)),
-                                const SizedBox(height: 12),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.phone, color: Colors.white70, size: 18),
-                                    const SizedBox(width: 8),
-                                    Text(phone, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.email, color: Colors.white70, size: 18),
-                                    const SizedBox(width: 8),
-                                    Text(email, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
-                                  ],
-                                ),
-                              ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(height: tileHeight * 0.06),
+                          Container(
+                            width: iconSize,
+                            height: iconSize,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.13),
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white.withOpacity(0.10), width: 1.2 * tilePaddingScale),
                             ),
-                          );
-                        },
-                      );
-                    },
-                    child: SizedBox(
-                      width: tileWidth,
-                      height: tileHeight,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(borderRadius),
-                          image: const DecorationImage(
-                            image: AssetImage('assets/contactmanagement_tile.png'),
-                            fit: BoxFit.cover,
+                            child: Center(child: SizedBox(width: iconSize * 0.7, height: iconSize * 0.7, child: c.icon)),
                           ),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            SizedBox(height: tileHeight * 0.06),
-                            Container(
-                              width: iconSize,
-                              height: iconSize,
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.13),
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white.withOpacity(0.10), width: 1.2 * tilePaddingScale),
-                              ),
-                              child: Center(child: SizedBox(width: iconSize * 0.7, height: iconSize * 0.7, child: c.icon)),
+                          SizedBox(height: tileHeight * 0.02),
+                          Text(
+                            c.count,
+                            style: GoogleFonts.dmSans(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: countFont,
+                              letterSpacing: 0.2,
                             ),
-                            SizedBox(height: tileHeight * 0.02),
-                            Text(
-                              c.count,
+                          ),
+                          SizedBox(height: tileHeight * 0.005 * tilePaddingScale),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                            child: Text(
+                              c.label,
                               style: GoogleFonts.dmSans(
                                 color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: countFont,
-                                letterSpacing: 0.2,
+                                fontWeight: FontWeight.w400,
+                                fontSize: labelFont,
+                                height: 1.13,
+                                letterSpacing: 0.01,
                               ),
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            SizedBox(height: tileHeight * 0.005 * tilePaddingScale),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                              child: Text(
-                                c.label,
-                                style: GoogleFonts.dmSans(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: labelFont,
-                                  height: 1.13,
-                                  letterSpacing: 0.01,
-                                ),
-                                textAlign: TextAlign.center,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -209,7 +134,7 @@ class ContactManagementSection extends StatelessWidget {
         const SizedBox(height: 18),
         NfcCardWidget(data: nfcCard),
         const SizedBox(height: 32),
-        SubscriptionStatusCard(data: subscription),
+        // SubscriptionStatusCard(data: subscription),
       ],
     );
   }
@@ -347,115 +272,12 @@ class AchievementCard extends StatelessWidget {
 class NfcCardWidget extends StatelessWidget {
   final NfcCardData data;
   const NfcCardWidget({super.key, required this.data});
-  @override
-  Widget build(BuildContext context) {
-    // Achievement unlocked if connectionsLeft >= 500
-    final int requiredConnections = 500;
-    final bool achievementUnlocked = data.connectionsLeft >= requiredConnections;
-    final int remainingConnections = achievementUnlocked ? 0 : (requiredConnections - data.connectionsLeft);
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: const Color(0xFF23262B),
-            borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: Colors.white24.withOpacity(0.18), width: 1.2),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(data.title, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: Colors.white)),
-                  GestureDetector(
-                    onTap: achievementUnlocked
-                        ? null
-                        : () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(builder: (context) => RedeemPage()),
-                            );
-                          },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: achievementUnlocked ? Colors.grey : const Color(0xFF23262B),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: Colors.white24),
-                      ),
-                      child: Text('Buy?', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 13)),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 2),
-              Text(data.subtitle, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
-              const SizedBox(height: 10),
-              RichText(
-                text: TextSpan(
-                  text: achievementUnlocked
-                      ? 'Achievement unlocked!'
-                      : 'You need ',
-                  style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
-                  children: achievementUnlocked
-                      ? [
-                          TextSpan(
-                            text: '',
-                            style: GoogleFonts.dmSans(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 22),
-                          ),
-                        ]
-                      : [
-                          TextSpan(
-                            text: remainingConnections.toString(),
-                            style: GoogleFonts.dmSans(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 22),
-                          ),
-                          TextSpan(
-                            text: ' more connections to unlock achievement.',
-                            style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
-                          ),
-                        ],
-                ),
-              ),
-              const SizedBox(height: 32), // Add more space for button overlap
-            ],
-          ),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: -24,
-          child: Center(
-            child: ElevatedButton.icon(
-              onPressed: achievementUnlocked
-                  ? data.onClaim
-                  : null,
-              icon: const Icon(Icons.lock, color: Colors.white, size: 18),
-              label: Text('Claim now', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: achievementUnlocked ? const Color(0xFF01416A) : Colors.grey,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
-                elevation: 2,
-                shadowColor: Colors.black.withOpacity(0.18),
-                minimumSize: const Size(0, 0),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
 
-class SubscriptionStatusCard extends StatelessWidget {
-  final SubscriptionStatusData data;
-  const SubscriptionStatusCard({super.key, required this.data});
   @override
   Widget build(BuildContext context) {
+    final requiredConnections = 500;
+    final achievementUnlocked = data.connectionsLeft >= requiredConnections;
+    final remainingConnections = achievementUnlocked ? 0 : (requiredConnections - data.connectionsLeft);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -468,82 +290,46 @@ class SubscriptionStatusCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Subscription Status', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: Colors.white)),
-              const SizedBox(width: 8),
-              Icon(Icons.circle, color: data.active ? Colors.greenAccent : Colors.red, size: 12),
-              const SizedBox(width: 2),
-              Text(data.active ? 'Active' : 'Inactive', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 13)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text('Plan: ', style: GoogleFonts.dmSans(color: Colors.white70, fontWeight: FontWeight.w500, fontSize: 15)),
-              Text(data.plan.isNotEmpty ? data.plan[0].toUpperCase() + data.plan.substring(1) : '-', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
-              const SizedBox(width: 16),
-              Text('Paid: ', style: GoogleFonts.dmSans(color: Colors.white70, fontWeight: FontWeight.w500, fontSize: 15)),
-              Text('₹${data.amountPaid}', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text('Start: ', style: GoogleFonts.dmSans(color: Colors.white70, fontWeight: FontWeight.w500, fontSize: 13)),
-              Text(_formatDate(data.endDate, isStart: true), style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13)),
-              const SizedBox(width: 16),
-              Text('End: ', style: GoogleFonts.dmSans(color: Colors.white70, fontWeight: FontWeight.w500, fontSize: 13)),
-              Text(_formatDate(data.endDate), style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          RichText(
-            text: TextSpan(
-              text: '${data.daysLeft}',
-              style: GoogleFonts.dmSans(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 28),
-              children: [
-                TextSpan(
-                  text: ' days left',
-                  style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 22),
+              Text(data.title, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: Colors.white)),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: achievementUnlocked ? Colors.grey : const Color(0xFF23262B),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: Colors.white24),
                 ),
-              ],
-            ),
+                child: Text(
+                  achievementUnlocked ? 'Claimed' : 'Claim now',
+                  style: GoogleFonts.dmSans(color: Colors.white, fontSize: 13),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 2),
-          Text(data.active
-              ? 'Your subscription is active.'
-              : 'Your subscription is expiring soon.\nRenew to keep accessing all features.',
-              style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
-          const SizedBox(height: 14),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: data.onRenew,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF01416A),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                elevation: 0,
-              ),
-              child: Text('Renew Now', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
+          Text(data.subtitle, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
+          const SizedBox(height: 10),
+          RichText(
+            text: TextSpan(
+              text: achievementUnlocked ? 'Achievement unlocked!' : 'You need ',
+              style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
+              children: achievementUnlocked
+                  ? []
+                  : [
+                      TextSpan(
+                        text: remainingConnections.toString(),
+                        style: GoogleFonts.dmSans(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 22),
+                      ),
+                      TextSpan(
+                        text: ' more connections to unlock achievement.',
+                        style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
+                      ),
+                    ],
             ),
           ),
         ],
       ),
     );
-  }
-
-  String _formatDate(String dateStr, {bool isStart = false}) {
-    try {
-      final dt = DateTime.tryParse(dateStr);
-      if (dt == null) return '-';
-      if (isStart && dt.isAfter(DateTime.now())) {
-        // If start date is after now, show today
-        return '${DateTime.now().day}/${DateTime.now().month}/${DateTime.now().year}';
-      }
-      return '${dt.day}/${dt.month}/${dt.year}';
-    } catch (_) {
-      return '-';
-    }
   }
 }

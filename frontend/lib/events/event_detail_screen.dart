@@ -13,6 +13,27 @@ class EventDetailScreen extends StatefulWidget {
 }
 
 class _EventDetailScreenState extends State<EventDetailScreen> {
+  // Store connection status for each attendee
+  Map<String, bool> attendeeConnectionStatus = {};
+
+  // Fetch connection status for all attendees
+  Future<void> fetchAttendeeConnections(List attendees) async {
+    final apiService = ApiService();
+    Map<String, bool> statusMap = {};
+    for (var attendee in attendees) {
+      try {
+        // Replace with your actual endpoint and logic
+        final res = await apiService.get('/connections/check?userId=' + attendee.id.toString());
+        statusMap[attendee.id.toString()] = res['data']?['connected'] == true;
+      } catch (_) {
+        statusMap[attendee.id.toString()] = false;
+      }
+    }
+    setState(() {
+      attendeeConnectionStatus = statusMap;
+    });
+  }
+
   EventModel? event;
   bool isLoading = true;
   String? error;
@@ -49,9 +70,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       final response = await apiService.get('/events');
       final List<dynamic> eventsData = response['data']['events'] ?? [];
 
-      // Debug: Print all event titles to help with debugging
-      debugPrint(
-          'Available events: ${eventsData.map((e) => e['title']).toList()}');
+      debugPrint('Available events: ${eventsData.map((e) => e['title']).toList()}');
       debugPrint('Looking for event: ${widget.eventId}');
 
       final found = eventsData.firstWhere(
@@ -67,6 +86,27 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       if (found != null) {
         event = EventModel.fromJson(found);
         debugPrint('Found event: ${event?.title}');
+
+        // Check if user has already booked this event
+        final eventsService = EventsService();
+        final myEventsResponse = await eventsService.getMyEvents();
+        final List<dynamic> myEvents = myEventsResponse['data']['events'] ?? [];
+        final booked = myEvents.any((e) {
+          // Compare by event id or title
+          if (e['id'] != null && event?.id != null) {
+            return e['id'].toString() == event!.id.toString();
+          }
+          // fallback to title if id not present
+          return (e['title'] ?? '').toString().toLowerCase().trim() == (event?.title ?? '').toLowerCase().trim();
+        });
+        setState(() {
+          isBooked = booked;
+        });
+
+        // Fetch attendee connection status
+        if (event?.attendees != null && event!.attendees.isNotEmpty) {
+          await fetchAttendeeConnections(event!.attendees);
+        }
       } else {
         error = 'Event not found: ${widget.eventId}';
         debugPrint('Event not found in list');
@@ -93,25 +133,18 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         backgroundColor: const Color(0xFF22252A),
         elevation: 0,
         leading: IconButton(
-          icon:
-              const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text('Event',
-            style: GoogleFonts.dmSans(
-                fontWeight: FontWeight.bold, color: Colors.white)),
+        title: Text('Event', style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, color: Colors.white)),
         centerTitle: true,
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : error != null
-              ? Center(
-                  child: Text(error ?? 'Error',
-                      style: const TextStyle(color: Colors.red)))
+              ? Center(child: Text(error ?? 'Error', style: const TextStyle(color: Colors.red)))
               : event == null
-                  ? const Center(
-                      child: Text('No event found',
-                          style: TextStyle(color: Colors.white)))
+                  ? const Center(child: Text('No event found', style: TextStyle(color: Colors.white)))
                   : SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,8 +165,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                             ),
                           // Card with event info
                           Container(
-                            margin: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 0),
+                            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
                             padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
                               color: const Color(0xFF2E3339),
@@ -147,77 +179,43 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                   children: [
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          Text(event!.title,
-                                              style: GoogleFonts.dmSans(
-                                                  fontSize: 24,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Colors.white)),
-                                          Text(
-                                              '(${event!.location.isNotEmpty ? event!.location : "-"})',
-                                              style: GoogleFonts.dmSans(
-                                                  fontSize: 16,
-                                                  color: Colors.white70)),
+                                          Text(event!.title, style: GoogleFonts.dmSans(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
+                                          Text('(${event!.location.isNotEmpty ? event!.location : "-"})', style: GoogleFonts.dmSans(fontSize: 16, color: Colors.white70)),
                                         ],
                                       ),
                                     ),
                                     Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
                                       children: [
                                         Text(
-                                          event!.startDate.isNotEmpty
-                                              ? _formatDay(event!.startDate)
-                                              : '-',
-                                          style: GoogleFonts.dmSans(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w600,
-                                              color: Colors.white),
+                                          event!.startDate.isNotEmpty ? _formatDay(event!.startDate) : '-',
+                                          style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
                                         ),
                                         Text(
-                                          event!.month.isNotEmpty
-                                              ? event!.month
-                                              : '-',
-                                          style: GoogleFonts.dmSans(
-                                              fontSize: 16,
-                                              color: Colors.white70),
+                                          event!.month.isNotEmpty ? event!.month : '-',
+                                          style: GoogleFonts.dmSans(fontSize: 16, color: Colors.white70),
                                         ),
                                       ],
                                     ),
                                   ],
                                 ),
                                 const SizedBox(height: 16),
-                                Text(
-                                    event!.description.isNotEmpty
-                                        ? event!.description
-                                        : '-',
-                                    style: GoogleFonts.dmSans(
-                                        fontSize: 15, color: Colors.white70)),
+                                Text(event!.description.isNotEmpty ? event!.description : '-', style: GoogleFonts.dmSans(fontSize: 15, color: Colors.white70)),
                                 const SizedBox(height: 16),
                                 SizedBox(
                                   width: double.infinity,
                                   child: ElevatedButton(
                                     onPressed: isBooked ? null : _openCheckout,
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: isBooked
-                                          ? Colors.grey
-                                          : const Color(0xFF0262AB),
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12)),
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 14),
+                                      backgroundColor: isBooked ? Colors.grey : const Color(0xFF0262AB),
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      padding: const EdgeInsets.symmetric(vertical: 14),
                                     ),
                                     child: Text(
-                                      isBooked
-                                          ? 'Already Booked'
-                                          : 'Book this Event',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16),
+                                      isBooked ? 'Already Booked' : 'Book this Event',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                                     ),
                                   ),
                                 ),
@@ -228,24 +226,17 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                           // Seats left warning
                           if ((event?.seatsLeft ?? 0) != 0)
                             Container(
-                              margin:
-                                  const EdgeInsets.symmetric(horizontal: 16),
+                              margin: const EdgeInsets.symmetric(horizontal: 16),
                               padding: const EdgeInsets.symmetric(vertical: 10),
                               decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: Colors.yellow, width: 1.2),
+                                border: Border.all(color: Colors.yellow, width: 1.2),
                                 borderRadius: BorderRadius.circular(12),
                                 color: Colors.transparent,
                               ),
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(
-                                      'Hurry! Only ${event?.seatsLeft ?? 0} seats left',
-                                      style: GoogleFonts.dmSans(
-                                          color: Colors.yellow,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 16)),
+                                  Text('Hurry! Only ${event?.seatsLeft ?? 0} seats left', style: GoogleFonts.dmSans(color: Colors.yellow, fontWeight: FontWeight.w600, fontSize: 16)),
                                 ],
                               ),
                             ),
@@ -255,44 +246,20 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                             margin: const EdgeInsets.symmetric(horizontal: 16),
                             child: Row(
                               children: [
-                                Expanded(
-                                    child: _infoCard(
-                                        'Location',
-                                        event?.location != null &&
-                                                event!.location.isNotEmpty
-                                            ? event!.location
-                                            : '-')),
+                                Expanded(child: _infoCard('Location', event?.location != null && event!.location.isNotEmpty ? event!.location : '-')),
                                 const SizedBox(width: 8),
-                                Expanded(
-                                    child: _infoCard(
-                                        'Entry Fee',
-                                        event?.price != null &&
-                                                event!.price.isNotEmpty
-                                            ? event!.price
-                                            : '-')),
+                                Expanded(child: _infoCard('Entry Fee', event?.price != null && event!.price.isNotEmpty ? event!.price : '-')),
                                 const SizedBox(width: 8),
-                                Expanded(
-                                    child: _infoCard(
-                                        'Date',
-                                        event?.startDate != null &&
-                                                event!.startDate.isNotEmpty
-                                            ? _extractDate(event!.startDate)
-                                            : '-')),
+                                Expanded(child: _dateCard(event)),
                                 const SizedBox(width: 8),
-                                Expanded(
-                                    child: _infoCard(
-                                        'Time',
-                                        event?.startTime != null &&
-                                                event!.startTime.isNotEmpty
-                                            ? _extractTime(event!.startTime)
-                                            : '-')),
+                                Expanded(child: _infoCard('Time', event?.startTime != null && event!.startTime.isNotEmpty ? _extractTime(event!.startTime) : '-')),
                               ],
                             ),
                           ),
                           const SizedBox(height: 24),
                           // People coming
                           Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 16),
+                            margin: const EdgeInsets.symmetric(horizontal: 20),
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
                               color: const Color(0xFF2E3339),
@@ -302,44 +269,37 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
-                                      child: Text('People coming at this event',
-                                          style: GoogleFonts.dmSans(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 16)),
+                                      child: Text('People coming at this event', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
                                     ),
-                                    Text(
-                                        '${(event?.attendees ?? []).length} attendees',
-                                        style: GoogleFonts.dmSans(
-                                            color: const Color(0xFF3B9FED),
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 14)),
+                                    Text('${(event?.attendees ?? []).length} attendees', style: GoogleFonts.dmSans(color: const Color(0xFF3B9FED), fontWeight: FontWeight.w500, fontSize: 14)),
                                   ],
                                 ),
                                 const SizedBox(height: 16),
                                 if ((event?.attendees ?? []).isNotEmpty)
-                                  SizedBox(
-                                    height: 100,
-                                    child: ListView.builder(
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount:
-                                          (event?.attendees ?? []).length,
-                                      itemBuilder: (context, index) {
-                                        final attendee =
-                                            (event?.attendees ?? [])[index];
-                                        return _personCard(
-                                          attendee.fullName,
-                                          'Attendee',
-                                          'Registered',
-                                          'assets/dummyprofile.png',
-                                          'Message',
-                                        );
-                                      },
-                                    ),
+                                  Column(
+                                    children: [
+                                      SizedBox(
+                                        height: 230,
+                                        child: ListView.builder(
+                                          scrollDirection: Axis.horizontal,
+                                          itemCount: (event?.attendees ?? []).length,
+                                          itemBuilder: (context, index) {
+                                            final attendee = (event?.attendees ?? [])[index];
+                                            final isConnected = attendeeConnectionStatus[attendee.id.toString()] ?? false;
+                                            return _personCard(
+                                              attendee.fullName,
+                                              'Attendee',
+                                              'Registered',
+                                              'assets/dummyprofile.png',
+                                              isConnected ? 'Message' : 'Connect',
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
                                   )
                                 else
                                   Container(
@@ -384,6 +344,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                             ),
                           ),
                           const SizedBox(height: 32),
+                          const SizedBox(height: 60),
                         ],
                       ),
                     ),
@@ -392,103 +353,182 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   Widget _infoCard(String title, String value) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+      height: 70,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: BoxDecoration(
         color: const Color(0xFF2E3339),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white10, width: 1),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 11)),
-          const SizedBox(height: 2),
-          Text(value,
-              style: GoogleFonts.dmSans(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13)),
+          Text(title, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 12)),
+          const SizedBox(height: 4),
+          Text(value, style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
         ],
       ),
     );
   }
 
-  Widget _personCard(String name, String role, String location, String imageUrl,
-      String buttonText) {
+  Widget _dateCard(EventModel? event) {
+    String day = '-';
+    String month = '-';
+    if (event != null && event.startDate.isNotEmpty) {
+      final date = DateTime.tryParse(event.startDate);
+      if (date != null) {
+        day = date.day.toString().padLeft(2, '0');
+        month = _monthName(date.month);
+      }
+    }
     return Container(
-      width: 180,
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(12),
+      height: 70,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E2126),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Colors.white10,
-          width: 1,
-        ),
+        color: const Color(0xFF2E3339),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white10, width: 1),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text('Date', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 12)),
+          const SizedBox(height: 4),
           Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(day, style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+              const SizedBox(width: 6),
+              Text(month, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _monthName(int month) {
+    const months = [
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
+    return months[month];
+  }
+
+  Widget _personCard(String name, String role, String location, String imageUrl, String buttonText) {
+    return Container(
+      width: 180,
+      height: 270,
+      margin: const EdgeInsets.only(right: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+      decoration: BoxDecoration(
+        color: const Color(0xFF23262B),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.10),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Stack(
             children: [
               ClipRRect(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(40),
                 child: Image.asset(
                   imageUrl,
-                  width: 40,
-                  height: 40,
+                  width: 60,
+                  height: 60,
                   fit: BoxFit.cover,
                 ),
               ),
-              const SizedBox(width: 8),
+              // Lock icon for private profile (optional, add logic if needed)
+              // Positioned(
+              //   right: 0,
+              //   top: 0,
+              //   child: Icon(Icons.lock, color: Colors.white70, size: 18),
+              // ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            name.isNotEmpty ? name : 'Unknown',
+            style: GoogleFonts.dmSans(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            role,
+            style: GoogleFonts.dmSans(
+              color: Colors.white70,
+              fontSize: 13,
+            ),
+            overflow: TextOverflow.ellipsis,
+            maxLines: 2,
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name.isNotEmpty ? name : 'Unknown',
-                      style: GoogleFonts.dmSans(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                    Text(
-                      role,
-                      style: GoogleFonts.dmSans(
-                        color: Colors.white70,
-                        fontSize: 12,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                  ],
+                child: Container(),
+              ),
+              Text(
+                location,
+                style: GoogleFonts.dmSans(
+                  color: Colors.white38,
+                  fontSize: 12,
                 ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                textAlign: TextAlign.right,
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const Spacer(),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF0262AB),
+                backgroundColor: buttonText == 'Message' ? Colors.white : const Color(0xFF0262AB),
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(22),
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
-                minimumSize: const Size(0, 32),
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                minimumSize: const Size(0, 38),
               ),
               child: Text(
                 buttonText,
                 style: GoogleFonts.dmSans(
                   fontWeight: FontWeight.w600,
-                  fontSize: 12,
-                  color: Colors.white,
+                  fontSize: 15,
+                  color: buttonText == 'Message' ? const Color(0xFF0262AB) : Colors.white,
                 ),
               ),
             ),
@@ -507,126 +547,45 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       final eventsService = EventsService();
       await eventsService.registerForEvent(event!.id);
 
-      // Refresh event data to get updated attendees list
-      await fetchEventDetail();
-
-      // Update booking status and show success alert
-      setState(() {
-        isBooked = true;
-      });
-
-      // Show success alert
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                backgroundColor: const Color(0xFF2E3339),
-                title: Text(
-                  'Booking Successful!',
-                  style: GoogleFonts.dmSans(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                content: Text(
-                  'Your event has been successfully booked. You will receive a confirmation shortly.',
-                  style: GoogleFonts.dmSans(
-                    color: Colors.white70,
-                    fontSize: 14,
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text(
-                      'OK',
-                      style: GoogleFonts.dmSans(
-                        color: const Color(0xFF0262AB),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
-        }
-      });
-    } catch (e) {
-      // If API call fails, still show success but with warning
-      debugPrint('Event registration API error: $e');
-      debugPrint('Failed endpoint: POST /events/${event!.id}/register');
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
-                "Payment successful but event registration failed. Please contact support."),
-            backgroundColor: Colors.orange,
-          ));
-        }
-      });
-    }
-  }
-
-  void _handlePaymentError(PaymentFailureResponse response) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Payment Failed! Please try again."),
-          backgroundColor: Colors.red,
-        ));
-      }
-    });
-  }
-
-  void _handleExternalWallet(ExternalWalletResponse response) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content:
-              Text("External Wallet Selected: " + (response.walletName ?? "")),
-          backgroundColor: Colors.blue,
-        ));
-      }
-    });
-  }
-
-  void _openCheckout() {
-    if (event == null) return;
-    // Parse price, fallback to 0 if not possible
-    int price = 0;
-    try {
-      final priceStr = event!.price.replaceAll(RegExp(r'[^0-9]'), '');
-      price = int.tryParse(priceStr) ?? 0;
-    } catch (_) {}
-    if (price == 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Invalid event price."),
-        backgroundColor: Colors.red,
-      ));
-      return;
-    }
-    var options = {
-      'key': 'rzp_test_QyOoTjd4T2z2Nj',
-      'amount': price * 100, // Razorpay expects amount in paise
-      'name': 'REVA',
-      'description': 'Event Booking',
-      'prefill': {'contact': '9123456789', 'email': 'testuser@example.com'},
-      'external': {
-        'wallets': ['paytm']
-      }
-    };
-    try {
-      _razorpay.open(options);
+      // TODO: Refresh event data to get updated attendees list
+      // TODO: Open Razorpay payment gateway if needed
+      // _razorpay.open(options); // Uncomment and define 'options' if needed
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Payment initialization failed: ' + e.toString()),
         backgroundColor: Colors.red,
       ));
+    }
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('Payment failed: ${response.message ?? 'Unknown error'}'),
+      backgroundColor: Colors.red,
+    ));
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text('External wallet selected: ${response.walletName}'),
+    ));
+  }
+
+  void _openCheckout() {
+    var options = {
+      'key': 'rzp_test_QyOoTjd4T2z2Nj',
+      'amount': int.parse(event?.price ?? '0') * 100, // Convert to paise
+      'name': event?.title ?? 'Event',
+      'description': event?.description ?? '',
+      'prefill': {
+        'contact': '',
+        'email': ''
+      }
+    };
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      debugPrint('Error: $e');
     }
   }
 
@@ -720,10 +679,7 @@ class EventModel {
   factory EventModel.fromJson(Map<String, dynamic> json) {
     List<AttendeeModel> attendees = [];
     if (json['attendees'] != null && json['attendees'] is List) {
-      attendees = (json['attendees'] as List)
-          .where((attendee) => attendee != null)
-          .map((attendee) => AttendeeModel.fromJson(attendee))
-          .toList();
+      attendees = (json['attendees'] as List).where((attendee) => attendee != null).map((attendee) => AttendeeModel.fromJson(attendee)).toList();
     }
 
     return EventModel(

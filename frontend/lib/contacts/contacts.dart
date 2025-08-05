@@ -4,8 +4,6 @@ import 'package:reva/contacts/contacttile.dart';
 import 'package:reva/services/service_manager.dart';
 import 'package:provider/provider.dart';
 
-import '../notification/notification.dart';
-
 // Provider for contacts data
 class ContactsProvider extends ChangeNotifier {
   List<dynamic> _contacts = [];
@@ -62,8 +60,7 @@ class _ContactsBodyState extends State<_ContactsBody> {
     provider.setLoading(true);
 
     try {
-      final response =
-          await ServiceManager.instance.connections.getMyConnections();
+      final response = await ServiceManager.instance.connections.getMyConnections();
       if (response['success'] == true) {
         final contacts = response['data']['connections'] ?? [];
         provider.setContacts(contacts);
@@ -84,33 +81,28 @@ class _ContactsBodyState extends State<_ContactsBody> {
     var width = widget.width;
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF22252A),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text(
+          "Contacts",
+          style: GoogleFonts.dmSans(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: false,
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(
-              height: height * 0.1,
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-              child: Row(
-                children: [
-                  const TriangleIcon(
-                    size: 20,
-                    color: Colors.white,
-                  ),
-                  SizedBox(
-                    width: width * 0.25,
-                  ),
-                  Text(
-                    "Contacts",
-                    style: GoogleFonts.dmSans(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white),
-                  )
-                ],
-              ),
-            ),
             const SizedBox(
               height: 20,
             ),
@@ -128,8 +120,7 @@ class _ContactsBodyState extends State<_ContactsBody> {
                       padding: EdgeInsets.symmetric(horizontal: width * 0.03),
                       child: Row(
                         children: [
-                          const Icon(Icons.search,
-                              color: Colors.white70, size: 22),
+                          const Icon(Icons.search, color: Colors.white70, size: 22),
                           SizedBox(width: width * 0.02),
                           const Expanded(
                             child: TextField(
@@ -158,7 +149,10 @@ class _ContactsBodyState extends State<_ContactsBody> {
                       width: width * 0.2,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
+                          colors: [
+                            Color(0xFF0262AB),
+                            Color(0xFF01345A)
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -211,7 +205,7 @@ class _ContactsBodyState extends State<_ContactsBody> {
                           ),
                           SizedBox(height: 16),
                           Text(
-                            'No contacts found',
+                            'You don\'t have connections',
                             style: GoogleFonts.dmSans(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
@@ -220,7 +214,7 @@ class _ContactsBodyState extends State<_ContactsBody> {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            'You don\'t have any connections yet',
+                            'Connect with people to see them here.',
                             style: GoogleFonts.dmSans(
                               fontSize: 14,
                               color: Colors.white38,
@@ -241,10 +235,15 @@ class _ContactsBodyState extends State<_ContactsBody> {
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: Column(
                       children: provider.contacts.map((contact) {
+                        String imagePath = 'assets/dummyprofile.png';
+                        if (contact['profile'] is String) {
+                          imagePath = contact['profile'];
+                        } else if (contact['profile'] is Map && contact['profile']['image'] != null) {
+                          imagePath = contact['profile']['image'];
+                        }
                         return ContactTile(
                           name: contact['fullName'] ?? 'Unknown',
-                          image:
-                              contact['profile'] ?? 'assets/dummyprofile.png',
+                          image: imagePath,
                           mobileNumber: contact['mobileNumber'] ?? '',
                           userId: contact['_id'] ?? '',
                         );

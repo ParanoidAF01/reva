@@ -120,7 +120,7 @@ class SilverCard extends StatelessWidget {
                 child: SizedBox(
                   width: 168,
                   child: Text(
-                    languages,
+                    (languages.isNotEmpty) ? languages : 'Languages not set',
                     style: const TextStyle(
                       color: Color(0xFFBDBDBD),
                       fontSize: 12,
@@ -131,40 +131,42 @@ class SilverCard extends StatelessWidget {
                   ),
                 ),
               ),
-              // Tags and KYC status in a single row
-              Positioned(
-                left: 15,
-                top: 139,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _tagChip(tag1),
-                    SizedBox(width: tagSpacing),
-                    _tagChip(tag2),
-                    SizedBox(width: tagSpacing),
-                    _tagChip(tag3),
-                    SizedBox(width: kycGap), // Gap between tags and KYC status
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.check, color: Colors.green, size: 16),
-                        const SizedBox(width: 4),
-                        Text(
-                          kycStatus,
-                          style: const TextStyle(
-                            color: Color(0xFFBDBDBD),
-                            fontSize: 12,
-                            fontFamily: 'DM Sans',
-                            fontWeight: FontWeight.w400,
-                            height: 1.40,
-                          ),
+              // Tags and KYC status in a single row (only if present)
+              if ((tag1.isNotEmpty || tag2.isNotEmpty || tag3.isNotEmpty || kycStatus.isNotEmpty))
+                Positioned(
+                  left: 15,
+                  top: 139,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      if (tag1.isNotEmpty) _tagChip(tag1),
+                      if (tag1.isNotEmpty && (tag2.isNotEmpty || tag3.isNotEmpty)) SizedBox(width: tagSpacing),
+                      if (tag2.isNotEmpty) _tagChip(tag2),
+                      if (tag2.isNotEmpty && tag3.isNotEmpty) SizedBox(width: tagSpacing),
+                      if (tag3.isNotEmpty) _tagChip(tag3),
+                      if ((tag1.isNotEmpty || tag2.isNotEmpty || tag3.isNotEmpty) && kycStatus.isNotEmpty) SizedBox(width: kycGap),
+                      if (kycStatus.isNotEmpty)
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.check, color: Colors.green, size: 16),
+                            const SizedBox(width: 4),
+                            Text(
+                              kycStatus,
+                              style: const TextStyle(
+                                color: Color(0xFFBDBDBD),
+                                fontSize: 12,
+                                fontFamily: 'DM Sans',
+                                fontWeight: FontWeight.w400,
+                                height: 1.40,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
         ),

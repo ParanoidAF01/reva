@@ -5,11 +5,7 @@ class PeopleYouMayKnowCard extends StatelessWidget {
   final String name;
   final String image;
   final String userId;
-  const PeopleYouMayKnowCard(
-      {super.key,
-      required this.name,
-      required this.image,
-      required this.userId});
+  const PeopleYouMayKnowCard({super.key, required this.name, required this.image, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +36,7 @@ class PeopleYouMayKnowCard extends StatelessWidget {
                       color: Colors.black.withOpacity(0.45),
                       shape: BoxShape.circle,
                     ),
-                    child:
-                        const Icon(Icons.lock, color: Colors.white, size: 16),
+                    child: const Icon(Icons.lock, color: Colors.white, size: 16),
                   ),
                 ],
               ),
@@ -54,7 +49,7 @@ class PeopleYouMayKnowCard extends StatelessWidget {
                   ),
                   child: CircleAvatar(
                     radius: width * 0.08,
-                    backgroundImage: AssetImage(image),
+                    backgroundImage: image.isNotEmpty && !image.contains('assets/') ? NetworkImage(image) : AssetImage('assets/dummyprofile.png') as ImageProvider,
                   ),
                 ),
               ),
@@ -102,29 +97,24 @@ class PeopleYouMayKnowCard extends StatelessWidget {
                       context: context,
                       builder: (context) => Dialog(
                         backgroundColor: Colors.transparent,
-                        insetPadding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 24),
+                        insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
                         child: ProfileModal(
                           name: name,
                           image: image,
                           userId: userId,
-                          mobileNumber:
-                              '******', // We don't have mobile number in suggestions
                           isConnection: false,
+                          mobileNumber: '******', // We don't have mobile number in suggestions
                         ),
                       ),
                     );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF01416A),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(18)),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
                     padding: const EdgeInsets.symmetric(vertical: 6),
                     elevation: 0,
                   ),
-                  child: const Text('Connect',
-                      style: TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w600)),
+                  child: const Text('Connect', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
                 ),
               ),
             ],

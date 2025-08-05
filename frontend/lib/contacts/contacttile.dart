@@ -31,7 +31,7 @@ class ContactTile extends StatelessWidget {
           // Profile Image
           CircleAvatar(
             radius: width * 0.06,
-            backgroundImage: AssetImage(image),
+            backgroundImage: image.isNotEmpty && !image.contains('assets/') ? NetworkImage(image) : AssetImage('assets/dummyprofile.png') as ImageProvider,
           ),
           const SizedBox(width: 12),
 
@@ -91,7 +91,10 @@ class ContactTile extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF0262AB), Color(0xFF01345A)],
+                colors: [
+                  Color(0xFF0262AB),
+                  Color(0xFF01345A)
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -103,8 +106,7 @@ class ContactTile extends StatelessWidget {
                   context: context,
                   builder: (context) => Dialog(
                     backgroundColor: Colors.transparent,
-                    insetPadding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 24),
+                    insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
                     child: ProfileModal(
                       name: name,
                       image: image,

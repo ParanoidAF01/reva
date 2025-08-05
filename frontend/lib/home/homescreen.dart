@@ -17,6 +17,7 @@ import 'package:reva/posts/createpost.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/contacts/contacts.dart';
 import 'package:reva/request/requestscreen.dart';
+import 'package:reva/start_subscription.dart';
 // import 'package:reva/wallet/walletscreen.dart';
 
 // Make sure the GoldCard widget is defined in GoldCard.dart
@@ -64,8 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> fetchSubscriptionStatus() async {
     try {
       // Try to load from cache first
-      final cached =
-          await ServiceManager.instance.subscription.getCachedSubscription();
+      final cached = await ServiceManager.instance.subscription.getCachedSubscription();
       if (cached != null) {
         subscriptionDetails = cached['subscription'];
         subscriptionActive = cached['isSubscribed'] ?? false;
@@ -74,16 +74,13 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {});
       }
       // Always fetch latest from API
-      final response =
-          await ServiceManager.instance.subscription.checkSubscription();
+      final response = await ServiceManager.instance.subscription.checkSubscription();
       if (response['success'] == true) {
         // Cache the response
-        await ServiceManager.instance.subscription
-            .cacheSubscription(response['data']);
+        await ServiceManager.instance.subscription.cacheSubscription(response['data']);
         subscriptionDetails = response['data']['subscription'];
         subscriptionActive = response['data']['isSubscribed'] ?? false;
-        subscriptionDaysLeft =
-            _calculateDaysLeft(response['data']['subscription']);
+        subscriptionDaysLeft = _calculateDaysLeft(response['data']['subscription']);
         isLoadingSubscription = false;
         setState(() {});
       } else {
@@ -178,8 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> fetchPeopleYouMayKnow() async {
     try {
-      final response =
-          await ServiceManager.instance.connections.getConnectionSuggestions();
+      final response = await ServiceManager.instance.connections.getConnectionSuggestions();
       if (response['success'] == true) {
         final suggestions = response['data']['suggestions'] ?? [];
         final mapped = suggestions
@@ -213,12 +209,8 @@ class _HomeScreenState extends State<HomeScreen> {
     var height = MediaQuery.of(context).size.height;
     // Prepare subscription fields safely
     final String plan = subscriptionDetails?['plan']?.toString() ?? '-';
-    final int amountPaid = (subscriptionDetails?['amountPaid'] is int)
-        ? (subscriptionDetails?['amountPaid'] ?? 0)
-        : int.tryParse(subscriptionDetails?['amountPaid']?.toString() ?? '0') ??
-            0;
-    final String startDate =
-        subscriptionDetails?['startDate']?.toString() ?? '-';
+    final int amountPaid = (subscriptionDetails?['amountPaid'] is int) ? (subscriptionDetails?['amountPaid'] ?? 0) : int.tryParse(subscriptionDetails?['amountPaid']?.toString() ?? '0') ?? 0;
+    final String startDate = subscriptionDetails?['startDate']?.toString() ?? '-';
     final String endDate = subscriptionDetails?['endDate']?.toString() ?? '-';
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
@@ -227,13 +219,10 @@ class _HomeScreenState extends State<HomeScreen> {
           final userData = userProvider.userData ?? {};
           final String userName = userProvider.userName;
           final String userLocation = userData['location'] ?? "";
-          final String userExperience = userData['experience'] ?? "";
+          final String userExperience = userData['experience'] != null && userData['experience'].toString().isNotEmpty ? "${userData['experience'].toString()} yrs+" : "";
           final String userLanguages = userData['languages'] ?? "";
-          final String profileImage =
-              userData['profileImage'] ?? 'assets/dummyprofile.png';
-          final int revaConnections = (userData['connections'] is List)
-              ? (userData['connections'] as List).length
-              : 0;
+          final String profileImage = userData['profilePicture'] ?? userData['profileImage'] ?? 'assets/dummyprofile.png';
+          final int revaConnections = (userData['connections'] is List) ? (userData['connections'] as List).length : 0;
           final int pendingRequests = userData['pendingRequests'] ?? 0;
           final int pendingConnects = userData['pendingConnects'] ?? 0;
           final int achievementMax = 100;
@@ -303,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Profile Image
                         CircleAvatar(
                           radius: width * 0.09,
-                          backgroundImage: AssetImage(profileImage),
+                          backgroundImage: (profileImage != null && profileImage.toString().isNotEmpty && !profileImage.toString().contains('assets/')) ? NetworkImage(profileImage) : AssetImage('assets/dummyprofile.png') as ImageProvider,
                         ),
                         SizedBox(width: width * 0.04),
                         // Hello & Name
@@ -336,14 +325,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: IconButton(
-                            icon: const Icon(Icons.person,
-                                color: Color(0xFF22252A)),
+                            icon: const Icon(Icons.person, color: Color(0xFF22252A)),
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const ProfileScreen()),
+                                MaterialPageRoute(builder: (context) => const ProfileScreen()),
                               );
                             },
                           ),
@@ -416,10 +402,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         location: userLocation,
                         experience: userExperience,
                         languages: userLanguages,
-                        tag1: userData['tag1'] ?? "Commercial",
-                        tag2: userData['tag2'] ?? "Plots",
-                        tag3: userData['tag3'] ?? "Rental",
-                        kycStatus: userData['kycStatus'] ?? "KYC Approved",
+                        tag1: (userData['tag1'] != null && userData['tag1'].toString().isNotEmpty) ? userData['tag1'] : "",
+                        tag2: (userData['tag2'] != null && userData['tag2'].toString().isNotEmpty) ? userData['tag2'] : "",
+                        tag3: (userData['tag3'] != null && userData['tag3'].toString().isNotEmpty) ? userData['tag3'] : "",
+                        kycStatus: (userData['kycStatus'] != null && userData['kycStatus'].toString().isNotEmpty) ? userData['kycStatus'] : "",
                       )
                     else if (userEvents.length >= 20 && userEvents.length < 60)
                       SilverCard(
@@ -427,10 +413,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         location: userLocation,
                         experience: userExperience,
                         languages: userLanguages,
-                        tag1: userData['tag1'] ?? "Commercial",
-                        tag2: userData['tag2'] ?? "Plots",
-                        tag3: userData['tag3'] ?? "Rental",
-                        kycStatus: userData['kycStatus'] ?? "KYC Approved",
+                        tag1: (userData['tag1'] != null && userData['tag1'].toString().isNotEmpty) ? userData['tag1'] : "",
+                        tag2: (userData['tag2'] != null && userData['tag2'].toString().isNotEmpty) ? userData['tag2'] : "",
+                        tag3: (userData['tag3'] != null && userData['tag3'].toString().isNotEmpty) ? userData['tag3'] : "",
+                        kycStatus: (userData['kycStatus'] != null && userData['kycStatus'].toString().isNotEmpty) ? userData['kycStatus'] : "",
                       )
                     else if (userEvents.length >= 80)
                       GoldCard(
@@ -438,10 +424,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         location: userLocation,
                         experience: userExperience,
                         languages: userLanguages,
-                        tag1: userData['tag1'] ?? "Commercial",
-                        tag2: userData['tag2'] ?? "Plots",
-                        tag3: userData['tag3'] ?? "Rental",
-                        kycStatus: userData['kycStatus'] ?? "KYC Approved",
+                        tag1: (userData['tag1'] != null && userData['tag1'].toString().isNotEmpty) ? userData['tag1'] : "",
+                        tag2: (userData['tag2'] != null && userData['tag2'].toString().isNotEmpty) ? userData['tag2'] : "",
+                        tag3: (userData['tag3'] != null && userData['tag3'].toString().isNotEmpty) ? userData['tag3'] : "",
+                        kycStatus: (userData['kycStatus'] != null && userData['kycStatus'].toString().isNotEmpty) ? userData['kycStatus'] : "",
                       ),
                     SizedBox(height: height * 0.02),
                     SizedBox(
@@ -454,8 +440,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 14),
                         ),
-                        icon: const Icon(Icons.qr_code,
-                            color: Colors.white, size: 22),
+                        icon: const Icon(Icons.qr_code, color: Colors.white, size: 22),
                         label: Text(
                           'View my Profile QR',
                           style: GoogleFonts.dmSans(
@@ -560,7 +545,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     _DynamicProgressBar(
                       progress: achievementProgress,
                       max: achievementMax,
-                      tickPositions: [0, achievementCurrent, achievementMax],
+                      tickPositions: [
+                        0,
+                        achievementCurrent,
+                        achievementMax
+                      ],
                       label: 'Your progress',
                       unlockText: 'to Unlock',
                       unlockCard: 'Gold card',
@@ -570,18 +559,11 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Events Attended Progress
                     Row(
                       children: [
-                        Icon(Icons.event_available,
-                            color: Colors.white70, size: 22),
+                        Icon(Icons.event_available, color: Colors.white70, size: 22),
                         const SizedBox(width: 8),
-                        Text('Events Attended:',
-                            style: GoogleFonts.dmSans(
-                                color: Colors.white70, fontSize: 15)),
+                        Text('Events Attended:', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 15)),
                         const SizedBox(width: 8),
-                        Text(userEvents.length.toString(),
-                            style: GoogleFonts.dmSans(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16)),
+                        Text(userEvents.length.toString(), style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
                       ],
                     ),
                     SizedBox(height: height * 0.05),
@@ -604,12 +586,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       _UpcomingEventsCarousel(
                         events: upcomingEvents
                             .map((event) => {
-                                  'image': event['image'] ??
-                                      'assets/eventdummyimage.png',
+                                  'image': event['image'] ?? 'assets/eventdummyimage.png',
                                   'price': event['price'] ?? '',
                                   'title': event['title'] ?? '',
                                   'location': event['location'] ?? '',
-                                  'registered': event['registered'] ?? 0,
+                                  'attendees': event['attendees'] ?? [],
                                 })
                             .toList(),
                       ),
@@ -629,8 +610,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(
-                                builder: (context) => const EventScreen()),
+                            MaterialPageRoute(builder: (context) => const EventScreen()),
                           );
                         },
                         child: Text(
@@ -643,9 +623,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Icon(Icons.arrow_forward,
-                        color: Colors.white, size: height * 0.045),
 
                     // People you may know section
                     SizedBox(height: height * 0.04),
@@ -666,15 +643,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             onPressed: () {
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const PeopleYouMayKnow()),
+                                MaterialPageRoute(builder: (context) => const PeopleYouMayKnow()),
                               );
                             },
-                            child: Text('See all',
-                                style: GoogleFonts.dmSans(
-                                    color: const Color(0xFFB2C2D9),
-                                    fontWeight: FontWeight.w500)),
+                            child: Text('See all', style: GoogleFonts.dmSans(color: const Color(0xFFB2C2D9), fontWeight: FontWeight.w500)),
                           ),
                         ],
                       ),
@@ -688,21 +660,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: ListView.separated(
                           scrollDirection: Axis.horizontal,
                           itemCount: peopleYouMayKnow.length,
-                          separatorBuilder: (context, index) =>
-                              SizedBox(width: width * 0.04),
+                          separatorBuilder: (context, index) => SizedBox(width: width * 0.04),
                           itemBuilder: (context, index) {
                             final person = peopleYouMayKnow[index];
                             return SizedBox(
                               width: width * 0.42,
                               child: PeopleYouMayKnowCard(
-                                name: person['fullName'] ??
-                                    person['name'] ??
-                                    'Unknown',
-                                image: person['profile'] ??
-                                    person['image'] ??
-                                    'assets/dummyprofile.png',
-                                userId: person['userId'] ??
-                                    '', // Pass userId as required
+                                name: person['fullName'] ?? person['name'] ?? 'Unknown',
+                                image: person['profile'] ?? person['image'] ?? 'assets/dummyprofile.png',
+                                userId: person['userId'] ?? '', // Pass userId as required
                                 // Add more fields as needed
                               ),
                             );
@@ -730,58 +696,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Contact Management Section
                     ContactManagementSection(
                       contacts: [
-                        ContactCardData(
-                            icon: Image.asset('assets/builder.png', width: 28),
-                            count: userData['builderCount']?.toString() ?? '0',
-                            label: 'Builder',
-                            userId: userData['id'] ?? ''),
-                        ContactCardData(
-                            icon: Image.asset('assets/loan.png', width: 28),
-                            count: userData['loanProviderCount']?.toString() ??
-                                '0',
-                            label: 'Loan Provider',
-                            userId: userData['id'] ?? ''),
-                        ContactCardData(
-                            icon: Image.asset('assets/interior.png', width: 28),
-                            count:
-                                userData['interiorDesignerCount']?.toString() ??
-                                    '0',
-                            label: 'Interior Designer',
-                            userId: userData['id'] ?? ''),
-                        ContactCardData(
-                            icon: Image.asset('assets/material.png', width: 28),
-                            count:
-                                userData['materialSupplierCount']?.toString() ??
-                                    '0',
-                            label: 'Material Supplier',
-                            userId: userData['id'] ?? ''),
-                        ContactCardData(
-                            icon: Image.asset('assets/legal.png', width: 28),
-                            count: userData['legalAdvisorCount']?.toString() ??
-                                '0',
-                            label: 'Legal Advisor',
-                            userId: userData['id'] ?? ''),
-                        ContactCardData(
-                            icon: Image.asset('assets/vastu.png', width: 28),
-                            count:
-                                userData['vastuConsultantCount']?.toString() ??
-                                    '0',
-                            label: 'Vastu Consultant',
-                            userId: userData['id'] ?? ''),
-                        ContactCardData(
-                            icon:
-                                Image.asset('assets/homebuyer.png', width: 28),
-                            count:
-                                userData['homeBuyerCount']?.toString() ?? '0',
-                            label: 'Home Buyer',
-                            userId: userData['id'] ?? ''),
-                        ContactCardData(
-                            icon: Image.asset('assets/investor.png', width: 28),
-                            count:
-                                userData['propertyInvestorCount']?.toString() ??
-                                    '0',
-                            label: 'Property Investor',
-                            userId: userData['id'] ?? ''),
+                        ContactCardData(icon: Image.asset('assets/builder.png', width: 28), count: userData['builderCount']?.toString() ?? '0', label: 'Builder', userId: userData['id'] ?? ''),
+                        ContactCardData(icon: Image.asset('assets/loan.png', width: 28), count: userData['loanProviderCount']?.toString() ?? '0', label: 'Loan Provider', userId: userData['id'] ?? ''),
+                        ContactCardData(icon: Image.asset('assets/interior.png', width: 28), count: userData['interiorDesignerCount']?.toString() ?? '0', label: 'Interior Designer', userId: userData['id'] ?? ''),
+                        ContactCardData(icon: Image.asset('assets/material.png', width: 28), count: userData['materialSupplierCount']?.toString() ?? '0', label: 'Material Supplier', userId: userData['id'] ?? ''),
+                        ContactCardData(icon: Image.asset('assets/legal.png', width: 28), count: userData['legalAdvisorCount']?.toString() ?? '0', label: 'Legal Advisor', userId: userData['id'] ?? ''),
+                        ContactCardData(icon: Image.asset('assets/vastu.png', width: 28), count: userData['vastuConsultantCount']?.toString() ?? '0', label: 'Vastu Consultant', userId: userData['id'] ?? ''),
+                        ContactCardData(icon: Image.asset('assets/homebuyer.png', width: 28), count: userData['homeBuyerCount']?.toString() ?? '0', label: 'Home Buyer', userId: userData['id'] ?? ''),
+                        ContactCardData(icon: Image.asset('assets/investor.png', width: 28), count: userData['propertyInvestorCount']?.toString() ?? '0', label: 'Property Investor', userId: userData['id'] ?? ''),
                       ],
                       achievement: AchievementData(
                         progress: achievementProgress,
@@ -805,6 +727,89 @@ class _HomeScreenState extends State<HomeScreen> {
                         amountPaid: amountPaid,
                         startDate: startDate,
                         endDate: endDate,
+                      ),
+                    ),
+                    SizedBox(height: height * 0.02),
+                    // Subscription Status Card
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF23262B),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(color: Colors.white24.withOpacity(0.18), width: 1.2),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text('Subscription Status', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: Colors.white)),
+                              const SizedBox(width: 8),
+                              Icon(Icons.circle, color: subscriptionActive ? Colors.greenAccent : Colors.red, size: 12),
+                              const SizedBox(width: 2),
+                              Text(subscriptionActive ? 'Active' : 'Inactive', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 13)),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Text('Plan: ', style: GoogleFonts.dmSans(color: Colors.white70, fontWeight: FontWeight.w500, fontSize: 15)),
+                              Text(plan.isNotEmpty ? plan[0].toUpperCase() + plan.substring(1) : '-', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
+                              const SizedBox(width: 16),
+                              Text('Paid: ', style: GoogleFonts.dmSans(color: Colors.white70, fontWeight: FontWeight.w500, fontSize: 15)),
+                              Text('₹$amountPaid', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 15)),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Text('Start: ', style: GoogleFonts.dmSans(color: Colors.white70, fontWeight: FontWeight.w500, fontSize: 13)),
+                              Flexible(
+                                child: Text(_formatDate(startDate), style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13), overflow: TextOverflow.ellipsis),
+                              ),
+                              const SizedBox(width: 16),
+                              Text('End: ', style: GoogleFonts.dmSans(color: Colors.white70, fontWeight: FontWeight.w500, fontSize: 13)),
+                              Flexible(
+                                child: Text(_formatDate(endDate), style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13), overflow: TextOverflow.ellipsis),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          RichText(
+                            text: TextSpan(
+                              text: '$subscriptionDaysLeft',
+                              style: GoogleFonts.dmSans(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 28),
+                              children: [
+                                TextSpan(
+                                  text: ' days left',
+                                  style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 22),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(subscriptionActive ? 'Your subscription is active.' : 'Your subscription is expiring soon.\nRenew to keep accessing all features.', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
+                          const SizedBox(height: 14),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const StartSubscriptionPage()),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF01416A),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                elevation: 0,
+                              ),
+                              child: Text('Renew Now', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -848,8 +853,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(
-            horizontal: cardWidth * 0.06, vertical: cardHeight * 0.045),
+        padding: EdgeInsets.symmetric(horizontal: cardWidth * 0.06, vertical: cardHeight * 0.045),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -865,8 +869,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     shape: BoxShape.circle,
                   ),
                   child: Center(
-                    child: Icon(icon,
-                        color: const Color(0xFFBDBDBD), size: iconSize),
+                    child: Icon(icon, color: const Color(0xFFBDBDBD), size: iconSize),
                   ),
                 ),
                 SizedBox(width: cardWidth * 0.04),
@@ -919,7 +922,16 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ...existing code...
+  // Helper to format date
+  String _formatDate(String dateStr) {
+    try {
+      final dt = DateTime.tryParse(dateStr);
+      if (dt == null) return '-';
+      return '${dt.day}/${dt.month}/${dt.year}';
+    } catch (_) {
+      return '-';
+    }
+  }
 }
 
 // Dynamic Progress Bar Widget
@@ -953,12 +965,10 @@ class _DynamicProgressBar extends StatelessWidget {
     return Container(
       width: double.infinity,
       margin: EdgeInsets.symmetric(vertical: width * 0.005),
-      padding: EdgeInsets.symmetric(
-          horizontal: width * 0.03, vertical: width * 0.025),
+      padding: EdgeInsets.symmetric(horizontal: width * 0.03, vertical: width * 0.025),
       decoration: BoxDecoration(
         color: const Color(0xFF292B32),
         borderRadius: BorderRadius.circular(width * 0.03),
-        border: Border.all(color: const Color(0xFF0269B6), width: 1.2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.08),
@@ -989,8 +999,7 @@ class _DynamicProgressBar extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Center(
-                  child: Icon(Icons.lock,
-                      color: Colors.amber[200], size: width * 0.045),
+                  child: Icon(Icons.lock, color: Colors.amber[200], size: width * 0.045),
                 ),
               ),
             ],
@@ -1052,9 +1061,13 @@ class _DynamicProgressBar extends StatelessWidget {
               final tickSize = width * 0.015;
               final barWidth = constraints.maxWidth;
               // 4 dots at 20, 40, 60, 80 percent
-              final List<int> ticks = [20, 40, 60, 80];
-              List<double> tickOffsets =
-                  ticks.map((tick) => (tick / 100) * barWidth).toList();
+              final List<int> ticks = [
+                20,
+                40,
+                60,
+                80
+              ];
+              List<double> tickOffsets = ticks.map((tick) => (tick / 100) * barWidth).toList();
               return Stack(
                 children: [
                   // Background bar
@@ -1073,15 +1086,17 @@ class _DynamicProgressBar extends StatelessWidget {
                       gradient: const LinearGradient(
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
-                        colors: [Color(0xFF0269B6), Color(0xFF002E50)],
+                        colors: [
+                          Color(0xFF0269B6),
+                          Color(0xFF002E50)
+                        ],
                       ),
                       borderRadius: BorderRadius.circular(width * 0.08),
                     ),
                   ),
                   // Ticks
                   ...List.generate(ticks.length, (i) {
-                    final isOnBlue =
-                        tickOffsets[i] <= barWidth * progressPercent;
+                    final isOnBlue = tickOffsets[i] <= barWidth * progressPercent;
                     return Positioned(
                       left: tickOffsets[i] - tickSize / 2,
                       top: (barHeight - tickSize) / 2,
@@ -1090,9 +1105,7 @@ class _DynamicProgressBar extends StatelessWidget {
                         height: tickSize,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: isOnBlue
-                              ? const Color(0xFFEDF5FF)
-                              : const Color(0xFF0269B6),
+                          color: isOnBlue ? const Color(0xFFEDF5FF) : const Color(0xFF0269B6),
                           border: Border.all(color: Colors.white, width: 1),
                         ),
                       ),
@@ -1106,21 +1119,9 @@ class _DynamicProgressBar extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('0',
-                  style: GoogleFonts.dmSans(
-                      color: Colors.white,
-                      fontSize: width * 0.025,
-                      fontWeight: FontWeight.w600)),
-              Text('$progress',
-                  style: GoogleFonts.dmSans(
-                      color: Colors.white,
-                      fontSize: width * 0.03,
-                      fontWeight: FontWeight.w600)),
-              Text('$max',
-                  style: GoogleFonts.dmSans(
-                      color: Colors.white,
-                      fontSize: width * 0.025,
-                      fontWeight: FontWeight.w600)),
+              Text('0', style: GoogleFonts.dmSans(color: Colors.white, fontSize: width * 0.025, fontWeight: FontWeight.w600)),
+              Text('$progress', style: GoogleFonts.dmSans(color: Colors.white, fontSize: width * 0.03, fontWeight: FontWeight.w600)),
+              Text('$max', style: GoogleFonts.dmSans(color: Colors.white, fontSize: width * 0.025, fontWeight: FontWeight.w600)),
             ],
           ),
         ],
@@ -1135,8 +1136,7 @@ class _UpcomingEventsCarousel extends StatefulWidget {
   const _UpcomingEventsCarousel({required this.events});
 
   @override
-  State<_UpcomingEventsCarousel> createState() =>
-      _UpcomingEventsCarouselState();
+  State<_UpcomingEventsCarousel> createState() => _UpcomingEventsCarouselState();
 }
 
 class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
@@ -1235,7 +1235,7 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
                                 ),
                                 const SizedBox(height: 2),
                                 Text(
-                                  '${event['registered']} people have already registered',
+                                  '${(event['attendees'] != null && event['attendees'] is List ? event['attendees'].length : 0)} people have already registered',
                                   style: GoogleFonts.dmSans(
                                     color: Colors.white70,
                                     fontSize: height * 0.032,
@@ -1261,8 +1261,7 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => EventDetailScreen(
-                                      eventId: event['title'] ?? ''),
+                                  builder: (context) => EventDetailScreen(eventId: event['title'] ?? ''),
                                 ),
                               );
                             },
@@ -1295,9 +1294,7 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
               width: _currentPage == i ? 10 : 7,
               height: _currentPage == i ? 10 : 7,
               decoration: BoxDecoration(
-                color: _currentPage == i
-                    ? const Color(0xFF1976D2)
-                    : Colors.white24,
+                color: _currentPage == i ? const Color(0xFF1976D2) : Colors.white24,
                 shape: BoxShape.circle,
               ),
             ),

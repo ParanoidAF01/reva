@@ -3,6 +3,10 @@ import User from "../models/user.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import {
+    sendSubscriptionUpdateNotification,
+    sendSubscriptionExpiryNotification
+} from "../utils/notificationService.js";
 
 const checkSubscription = asyncHandler(async (req, res) => {
     const userId = req.user._id;
@@ -92,6 +96,17 @@ const createSubscription = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(userId, {
         subscription: subscription._id
     });
+
+    // Send subscription activation notification
+    try {
+        await sendSubscriptionUpdateNotification(
+            userId,
+            plan,
+            'active'
+        );
+    } catch (error) {
+        console.error('Failed to send subscription notification:', error);
+    }
 
     const populatedSubscription = await Subscription.findById(subscription._id)
         .populate('user', 'fullName email');

@@ -9,6 +9,7 @@ import User from "../models/user.js";
 import Profile from "../models/profile.js";
 import { addToBlacklist, isTokenBlacklisted } from "../middlewares/authMiddleware.js";
 import { generateOTP, parseTimeString } from "../utils/helpers.js";
+import { sendWelcomeNotification } from "../utils/notificationService.js";
 
 export const register = asyncHandler(async (req, res) => {
     const {
@@ -39,6 +40,13 @@ export const register = asyncHandler(async (req, res) => {
 
     await user.save();
     await profile.save();
+
+    // Send welcome notification
+    try {
+        await sendWelcomeNotification(user._id, user.fullName);
+    } catch (error) {
+        console.error('Failed to send welcome notification:', error);
+    }
 
     res.status(201).json({
         success: true,

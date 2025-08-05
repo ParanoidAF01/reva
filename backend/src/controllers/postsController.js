@@ -3,6 +3,12 @@ import User from "../models/user.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import {
+    sendPostLikeNotification,
+    sendPostCommentNotification,
+    sendPostShareNotification,
+    sendPostMentionNotification
+} from "../utils/notificationService.js";
 
 const createPost = asyncHandler(async (req, res) => {
     const userId = req.user._id;
@@ -130,6 +136,21 @@ const toggleLike = asyncHandler(async (req, res) => {
         await Posts.findByIdAndUpdate(postId, { $pull: { likes: userId } });
     } else {
         await Posts.findByIdAndUpdate(postId, { $push: { likes: userId } });
+
+        // Send notification to post author when someone likes their post
+        if (post.author.toString() !== userId.toString()) {
+            try {
+                const currentUser = await User.findById(userId).select('fullName');
+                await sendPostLikeNotification(
+                    post.author,
+                    userId,
+                    currentUser.fullName,
+                    post.title || 'Your post'
+                );
+            } catch (error) {
+                console.error('Failed to send like notification:', error);
+            }
+        }
     }
 
     const updatedPost = await Posts.findById(postId)
@@ -161,6 +182,21 @@ const addComment = asyncHandler(async (req, res) => {
     };
 
     await Posts.findByIdAndUpdate(postId, { $push: { comments: comment } });
+
+    // Send notification to post author when someone comments on their post
+    if (post.author.toString() !== userId.toString()) {
+        try {
+            const currentUser = await User.findById(userId).select('fullName');
+            await sendPostCommentNotification(
+                post.author,
+                userId,
+                currentUser.fullName,
+                post.title || 'Your post'
+            );
+        } catch (error) {
+            console.error('Failed to send comment notification:', error);
+        }
+    }
 
     const updatedPost = await Posts.findById(postId)
         .populate('author', 'fullName email profilePicture')

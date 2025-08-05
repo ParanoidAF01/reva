@@ -3,6 +3,11 @@ import User from "../models/user.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import {
+    sendEventInvitationNotification,
+    sendEventUpdateNotification,
+    sendEventCancellationNotification
+} from "../utils/notificationService.js";
 
 const createEvent = asyncHandler(async (req, res) => {
     const userId = req.user._id;
@@ -87,6 +92,19 @@ const updateEvent = asyncHandler(async (req, res) => {
     ).populate('organizer', 'fullName email')
         .populate('attendees', 'fullName email');
 
+    // Send notification to all attendees about event update
+    if (event.attendees && event.attendees.length > 0) {
+        try {
+            await sendEventUpdateNotification(
+                event.attendees,
+                event.title,
+                'updated'
+            );
+        } catch (error) {
+            console.error('Failed to send event update notification:', error);
+        }
+    }
+
     return res.status(200).json(
         new ApiResponse(200, updatedEvent, "Event updated successfully")
     );
@@ -98,6 +116,18 @@ const deleteEvent = asyncHandler(async (req, res) => {
     const event = await Events.findById(eventId);
     if (!event) {
         throw new ApiError(404, "Event not found");
+    }
+
+    // Send notification to all attendees about event cancellation
+    if (event.attendees && event.attendees.length > 0) {
+        try {
+            await sendEventCancellationNotification(
+                event.attendees,
+                event.title
+            );
+        } catch (error) {
+            console.error('Failed to send event cancellation notification:', error);
+        }
     }
 
     await User.updateMany(

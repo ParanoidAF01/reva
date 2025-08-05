@@ -2,6 +2,10 @@ import NFCCard from "../models/nfcCard.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import {
+    sendNFCCardCreatedNotification,
+    sendNFCCardScannedNotification
+} from "../utils/notificationService.js";
 
 const requestNFCCard = asyncHandler(async (req, res) => {
     const userId = req.user._id;
@@ -32,6 +36,16 @@ const requestNFCCard = asyncHandler(async (req, res) => {
 
     const populatedCard = await NFCCard.findById(nfcCard._id)
         .populate('user', 'fullName email mobileNumber');
+
+    // Send NFC card request notification
+    try {
+        await sendNFCCardCreatedNotification(
+            userId,
+            req.body.requestType || 'NFC'
+        );
+    } catch (error) {
+        console.error('Failed to send NFC card notification:', error);
+    }
 
     return res.status(201).json(
         new ApiResponse(201, populatedCard, "NFC card request submitted successfully")

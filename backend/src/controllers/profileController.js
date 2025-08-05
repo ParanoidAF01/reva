@@ -3,6 +3,7 @@ import User from "../models/user.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { sendProfileUpdateNotification } from "../utils/notificationService.js";
 
 const getMyProfile = asyncHandler(async (req, res) => {
     const userId = req.user._id;
@@ -95,6 +96,16 @@ const updateProfile = asyncHandler(async (req, res) => {
         { $set: req.body },
         { new: true, runValidators: true }
     );
+
+    // Send profile update notification
+    try {
+        const updatedFields = Object.keys(req.body);
+        if (updatedFields.length > 0) {
+            await sendProfileUpdateNotification(userId, updatedFields.join(', '));
+        }
+    } catch (error) {
+        console.error('Failed to send profile update notification:', error);
+    }
 
     return res.status(200).json(
         new ApiResponse(200, updatedProfile, "Profile updated successfully")

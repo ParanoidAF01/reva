@@ -3,6 +3,11 @@ import ConnectionRequest from "../models/connectionRequest.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import {
+    sendConnectionRequestNotification,
+    sendConnectionAcceptedNotification,
+    sendConnectionRemovedNotification
+} from "../utils/notificationService.js";
 
 const connectViaQR = asyncHandler(async (req, res) => {
     const currentUserId = req.user._id;
@@ -245,6 +250,17 @@ const sendConnectionRequest = asyncHandler(async (req, res) => {
         }
     ]);
 
+    // Send notification to the target user
+    try {
+        await sendConnectionRequestNotification(
+            toUserId,
+            currentUserId,
+            connectionRequest.fromUser.fullName
+        );
+    } catch (error) {
+        console.error('Failed to send connection request notification:', error);
+    }
+
     return res.status(201).json(
         new ApiResponse(201, {
             connectionRequest: {
@@ -330,6 +346,17 @@ const respondToConnectionRequest = asyncHandler(async (req, res) => {
         await User.findByIdAndUpdate(connectionRequest.fromUser._id, {
             $push: { connections: currentUserId }
         });
+
+        // Send notification to the sender that their request was accepted
+        try {
+            await sendConnectionAcceptedNotification(
+                connectionRequest.fromUser._id,
+                currentUserId,
+                connectionRequest.toUser.fullName
+            );
+        } catch (error) {
+            console.error('Failed to send connection accepted notification:', error);
+        }
 
         return res.status(200).json(
             new ApiResponse(200, {

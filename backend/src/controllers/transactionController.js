@@ -3,6 +3,10 @@ import User from "../models/user.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import {
+    sendWalletTransactionNotification,
+    sendWalletLowBalanceNotification
+} from "../utils/notificationService.js";
 
 const createTransaction = asyncHandler(async (req, res) => {
     const userId = req.user._id;
@@ -28,6 +32,17 @@ const createTransaction = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(userId, {
         $push: { transactions: transaction._id }
     });
+
+    // Send notification for transaction
+    try {
+        await sendWalletTransactionNotification(
+            userId,
+            type,
+            amount
+        );
+    } catch (error) {
+        console.error('Failed to send transaction notification:', error);
+    }
 
     const populatedTransaction = await Transaction.findById(transaction._id)
         .populate('user', 'fullName email');

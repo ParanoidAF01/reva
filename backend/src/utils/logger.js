@@ -2,7 +2,7 @@ import env from "./consts.js";
 
 class Logger {
     constructor() {
-        this.level = env.logging.level || 'info';
+        this.level = 'info';
         this.levels = {
             error: 0,
             warn: 1,
@@ -111,4 +111,5 @@ class Logger {
 }
 
 const logger = new Logger();
-export default logger; 
+
+export { logger }; 

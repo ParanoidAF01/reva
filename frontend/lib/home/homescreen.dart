@@ -239,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
           final int achievementMax = 100;
           final int achievementProgress = userEvents.length;
           final int achievementCurrent = userEvents.length;
-          final int nfcConnectionsLeft = userData['nfcConnectionsLeft'] ?? 0;
+          final int nfcConnectionsLeft = revaConnections;
           return RefreshIndicator(
             onRefresh: () async {
               // Refresh all data when pulled

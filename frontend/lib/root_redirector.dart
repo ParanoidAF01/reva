@@ -62,16 +62,16 @@ class _RootRedirectorState extends State<RootRedirector> {
 
   @override
   Widget build(BuildContext context) {
-    // Simple splash screen
-    return const Scaffold(
-      backgroundColor: Color(0xFF22252A),
+    // Simple splash screen with logo.png
+    return Scaffold(
+      backgroundColor: const Color(0xFF22252A),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            FlutterLogo(size: 80),
-            SizedBox(height: 24),
-            Text('REVA',
+            Image.asset('assets/logo.png', width: 80, height: 80),
+            const SizedBox(height: 24),
+            const Text('REVA',
                 style: TextStyle(
                     color: Colors.white,
                     fontSize: 32,

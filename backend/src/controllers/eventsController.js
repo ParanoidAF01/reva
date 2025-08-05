@@ -1,4 +1,5 @@
 import Events from "../models/events.js";
+import Transaction from "../models/transaction.js";
 import User from "../models/user.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -92,7 +93,6 @@ const updateEvent = asyncHandler(async (req, res) => {
     ).populate('organizer', 'fullName email')
         .populate('attendees', 'fullName email');
 
-    // Send notification to all attendees about event update
     if (event.attendees && event.attendees.length > 0) {
         try {
             await sendEventUpdateNotification(
@@ -118,7 +118,6 @@ const deleteEvent = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Event not found");
     }
 
-    // Send notification to all attendees about event cancellation
     if (event.attendees && event.attendees.length > 0) {
         try {
             await sendEventCancellationNotification(
@@ -166,6 +165,17 @@ const registerForEvent = asyncHandler(async (req, res) => {
     await Events.findByIdAndUpdate(eventId, { $push: { attendees: userId } });
 
     await User.findByIdAndUpdate(userId, { $push: { eventsAttended: eventId } });
+
+    if (event.entryFee > 0) {
+        await Transaction.create({
+            user: userId,
+            type: 'debit',
+            amount: event.entryFee,
+            category: 'event_payment',
+            status: 'completed',
+            paymentMethod: req.body.paymentMethod || 'wallet'
+        });
+    }
 
     const updatedEvent = await Events.findById(eventId)
         .populate('organizer', 'fullName email')

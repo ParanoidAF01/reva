@@ -1,4 +1,5 @@
 import Subscription from "../models/subscription.js";
+import Transaction from "../models/transaction.js";
 import User from "../models/user.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -93,11 +94,19 @@ const createSubscription = asyncHandler(async (req, res) => {
         paymentMethod
     });
 
+    const transaction = await Transaction.create({
+        user: userId,
+        type: 'debit',
+        amount: amountPaid,
+        category: 'subscription',
+        status: 'completed',
+        paymentMethod
+    });
+
     await User.findByIdAndUpdate(userId, {
         subscription: subscription._id
     });
 
-    // Send subscription activation notification
     try {
         await sendSubscriptionUpdateNotification(
             userId,

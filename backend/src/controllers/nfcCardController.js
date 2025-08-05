@@ -1,4 +1,5 @@
 import NFCCard from "../models/nfcCard.js";
+import Transaction from "../models/transaction.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -34,10 +35,18 @@ const requestNFCCard = asyncHandler(async (req, res) => {
         ...req.body
     });
 
+    const transaction = await Transaction.create({
+        user: userId,
+        type: 'debit',
+        amount: 4999,
+        category: 'nfc_card_booking',
+        status: 'completed',
+        paymentMethod: req.body.paymentMethod || 'wallet'
+    });
+
     const populatedCard = await NFCCard.findById(nfcCard._id)
         .populate('user', 'fullName email mobileNumber');
 
-    // Send NFC card request notification
     try {
         await sendNFCCardCreatedNotification(
             userId,

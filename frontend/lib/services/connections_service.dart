@@ -24,9 +24,14 @@ class ConnectionsService {
     return await _apiService.get('/connections/suggestions');
   }
 
-  // Get pending requests
+  // Get pending requests (incoming)
   Future<Map<String, dynamic>> getPendingRequests() async {
     return await _apiService.get('/connections/pending-requests');
+  }
+
+  // Get sent requests (outgoing)
+  Future<Map<String, dynamic>> getSentRequests() async {
+    return await _apiService.get('/connections/sent-requests');
   }
 
   // Reject connection request

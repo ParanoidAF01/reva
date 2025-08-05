@@ -45,9 +45,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     // Ensure user profile data is loaded for dynamic fields
-    Future.microtask(() {
+    Future.microtask(() async {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      userProvider.loadUserData();
+      await userProvider.loadUserData();
+      // Refresh connection counts after loading user data
+      await userProvider.refreshConnectionCounts();
     });
     fetchUserEvents();
     fetchUpcomingEvents();
@@ -235,10 +237,23 @@ class _HomeScreenState extends State<HomeScreen> {
           final int achievementProgress = userEvents.length;
           final int achievementCurrent = userEvents.length;
           final int nfcConnectionsLeft = userData['nfcConnectionsLeft'] ?? 0;
-          return SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.all(width * 0.05),
-              child: Column(
+          return RefreshIndicator(
+            onRefresh: () async {
+              // Refresh all data when pulled
+              await userProvider.refreshConnectionCounts();
+              await fetchUserEvents();
+              await fetchUpcomingEvents();
+              await fetchMyPosts();
+              await fetchPeopleYouMayKnow();
+              await fetchSubscriptionStatus();
+            },
+            color: const Color(0xFF0262AB),
+            backgroundColor: const Color(0xFF22252A),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Padding(
+                padding: EdgeInsets.all(width * 0.05),
+                child: Column(
                 children: [
                   SizedBox(height: height * 0.045),
                   // Custom Top Navbar
@@ -479,7 +494,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(
                         child: _customStatCard(
                           icon: Icons.hourglass_empty,
-                          label1: 'Pending',
+                          label1: 'Incoming',
                           label2: 'Requests',
                           value: pendingRequests.toString(),
                           width: width,
@@ -489,8 +504,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       Expanded(
                         child: _customStatCard(
                           icon: Icons.link,
-                          label1: 'Pending',
-                          label2: 'Connects',
+                          label1: 'Outgoing',
+                          label2: 'Requests',
                           value: pendingConnects.toString(),
                           width: width,
                         ),
@@ -749,6 +764,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
+          ),
           );
         },
       ),

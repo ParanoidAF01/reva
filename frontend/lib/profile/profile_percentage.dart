@@ -61,16 +61,20 @@ class ProfilePercentageScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(label, style: labelStyle),
-                    Text(completed ? 'Completed' : 'Not completed', style: subLabelStyle),
+                    Text(
+                      label,
+                      style: labelStyle,
+                      softWrap: true,
+                    ),
+                    Text(
+                      completed ? 'Completed' : 'Not completed',
+                      style: subLabelStyle,
+                      softWrap: true,
+                    ),
                   ],
                 ),
               ),
-              Icon(
-                completed ? Icons.check_circle : Icons.cancel,
-                color: completed ? completedColor : incompleteColor,
-                size: 28,
-              ),
+              // Removed tick and cross icons
             ],
           ),
         ),
@@ -111,28 +115,36 @@ class ProfilePercentageScreen extends StatelessWidget {
                         valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
                       ),
                     ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '$percentInt%',
-                          style: GoogleFonts.dmSans(
-                            fontSize: 38,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                    SizedBox(
+                      width: width * 0.32,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '$percentInt%',
+                            style: GoogleFonts.dmSans(
+                              fontSize: 38,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                        ),
-                        Text(
-                          'Of your profile is\ncomplete \u24d8',
-                          style: GoogleFonts.dmSans(
-                            color: Colors.white70,
-                            fontSize: 13,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                            child: Text(
+                              'Of your profile is complete \u24d8',
+                              style: GoogleFonts.dmSans(
+                                color: Colors.white70,
+                                fontSize: 13,
+                              ),
+                              textAlign: TextAlign.center,
+                              softWrap: true,
+                            ),
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 6),
-                        Icon(Icons.check_circle, color: completedColor, size: 32),
-                      ],
+                          const SizedBox(height: 6),
+                          Icon(Icons.check_circle, color: completedColor, size: 32),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -233,7 +245,7 @@ class ProfilePercentageScreen extends StatelessWidget {
                             Icons.emoji_events,
                             sectionStatus['Recognition']!,
                             () {
-                              // TODO: Implement Recognition navigation if needed
+                              
                             },
                           ),
                         ),

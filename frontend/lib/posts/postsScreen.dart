@@ -135,7 +135,7 @@ class _PostsScreenState extends State<PostsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: height * 0.06),
+                        SizedBox(height: height * 0.01),
                         // Top Bar
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: width * 0.04),

@@ -166,7 +166,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF22252A),
         elevation: 0,
-        leading: SizedBox(),
+        leading: const SizedBox(),
         title: Text(
           "Profile",
           style: GoogleFonts.dmSans(
@@ -176,6 +176,76 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings, color: Colors.white, size: 24),
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: const Color(0xFF23262B),
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+                ),
+                builder: (context) {
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      ListTile(
+                        leading: const Icon(Icons.account_balance_wallet, color: Colors.white),
+                        title: const Text('Wallet', style: TextStyle(color: Colors.white)),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pushNamed('/wallet');
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.person, color: Colors.white),
+                        title: const Text('Get Subscription', style: TextStyle(color: Colors.white)),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const StartSubscriptionPage()),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.help_center, color: Colors.white),
+                        title: const Text('Help Center', style: TextStyle(color: Colors.white)),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => const HelpCenterScreen()),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.edit, color: Colors.white),
+                        title: const Text('Edit Profile', style: TextStyle(color: Colors.white)),
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (_) => ProfilePercentageScreen()),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.logout, color: Colors.white),
+                        title: const Text('Sign Out', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        onTap: () async {
+                          await AuthService().logout();
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+                            (route) => false,
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ],
       ),
       backgroundColor: const Color(0xFF22252A),
       body: SafeArea(
@@ -189,92 +259,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             Column(
               children: [
-                Padding(
-                  padding: EdgeInsets.only(top: height * 0.02, left: 16, right: 16),
-                  child: Row(
-                    children: [
-                      // Back button removed
-                      const Spacer(),
-                      Text(
-                        "Profile",
-                        style: GoogleFonts.dmSans(
-                          fontSize: 26,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.settings, color: Colors.white, size: 24),
-                        onPressed: () {
-                          showModalBottomSheet(
-                            context: context,
-                            backgroundColor: const Color(0xFF23262B),
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
-                            ),
-                            builder: (context) {
-                              return Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  ListTile(
-                                    leading: const Icon(Icons.account_balance_wallet, color: Colors.white),
-                                    title: const Text('Wallet', style: TextStyle(color: Colors.white)),
-                                    onTap: () {
-                                      Navigator.of(context).pop();
-                                      Navigator.of(context).pushNamed('/wallet');
-                                    },
-                                  ),
-                                  ListTile(
-                                    leading: const Icon(Icons.person, color: Colors.white),
-                                    title: const Text('Get Subscription', style: TextStyle(color: Colors.white)),
-                                    onTap: () {
-                                      Navigator.of(context).pop();
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (_) => const StartSubscriptionPage()),
-                                      );
-                                    },
-                                  ),
-                                  ListTile(
-                                    leading: const Icon(Icons.help_center, color: Colors.white),
-                                    title: const Text('Help Center', style: TextStyle(color: Colors.white)),
-                                    onTap: () {
-                                      Navigator.of(context).pop();
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (_) => const HelpCenterScreen()),
-                                      );
-                                    },
-                                  ),
-                                  ListTile(
-                                    leading: const Icon(Icons.notifications, color: Colors.white),
-                                    title: const Text('Edit Profile', style: TextStyle(color: Colors.white)),
-                                    onTap: () {
-                                      Navigator.of(context).pop();
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (_) => ProfilePercentageScreen()),
-                                      );
-                                    },
-                                  ),
-                                  ListTile(
-                                    leading: const Icon(Icons.logout, color: Colors.white),
-                                    title: const Text('Sign Out', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                    onTap: () async {
-                                      await AuthService().logout();
-                                      Navigator.of(context).pushAndRemoveUntil(
-                                        MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-                                        (route) => false,
-                                      );
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
                 SizedBox(height: height * 0.03),
                 Stack(
                   alignment: Alignment.center,

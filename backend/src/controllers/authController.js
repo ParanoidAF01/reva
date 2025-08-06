@@ -43,6 +43,22 @@ export const register = asyncHandler(async (req, res) => {
         user: user._id,
     });
 
+    const accessToken = jwt.sign(
+        { id: user._id },
+        env.jwt.secret,
+        { expiresIn: env.jwt.expiresIn }
+    );
+
+    const refreshToken = jwt.sign(
+        { id: user._id },
+        env.jwt.refreshSecret,
+        { expiresIn: env.jwt.refreshExpiresIn }
+    );
+
+    user.refreshToken = refreshToken;
+    const refreshExpiresInMs = parseTimeString(env.jwt.refreshExpiresIn);
+    user.refreshTokenExpiresAt = new Date(Date.now() + refreshExpiresInMs);
+
     await user.save();
     await profile.save();
 
@@ -66,6 +82,10 @@ export const register = asyncHandler(async (req, res) => {
             profile: {
                 id: profile._id,
             },
+            tokens: {
+                accessToken,
+                refreshToken
+            }
         }
     });
 });

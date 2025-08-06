@@ -29,6 +29,9 @@ const profileSchema = new mongoose.Schema({
     location: {
         type: String,
     },
+    language: {
+        type: String,
+    },
 
     organization: {
         type: {

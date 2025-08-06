@@ -222,7 +222,7 @@ class _HomeScreenState extends State<HomeScreen> {
           final String userExperience = userData['experience'] != null && userData['experience'].toString().isNotEmpty ? "${userData['experience'].toString()} yrs+" : "";
           final String userLanguages = userData['languages'] ?? "";
           final String profileImage = userData['profilePicture'] ?? userData['profileImage'] ?? 'assets/dummyprofile.png';
-          final int revaConnections = (userData['connections'] is List) ? (userData['connections'] as List).length : 0;
+          final int revaConnections = userData['numberOfConnections'] ?? 0;
           final int pendingRequests = userData['pendingRequests'] ?? 0;
           final int pendingConnects = userData['pendingConnects'] ?? 0;
           final int achievementMax = 100;
@@ -704,6 +704,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         ContactCardData(icon: Image.asset('assets/vastu.png', width: 28), count: userData['vastuConsultantCount']?.toString() ?? '0', label: 'Vastu Consultant', userId: userData['id'] ?? ''),
                         ContactCardData(icon: Image.asset('assets/homebuyer.png', width: 28), count: userData['homeBuyerCount']?.toString() ?? '0', label: 'Home Buyer', userId: userData['id'] ?? ''),
                         ContactCardData(icon: Image.asset('assets/investor.png', width: 28), count: userData['propertyInvestorCount']?.toString() ?? '0', label: 'Property Investor', userId: userData['id'] ?? ''),
+                        ContactCardData(icon: Image.asset('assets/builder.png', width: 28), count: userData['constructionManagerCount']?.toString() ?? '0', label: 'Construction Manager', userId: userData['id'] ?? ''),
+                        ContactCardData(icon: Image.asset('assets/investor.png', width: 28), count: userData['realEstateAgentCount']?.toString() ?? '0', label: 'Real Estate Agent', userId: userData['id'] ?? ''),
+                        ContactCardData(icon: Image.asset('assets/legal.png', width: 28), count: userData['technicalConsultantCount']?.toString() ?? '0', label: 'Technical Consultant', userId: userData['id'] ?? ''),
+                        ContactCardData(icon: Image.asset('assets/material.png', width: 28), count: userData['otherCount']?.toString() ?? '0', label: 'Other', userId: userData['id'] ?? ''),
                       ],
                       achievement: AchievementData(
                         progress: achievementProgress,

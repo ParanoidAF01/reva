@@ -49,6 +49,30 @@ class UserProvider extends ChangeNotifier {
           _userData!['pendingConnects'] =
               sentRequestsResponse['data']['totalSentRequests'] ?? 0;
         }
+
+        // Fetch connection count and designation counts
+        final connectionCountResponse =
+            await ServiceManager.instance.connections.getConnectionCount();
+        if (connectionCountResponse['success'] == true &&
+            connectionCountResponse['data'] != null) {
+          final data = connectionCountResponse['data'];
+          _userData!['numberOfConnections'] = data['numberOfConnections'] ?? 0;
+          
+          // Store designation counts
+          final designationCounts = data['designationCounts'] ?? {};
+          _userData!['builderCount'] = designationCounts['Builder'] ?? 0;
+          _userData!['loanProviderCount'] = designationCounts['Loan Provider'] ?? 0;
+          _userData!['interiorDesignerCount'] = designationCounts['Interior Designer'] ?? 0;
+          _userData!['materialSupplierCount'] = designationCounts['Material Supplier'] ?? 0;
+          _userData!['legalAdvisorCount'] = designationCounts['Legal Advisor'] ?? 0;
+          _userData!['vastuConsultantCount'] = designationCounts['Vastu Consultant'] ?? 0;
+          _userData!['homeBuyerCount'] = designationCounts['Home Buyer'] ?? 0;
+          _userData!['propertyInvestorCount'] = designationCounts['Property Investor'] ?? 0;
+          _userData!['constructionManagerCount'] = designationCounts['Construction Manager'] ?? 0;
+          _userData!['realEstateAgentCount'] = designationCounts['Real Estate Agent'] ?? 0;
+          _userData!['technicalConsultantCount'] = designationCounts['Technical Consultant'] ?? 0;
+          _userData!['otherCount'] = designationCounts['Other'] ?? 0;
+        }
       }
     } catch (e) {
       print('Error loading user data: $e');
@@ -85,6 +109,36 @@ class UserProvider extends ChangeNotifier {
 
   Future<void> refreshConnectionCounts() async {
     try {
+      // Fetch connection count and designation counts
+      final connectionCountResponse =
+          await ServiceManager.instance.connections.getConnectionCount();
+      print('CONNECTION COUNT RESPONSE:');
+      print('Response: $connectionCountResponse');
+
+      if (connectionCountResponse['success'] == true &&
+          connectionCountResponse['data'] != null) {
+        final data = connectionCountResponse['data'];
+        _userData!['numberOfConnections'] = data['numberOfConnections'] ?? 0;
+        
+        // Store designation counts
+        final designationCounts = data['designationCounts'] ?? {};
+        _userData!['builderCount'] = designationCounts['Builder'] ?? 0;
+        _userData!['loanProviderCount'] = designationCounts['Loan Provider'] ?? 0;
+        _userData!['interiorDesignerCount'] = designationCounts['Interior Designer'] ?? 0;
+        _userData!['materialSupplierCount'] = designationCounts['Material Supplier'] ?? 0;
+        _userData!['legalAdvisorCount'] = designationCounts['Legal Advisor'] ?? 0;
+        _userData!['vastuConsultantCount'] = designationCounts['Vastu Consultant'] ?? 0;
+        _userData!['homeBuyerCount'] = designationCounts['Home Buyer'] ?? 0;
+        _userData!['propertyInvestorCount'] = designationCounts['Property Investor'] ?? 0;
+        _userData!['constructionManagerCount'] = designationCounts['Construction Manager'] ?? 0;
+        _userData!['realEstateAgentCount'] = designationCounts['Real Estate Agent'] ?? 0;
+        _userData!['technicalConsultantCount'] = designationCounts['Technical Consultant'] ?? 0;
+        _userData!['otherCount'] = designationCounts['Other'] ?? 0;
+        
+        print('Total connections: ${_userData!['numberOfConnections']}');
+        print('Designation counts: $designationCounts');
+      }
+
       // Fetch pending requests (incoming)
       final pendingRequestsResponse =
           await ServiceManager.instance.connections.getPendingRequests();

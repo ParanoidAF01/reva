@@ -1,7 +1,22 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'dart:convert';
 import 'api_service.dart';
 
 class AuthService {
+  // Get current user ID from access token
+  Future<String?> getCurrentUserId() async {
+    final accessToken = await _getToken('accessToken');
+    if (accessToken == null) return null;
+    try {
+      final parts = accessToken.split('.');
+      if (parts.length != 3) return null;
+      final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+      final payloadMap = jsonDecode(payload);
+      return payloadMap['userId']?.toString();
+    } catch (e) {
+      return null;
+    }
+  }
   final ApiService _apiService = ApiService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 

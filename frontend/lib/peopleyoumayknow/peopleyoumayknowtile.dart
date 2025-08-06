@@ -74,27 +74,39 @@ class PeopleYouMayKnowCard extends StatelessWidget {
               ),
               const SizedBox(height: 0.5),
               Center(
-                child: Text(
-                  designation.isNotEmpty ? designation : '****',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: designation.isNotEmpty ? const Color(0xFFB1B5BA) : Colors.black,
-                    fontSize: 11.5,
-                    height: 1.1,
-                  ),
-                ),
+                child: designation.isNotEmpty
+                    ? Text(
+                        designation,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Color(0xFFB1B5BA),
+                          fontSize: 11.5,
+                          height: 1.1,
+                        ),
+                      )
+                    : Icon(
+                        Icons.star,
+                        color: Colors.white,
+                        size: 18,
+                      ),
               ),
               const SizedBox(height: 2),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text(
-                    location.isNotEmpty ? location : '****',
-                    style: TextStyle(
-                      color: location.isNotEmpty ? const Color(0xFFB1B5BA) : Colors.black,
-                      fontSize: 10.5,
-                    ),
-                  ),
+                  location.isNotEmpty
+                      ? Text(
+                          location,
+                          style: const TextStyle(
+                            color: Color(0xFFB1B5BA),
+                            fontSize: 10.5,
+                          ),
+                        )
+                      : Icon(
+                          Icons.star,
+                          color: Colors.white,
+                          size: 16,
+                        ),
                 ],
               ),
               const SizedBox(height: 2),

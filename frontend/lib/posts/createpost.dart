@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import '../shared/cloudinary_upload.dart';
 import 'package:iconsax/iconsax.dart';
 import '../services/service_manager.dart';
 import 'package:provider/provider.dart';
@@ -98,14 +99,37 @@ class SharePostScreen extends StatelessWidget {
                               ? null
                               : () async {
                                   final text = postController.text.trim();
-                                  if (text.isNotEmpty || pickedFile != null) {
+                                  String? mediaUrl;
+                                  if (pickedFile != null) {
+                                    if (pickedType == 'photo') {
+                                      mediaUrl = await CloudinaryService.uploadImage(File(pickedFile!.path));
+                                      if (mediaUrl == null) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Failed to upload image to Cloudinary')),
+                                        );
+                                        return;
+                                      }
+                                    } else if (pickedType == 'video') {
+                                      // Implement Cloudinary video upload if needed
+                                      mediaUrl = await CloudinaryService.uploadImage(File(pickedFile!.path));
+                                      if (mediaUrl == null) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          const SnackBar(content: Text('Failed to upload video to Cloudinary')),
+                                        );
+                                        return;
+                                      }
+                                    }
+                                  }
+                                  if (text.isNotEmpty || mediaUrl != null) {
                                     try {
+                                      // Debug print to verify mediaUrl
+                                      print('DEBUG: mediaUrl to send: $mediaUrl');
                                       final postData = {
-                                        'content': text,
-                                        'mediaType': pickedFile != null ? (pickedType == 'photo' ? 'image' : 'video') : null,
-                                        'mediaPath': pickedFile?.path,
+                                        'content': text.isNotEmpty ? text : ' ',
+                                        'images': (pickedType == 'photo' && mediaUrl != null && mediaUrl.startsWith('https://res.cloudinary.com')) ? [mediaUrl] : [],
+                                        'videos': (pickedType == 'video' && mediaUrl != null && mediaUrl.startsWith('https://res.cloudinary.com')) ? [mediaUrl] : [],
                                       };
-
+                                      print('DEBUG: postData to send: $postData');
                                       final response = await ServiceManager.instance.posts.createPost(postData);
                                       if (response['success'] == true) {
                                         Navigator.of(context).pop();

@@ -638,7 +638,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           );
                         },
                         child: Text(
-                          'Explore All Events',
+                          'Explore All Events >',
                           style: GoogleFonts.dmSans(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -1336,7 +1336,7 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
                                   );
                                 },
                                 child: Text(
-                                  'Book Now',
+                                  'Details !',
                                   style: GoogleFonts.dmSans(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w700,

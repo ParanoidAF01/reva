@@ -171,7 +171,7 @@ class ProfileScreen extends StatelessWidget {
                                   ),
                                   ListTile(
                                     leading: const Icon(Icons.notifications, color: Colors.white),
-                                    title: const Text('Edit Profile', style: TextStyle(color: Colors.white)),
+                                    title: const Text('Notifications', style: TextStyle(color: Colors.white)),
                                     onTap: () {
                                       Navigator.of(context).pop();
                                       Navigator.of(context).pushNamed('/notification');

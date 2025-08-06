@@ -109,12 +109,14 @@ class CreatePostCard extends StatelessWidget {
                 ),
               ),
               SizedBox(height: width * 0.02),
-              Text(
-                'Requirement post!',
-                style: GoogleFonts.dmSans(
-                  color: Colors.white.withOpacity(0.8),
-                  fontWeight: FontWeight.w500,
-                  fontSize: width * 0.035,
+              Center(
+                child: Text(
+                  'Requirement post!',
+                  style: GoogleFonts.dmSans(
+                    color: Colors.white.withOpacity(0.8),
+                    fontWeight: FontWeight.w500,
+                    fontSize: width * 0.035,
+                  ),
                 ),
               ),
             ],

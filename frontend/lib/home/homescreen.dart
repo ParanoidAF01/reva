@@ -292,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         // Profile Image
                         CircleAvatar(
                           radius: width * 0.09,
-                          backgroundImage: (profileImage != null && profileImage.toString().isNotEmpty && !profileImage.toString().contains('assets/')) ? NetworkImage(profileImage) : AssetImage('assets/dummyprofile.png') as ImageProvider,
+                          backgroundImage: (profileImage.toString().isNotEmpty && !profileImage.toString().contains('assets/')) ? NetworkImage(profileImage) : AssetImage('assets/dummyprofile.png') as ImageProvider,
                         ),
                         SizedBox(width: width * 0.04),
                         // Hello & Name

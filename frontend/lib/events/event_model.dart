@@ -8,6 +8,7 @@ class EventModel {
   final String startDate;
   final String startTime;
   final List<dynamic> attendees;
+  final int maxAttendees;
   final String seatsLeft;
   final String price;
   final String month;
@@ -23,6 +24,7 @@ class EventModel {
     required this.startDate,
     required this.startTime,
     required this.attendees,
+    required this.maxAttendees,
     required this.seatsLeft,
     required this.price,
     required this.month,
@@ -34,14 +36,15 @@ class EventModel {
       id: json['_id'] ?? '',
       title: json['title'] ?? '',
       description: json['description'] ?? '',
-      imageUrl: json['imageUrl'] ?? '',
+      imageUrl: json['imageUrl'] ?? json['image'] ?? '',
       location: json['location'] ?? '',
       address: json['address'] ?? '',
       startDate: json['startDate'] ?? '',
       startTime: json['startTime'] ?? '',
       attendees: json['attendees'] ?? [],
+      maxAttendees: json['maxAttendees'] is int ? json['maxAttendees'] : int.tryParse(json['maxAttendees']?.toString() ?? '') ?? 0,
       seatsLeft: json['seatsLeft'] ?? '',
-      price: json['price'] ?? '',
+      price: json['price'] ?? json['entryFee']?.toString() ?? '',
       month: json['month'] ?? '',
       time: json['time'] ?? '',
     );

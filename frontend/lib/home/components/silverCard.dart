@@ -95,12 +95,12 @@ class SilverCard extends StatelessWidget {
                   ),
                 ),
               ),
-              // Experience
+              // Experience (always shown)
               Positioned(
-                left: 111,
+                left: 23,
                 top: 109,
                 child: SizedBox(
-                  width: 50,
+                  width: 168,
                   child: Text(
                     experience,
                     style: const TextStyle(
@@ -113,29 +113,53 @@ class SilverCard extends StatelessWidget {
                   ),
                 ),
               ),
-              // Languages
-              Positioned(
-                left: 23,
-                top: 109,
-                child: SizedBox(
-                  width: 168,
-                  child: Text(
-                    (languages.isNotEmpty) ? languages : 'Languages not set',
-                    style: const TextStyle(
-                      color: Color(0xFFBDBDBD),
-                      fontSize: 12,
-                      fontFamily: 'DM Sans',
-                      fontWeight: FontWeight.w400,
-                      height: 1.40,
+              // Languages (only if present, below experience)
+              if (languages.isNotEmpty)
+                Positioned(
+                  left: 23,
+                  top: 129,
+                  child: SizedBox(
+                    width: 168,
+                    child: Text(
+                      languages,
+                      style: const TextStyle(
+                        color: Color(0xFFBDBDBD),
+                        fontSize: 12,
+                        fontFamily: 'DM Sans',
+                        fontWeight: FontWeight.w400,
+                        height: 1.40,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              // Tags and KYC status in a single row (only if present)
-              if ((tag1.isNotEmpty || tag2.isNotEmpty || tag3.isNotEmpty || kycStatus.isNotEmpty))
+              // KYC approved (right-aligned, new line)
+              if (kycStatus.isNotEmpty)
+                Positioned(
+                  right: 23,
+                  top: languages.isNotEmpty ? 149 : 129,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.check, color: Colors.green, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        kycStatus,
+                        style: const TextStyle(
+                          color: Color(0xFFBDBDBD),
+                          fontSize: 12,
+                          fontFamily: 'DM Sans',
+                          fontWeight: FontWeight.w400,
+                          height: 1.40,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              // Tags row (below experience/languages)
+              if (tag1.isNotEmpty || tag2.isNotEmpty || tag3.isNotEmpty)
                 Positioned(
                   left: 15,
-                  top: 139,
+                  top: languages.isNotEmpty ? 169 : 149,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -145,25 +169,6 @@ class SilverCard extends StatelessWidget {
                       if (tag2.isNotEmpty) _tagChip(tag2),
                       if (tag2.isNotEmpty && tag3.isNotEmpty) SizedBox(width: tagSpacing),
                       if (tag3.isNotEmpty) _tagChip(tag3),
-                      if ((tag1.isNotEmpty || tag2.isNotEmpty || tag3.isNotEmpty) && kycStatus.isNotEmpty) SizedBox(width: kycGap),
-                      if (kycStatus.isNotEmpty)
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.check, color: Colors.green, size: 16),
-                            const SizedBox(width: 4),
-                            Text(
-                              kycStatus,
-                              style: const TextStyle(
-                                color: Color(0xFFBDBDBD),
-                                fontSize: 12,
-                                fontFamily: 'DM Sans',
-                                fontWeight: FontWeight.w400,
-                                height: 1.40,
-                              ),
-                            ),
-                          ],
-                        ),
                     ],
                   ),
                 ),

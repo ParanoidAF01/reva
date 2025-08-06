@@ -3,6 +3,7 @@ import 'package:reva/profile/profile_percentage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:reva/services/service_manager.dart';
 import 'package:reva/profile/help_center_screen.dart';
 import 'package:reva/services/auth_service.dart';
 import 'package:reva/authentication/welcomescreen.dart';
@@ -69,8 +70,70 @@ class _SocialIconButton extends StatelessWidget {
   }
 }
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  int totalConnections = 0;
+  int eventsAttended = 0;
+  bool _loadingEvents = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchCounts();
+  }
+
+  Future<void> fetchCounts() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userData = userProvider.userData ?? {};
+    setState(() {
+      totalConnections = userData['numberOfConnections'] ?? 0;
+    });
+    try {
+      final response = await ServiceManager.instance.events.getMyEvents();
+      if (response['success'] == true) {
+        setState(() {
+          eventsAttended = (response['data']['events'] as List).length;
+          _loadingEvents = false;
+        });
+      } else {
+        setState(() {
+          eventsAttended = 0;
+          _loadingEvents = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        eventsAttended = 0;
+        _loadingEvents = false;
+      });
+    }
+  }
+
+  // Move _tagChip above build
+  Widget _tagChip(String tag) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white24, width: 1),
+      ),
+      child: Text(
+        tag,
+        style: GoogleFonts.dmSans(
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+          fontSize: 13,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -83,8 +146,6 @@ class ProfileScreen extends StatelessWidget {
     final String userExperience = userData['experience'] != null && userData['experience'].toString().isNotEmpty ? "${userData['experience'].toString()} yrs+" : "";
     final String userLanguages = userData['languages'] ?? "";
     final String profileImage = userData['profilePicture'] ?? userData['profileImage'] ?? 'assets/dummyprofile.png';
-    final int totalConnections = userData['connections'] is List ? (userData['connections'] as List).length : (userData['totalConnections'] ?? 0);
-    final int eventsAttended = userData['eventsAttended'] ?? (userData['events'] is List ? (userData['events'] as List).length : 0);
     final String email = userData['user']?['email'] ?? userData['email'] ?? '';
     final String phone = userData['user']?['mobileNumber'] ?? userData['mobileNumber'] ?? '';
     final String tag1 = userData['tag1'] ?? "";
@@ -102,6 +163,20 @@ class ProfileScreen extends StatelessWidget {
     }
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF22252A),
+        elevation: 0,
+        leading: SizedBox(),
+        title: Text(
+          "Profile",
+          style: GoogleFonts.dmSans(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+      ),
       backgroundColor: const Color(0xFF22252A),
       body: SafeArea(
         child: Stack(
@@ -176,7 +251,7 @@ class ProfileScreen extends StatelessWidget {
                                     onTap: () {
                                       Navigator.of(context).pop();
                                       Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (_) =>  ProfilePercentageScreen()),
+                                        MaterialPageRoute(builder: (_) => ProfilePercentageScreen()),
                                       );
                                     },
                                   ),
@@ -294,7 +369,7 @@ class ProfileScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: 12),
+                        margin: EdgeInsets.symmetric(horizontal: 25),
                         padding: EdgeInsets.symmetric(vertical: 18),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.18),
@@ -326,7 +401,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     Expanded(
                       child: Container(
-                        margin: EdgeInsets.symmetric(horizontal: 12),
+                        margin: EdgeInsets.symmetric(horizontal: 25),
                         padding: EdgeInsets.symmetric(vertical: 18),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.18),
@@ -428,22 +503,4 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // Add missing _tagChip method outside build
-  Widget _tagChip(String tag) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white24, width: 1),
-      ),
-      child: Text(
-        tag,
-        style: GoogleFonts.dmSans(
-          color: Colors.white,
-          fontWeight: FontWeight.w500,
-          fontSize: 13,
-        ),
-      ),
-    );
-  }
 } // End of ProfileScreen class

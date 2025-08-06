@@ -17,6 +17,7 @@ class AuthService {
       return null;
     }
   }
+
   final ApiService _apiService = ApiService();
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 

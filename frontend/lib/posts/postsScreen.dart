@@ -1,11 +1,9 @@
-  
-  import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/service_manager.dart';
 
-
-
 final Map<String, TextEditingController> _commentControllers = {};
+
 // ...existing code continues with the new StatefulWidget implementation
 class PostsScreen extends StatefulWidget {
   const PostsScreen({super.key});
@@ -30,13 +28,16 @@ class _PostsScreenState extends State<PostsScreen> {
       if (response['success'] == true && response['data'] != null) {
         final profiles = response['data']['profiles'] ?? [];
         setState(() {
-          _profilesMap = {for (var p in profiles) p['user'] : p};
+          _profilesMap = {
+            for (var p in profiles) p['user']: p
+          };
         });
       }
     } catch (e) {
       // ignore errors for now
     }
   }
+
   String _formatTimestamp(String? isoString) {
     if (isoString == null || isoString.isEmpty) return '';
     try {
@@ -109,6 +110,21 @@ class _PostsScreenState extends State<PostsScreen> {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF22252A),
+        elevation: 0,
+        leading:  SizedBox(
+        ),
+        title: Text(
+          "Posts",
+          style: GoogleFonts.dmSans(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+        centerTitle: true,
+      ),
       backgroundColor: const Color(0xFF22252A),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -125,6 +141,7 @@ class _PostsScreenState extends State<PostsScreen> {
                           padding: EdgeInsets.symmetric(horizontal: width * 0.04),
                           child: Row(
                             children: [
+                              
                               Expanded(
                                 child: Container(
                                   height: 48,
@@ -236,30 +253,22 @@ class _PostsScreenState extends State<PostsScreen> {
                                   // Likes row (optional, can be hidden if not needed)
                                   if (post['likes'] != null && post['likes'] is List && post['likes'].length > 0)
                                     Text(
-                                      post['likes'].length == 1
-                                          ? "${post['likes'][0]['fullName']} likes this"
-                                          : "${post['likes'][0]['fullName']} and ${post['likes'].length - 1} others like this",
+                                      post['likes'].length == 1 ? "${post['likes'][0]['fullName']} likes this" : "${post['likes'][0]['fullName']} and ${post['likes'].length - 1} others like this",
                                       style: const TextStyle(color: Colors.white, fontSize: 13),
                                     ),
-                                  if (post['likes'] != null && post['likes'] is List && post['likes'].length > 0)
-                                    const Divider(color: Color(0xFFCED5DC), thickness: 2),
+                                  if (post['likes'] != null && post['likes'] is List && post['likes'].length > 0) const Divider(color: Color(0xFFCED5DC), thickness: 2),
                                   Row(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       CircleAvatar(
                                         radius: 18,
                                         backgroundColor: Colors.white,
-                                        backgroundImage:
-                                          (author['profile'] != null && author['profile']['profilePicture'] != null && author['profile']['profilePicture'].toString().isNotEmpty)
+                                        backgroundImage: (author['profile'] != null && author['profile']['profilePicture'] != null && author['profile']['profilePicture'].toString().isNotEmpty)
                                             ? NetworkImage(author['profile']['profilePicture'])
                                             : (author['profilePicture'] != null && author['profilePicture'].toString().isNotEmpty)
-                                              ? NetworkImage(author['profilePicture'])
-                                              : null,
-                                        child:
-                                          ((author['profile'] == null || author['profile']['profilePicture'] == null || author['profile']['profilePicture'].toString().isEmpty) &&
-                                           (author['profilePicture'] == null || author['profilePicture'].toString().isEmpty))
-                                            ? Icon(Icons.person, color: Colors.black)
-                                            : null,
+                                                ? NetworkImage(author['profilePicture'])
+                                                : null,
+                                        child: ((author['profile'] == null || author['profile']['profilePicture'] == null || author['profile']['profilePicture'].toString().isEmpty) && (author['profilePicture'] == null || author['profilePicture'].toString().isEmpty)) ? Icon(Icons.person, color: Colors.black) : null,
                                       ),
                                       SizedBox(width: width * 0.03),
                                       Expanded(
@@ -316,27 +325,27 @@ class _PostsScreenState extends State<PostsScreen> {
                                   // Images: single centered, multiple horizontal scroll
                                   if (post['images'] != null && post['images'] is List && post['images'].isNotEmpty)
                                     post['images'].length == 1
-                                      ? Center(
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(8),
-                                            child: Image.network(post['images'][0], height: 200, width: 200, fit: BoxFit.cover),
+                                        ? Center(
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(8),
+                                              child: Image.network(post['images'][0], height: 200, width: 200, fit: BoxFit.cover),
+                                            ),
+                                          )
+                                        : SizedBox(
+                                            height: 200,
+                                            child: ListView.separated(
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount: post['images'].length,
+                                              separatorBuilder: (context, i) => const SizedBox(width: 12),
+                                              itemBuilder: (context, i) {
+                                                final imgUrl = post['images'][i];
+                                                return ClipRRect(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  child: Image.network(imgUrl, height: 200, width: 200, fit: BoxFit.cover),
+                                                );
+                                              },
+                                            ),
                                           ),
-                                        )
-                                      : SizedBox(
-                                          height: 200,
-                                          child: ListView.separated(
-                                            scrollDirection: Axis.horizontal,
-                                            itemCount: post['images'].length,
-                                            separatorBuilder: (context, i) => const SizedBox(width: 12),
-                                            itemBuilder: (context, i) {
-                                              final imgUrl = post['images'][i];
-                                              return ClipRRect(
-                                                borderRadius: BorderRadius.circular(8),
-                                                child: Image.network(imgUrl, height: 200, width: 200, fit: BoxFit.cover),
-                                              );
-                                            },
-                                          ),
-                                        ),
                                   // Showcase videos
                                   if (post['videos'] != null && post['videos'] is List && post['videos'].isNotEmpty)
                                     SizedBox(
@@ -385,8 +394,7 @@ class _PostsScreenState extends State<PostsScreen> {
                                       padding: const EdgeInsets.only(top: 8.0),
                                       child: Column(
                                         children: [
-                                          if (parsedComments.isEmpty)
-                                            Text('No comments yet.', style: TextStyle(color: Colors.white54)),
+                                          if (parsedComments.isEmpty) Text('No comments yet.', style: TextStyle(color: Colors.white54)),
                                           ...parsedComments.map<Widget>((comment) {
                                             final user = comment['user'] ?? {};
                                             final userId = user['_id']?.toString() ?? user['user']?.toString() ?? '';
@@ -407,12 +415,8 @@ class _PostsScreenState extends State<PostsScreen> {
                                                 CircleAvatar(
                                                   radius: 18,
                                                   backgroundColor: Colors.white,
-                                                  backgroundImage: profilePic != null
-                                                      ? NetworkImage(profilePic)
-                                                      : null,
-                                                  child: profilePic == null
-                                                      ? Icon(Icons.person, color: Colors.black)
-                                                      : null,
+                                                  backgroundImage: profilePic != null ? NetworkImage(profilePic) : null,
+                                                  child: profilePic == null ? Icon(Icons.person, color: Colors.black) : null,
                                                 ),
                                                 SizedBox(width: 10),
                                                 Expanded(
@@ -448,55 +452,57 @@ class _PostsScreenState extends State<PostsScreen> {
                                         ],
                                       ),
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
-                                      child: Row(
-                                        children: [
-                                          Expanded(
-                                            child: TextField(
-                                              decoration: InputDecoration(
-                                                hintText: 'Add a comment...',
-                                                hintStyle: TextStyle(color: Colors.white54),
-                                                filled: true,
-                                                fillColor: Color(0xFF2B2F34),
-                                                border: OutlineInputBorder(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                  borderSide: BorderSide.none,
-                                                ),
-                                                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                              ),
-                                              style: TextStyle(color: Colors.white),
-                                              controller: _commentControllers[postId] ??= TextEditingController(),
-                                            ),
-                                          ),
-                                          SizedBox(width: 8),
-                                          ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Color(0xFF4A90E2),
-                                              shape: RoundedRectangleBorder(
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: TextField(
+                                            decoration: InputDecoration(
+                                              hintText: 'Add a comment...',
+                                              hintStyle: TextStyle(color: Colors.white54),
+                                              filled: true,
+                                              fillColor: Color(0xFF2B2F34),
+                                              border: OutlineInputBorder(
                                                 borderRadius: BorderRadius.circular(8),
+                                                borderSide: BorderSide.none,
                                               ),
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                             ),
-                                            onPressed: () async {
-                                              final text = _commentControllers[postId]?.text.trim() ?? '';
-                                              if (text.isEmpty) return;
-                                              final response = await ServiceManager.instance.posts.addComment(postId, {'content': text});
-                                              if (response['success'] == true) {
-                                                setState(() {
-                                                  post['comments'] = response['data']['comments'];
-                                                  _commentControllers[postId]?.clear();
-                                                });
-                                              } else {
-                                                ScaffoldMessenger.of(context).showSnackBar(
-                                                  SnackBar(content: Text(response['message'] ?? 'Failed to add comment')),
-                                                );
-                                              }
-                                            },
-                                            child: Text('Post', style: TextStyle(color: Colors.white)),
+                                            style: TextStyle(color: Colors.white),
+                                            controller: _commentControllers[postId] ??= TextEditingController(),
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                        SizedBox(width: 8),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Color(0xFF4A90E2),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                          ),
+                                          onPressed: () async {
+                                            final text = _commentControllers[postId]?.text.trim() ?? '';
+                                            if (text.isEmpty) return;
+                                            final response = await ServiceManager.instance.posts.addComment(postId, {
+                                              'content': text
+                                            });
+                                            if (response['success'] == true) {
+                                              setState(() {
+                                                post['comments'] = response['data']['comments'];
+                                                _commentControllers[postId]?.clear();
+                                              });
+                                            } else {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(content: Text(response['message'] ?? 'Failed to add comment')),
+                                              );
+                                            }
+                                          },
+                                          child: Text('Post', style: TextStyle(color: Colors.white)),
+                                        ),
+                                      ],
                                     ),
+                                  ),
                                   const SizedBox(height: 8),
                                   const Divider(color: Colors.white, thickness: 1),
                                   Row(

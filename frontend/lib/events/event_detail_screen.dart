@@ -615,16 +615,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
     try {
-      // Log the endpoint being hit
       debugPrint('Hitting endpoint: POST /events/${event!.id}/register');
-
-      // Register for the event
       final eventsService = EventsService();
       await eventsService.registerForEvent(event!.id);
-
-      // TODO: Refresh event data to get updated attendees list
-      // TODO: Open Razorpay payment gateway if needed
-      // _razorpay.open(options); // Uncomment and define 'options' if needed
+      // Refresh event details after payment
+      await fetchEventDetail();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Payment initialization failed: ' + e.toString()),

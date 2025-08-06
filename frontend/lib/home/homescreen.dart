@@ -178,37 +178,35 @@ class _HomeScreenState extends State<HomeScreen> {
       final response = await ServiceManager.instance.connections.getConnectionSuggestions();
       if (response['success'] == true) {
         final suggestions = response['data']['suggestions'] ?? [];
-        final mapped = suggestions
-            .map((person) {
-              String imageUrl = '';
-              String location = '';
-              String designation = '';
-              if (person['profile'] is Map) {
-                if (person['profile']['profilePicture'] is String && person['profile']['profilePicture'].isNotEmpty) {
-                  imageUrl = person['profile']['profilePicture'];
-                }
-                if (person['profile']['location'] is String) {
-                  location = person['profile']['location'];
-                }
-                if (person['profile']['designation'] is String) {
-                  designation = person['profile']['designation'];
-                }
-              } else if (person['profile'] is String && person['profile'].isNotEmpty) {
-                imageUrl = person['profile'];
-              }
-              if (imageUrl.isEmpty) {
-                imageUrl = 'assets/dummyprofile.png';
-              }
-              return {
-                'name': person['fullName'] ?? 'Unknown',
-                'image': imageUrl,
-                'location': location,
-                'designation': designation,
-                'mobileNumber': person['mobileNumber'] ?? '',
-                'userId': person['_id'] ?? person['userId'] ?? '',
-              };
-            })
-            .toList();
+        final mapped = suggestions.map((person) {
+          String imageUrl = '';
+          String location = '';
+          String designation = '';
+          if (person['profile'] is Map) {
+            if (person['profile']['profilePicture'] is String && person['profile']['profilePicture'].isNotEmpty) {
+              imageUrl = person['profile']['profilePicture'];
+            }
+            if (person['profile']['location'] is String) {
+              location = person['profile']['location'];
+            }
+            if (person['profile']['designation'] is String) {
+              designation = person['profile']['designation'];
+            }
+          } else if (person['profile'] is String && person['profile'].isNotEmpty) {
+            imageUrl = person['profile'];
+          }
+          if (imageUrl.isEmpty) {
+            imageUrl = 'assets/dummyprofile.png';
+          }
+          return {
+            'name': person['fullName'] ?? 'Unknown',
+            'image': imageUrl,
+            'location': location,
+            'designation': designation,
+            'mobileNumber': person['mobileNumber'] ?? '',
+            'userId': person['_id'] ?? person['userId'] ?? '',
+          };
+        }).toList();
         setState(() {
           peopleYouMayKnow = mapped;
           isLoadingPeople = false;

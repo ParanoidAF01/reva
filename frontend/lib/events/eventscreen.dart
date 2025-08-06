@@ -70,11 +70,7 @@ class _EventScreenState extends State<EventScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF22252A),
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+        leading:  SizedBox(
         ),
         title: Text(
           "Events",

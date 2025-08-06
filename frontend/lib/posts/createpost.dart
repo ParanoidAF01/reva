@@ -126,8 +126,16 @@ class SharePostScreen extends StatelessWidget {
                                       print('DEBUG: mediaUrl to send: $mediaUrl');
                                       final postData = {
                                         'content': text.isNotEmpty ? text : ' ',
-                                        'images': (pickedType == 'photo' && mediaUrl != null && mediaUrl.startsWith('https://res.cloudinary.com')) ? [mediaUrl] : [],
-                                        'videos': (pickedType == 'video' && mediaUrl != null && mediaUrl.startsWith('https://res.cloudinary.com')) ? [mediaUrl] : [],
+                                        'images': (pickedType == 'photo' && mediaUrl != null && mediaUrl.startsWith('https://res.cloudinary.com'))
+                                            ? [
+                                                mediaUrl
+                                              ]
+                                            : [],
+                                        'videos': (pickedType == 'video' && mediaUrl != null && mediaUrl.startsWith('https://res.cloudinary.com'))
+                                            ? [
+                                                mediaUrl
+                                              ]
+                                            : [],
                                       };
                                       print('DEBUG: postData to send: $postData');
                                       final response = await ServiceManager.instance.posts.createPost(postData);

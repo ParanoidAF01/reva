@@ -30,8 +30,7 @@ class RequestTile extends StatelessWidget {
 
   Future<void> _handleReject(BuildContext context) async {
     try {
-      final response = await ServiceManager.instance.connections
-          .rejectConnectionRequest(requestId);
+      final response = await ServiceManager.instance.connections.rejectConnectionRequest(requestId);
       if (response['success'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -75,7 +74,7 @@ class RequestTile extends StatelessWidget {
           // Profile Image
           CircleAvatar(
             radius: width * 0.06,
-            backgroundImage: AssetImage(image),
+            backgroundImage: image.isNotEmpty && !image.contains('assets/') ? NetworkImage(image) : AssetImage('assets/dummyprofile.png') as ImageProvider,
           ),
           const SizedBox(width: 12),
 
@@ -109,7 +108,10 @@ class RequestTile extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
-                colors: [Color(0xFF0262AB), Color(0xFF01345A)],
+                colors: [
+                  Color(0xFF0262AB),
+                  Color(0xFF01345A)
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),

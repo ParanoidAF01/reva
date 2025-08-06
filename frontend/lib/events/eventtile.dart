@@ -57,11 +57,11 @@ class EventTile extends StatelessWidget {
     final double progress = (maxAttendees > 0 && attendeeCount >= 0) ? attendeeCount / maxAttendees : 0.0;
     Color progressColor;
     if (progress < 0.2) {
-      progressColor = Colors.red;
+      progressColor = const Color.fromARGB(255, 12, 89, 152);
     } else if (progress < 0.5) {
       progressColor = Colors.orange;
     } else {
-      progressColor = Colors.blue;
+      progressColor = const Color.fromARGB(255, 243, 33, 33);
     }
     String seatsText = maxAttendees > 0 ? "${attendeeCount} of ${maxAttendees} Seats left" : "";
 
@@ -143,25 +143,27 @@ class EventTile extends StatelessWidget {
                     SizedBox(
                       height: 38,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => EventDetailScreen(eventId: event.id),
-                            ),
-                          );
-                        },
+                        onPressed: attendeeCount >= maxAttendees
+                            ? null
+                            : () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => EventDetailScreen(eventId: event.id),
+                                  ),
+                                );
+                              },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 22),
-                          backgroundColor: const Color(0xFF0262AB),
+                          backgroundColor: attendeeCount >= maxAttendees ? Colors.grey : const Color(0xFF0262AB),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                           elevation: 0,
                         ),
-                        child: const Text(
-                          'Book Now',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                        child: Text(
+                          attendeeCount >= maxAttendees ? 'Completed' : 'Book Now',
+                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
                         ),
                       ),
                     )

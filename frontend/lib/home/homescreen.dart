@@ -540,7 +540,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                    SizedBox(height: height * 0.04),
+                    SizedBox(height: height * 0.02),
                     // Dynamic Progress bar section
                     _DynamicProgressBar(
                       progress: achievementProgress,
@@ -587,7 +587,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         events: upcomingEvents
                             .map((event) => {
                                   'image': event['image'] ?? 'assets/eventdummyimage.png',
-                                  'price': event['price'] ?? '',
+                                  'price': event['entryFee'] ?? event['price'] ?? '',
                                   'title': event['title'] ?? '',
                                   'location': event['location'] ?? '',
                                   'attendees': event['attendees'] ?? [],
@@ -596,7 +596,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     const SizedBox(height: 10),
                     // Page indicator is inside the carousel
-                    SizedBox(height: height * 0.04),
+
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -625,7 +625,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
 
                     // People you may know section
-                    SizedBox(height: height * 0.04),
+                    SizedBox(height: height * 0.02),
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Row(
@@ -1158,25 +1158,26 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
-    var height = MediaQuery.of(context).size.width;
+    var height = MediaQuery.of(context).size.height;
     return Column(
       children: [
         SizedBox(
-          height: height * 0.6,
+          width: width * 0.99,
+          height: height * 0.22,
           child: PageView.builder(
             controller: _controller,
             itemCount: widget.events.length,
             onPageChanged: (i) => setState(() => _currentPage = i),
             itemBuilder: (context, i) {
               final event = widget.events[i];
+              final imageUrl = event['imageUrl'] ?? event['image'] ?? '';
+              final imageWidget = (imageUrl.isNotEmpty && !imageUrl.contains('assets/')) ? Image.network(imageUrl, fit: BoxFit.cover, width: double.infinity, height: double.infinity) : Image.asset('assets/eventdummyimage.png', fit: BoxFit.cover, width: double.infinity, height: double.infinity);
               return Container(
                 margin: EdgeInsets.symmetric(horizontal: width * 0.01),
+                width: width * 0.98,
+                height: height * 0.32,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
-                  image: DecorationImage(
-                    image: AssetImage(event['image']),
-                    fit: BoxFit.cover,
-                  ),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withOpacity(0.18),
@@ -1185,8 +1186,10 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
                     ),
                   ],
                 ),
+                clipBehavior: Clip.antiAlias,
                 child: Stack(
                   children: [
+                    Positioned.fill(child: imageWidget),
                     // Gradient overlay for text readability
                     Positioned.fill(
                       child: Container(
@@ -1212,67 +1215,107 @@ class _UpcomingEventsCarouselState extends State<_UpcomingEventsCarousel> {
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  event['price'],
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 4.0, right: 4.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    event['title'],
+                                    style: GoogleFonts.dmSans(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: height * 0.022,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    '₹${event['price']}',
+                                    style: GoogleFonts.dmSans(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: height * 0.018,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    event['location'] ?? '',
+                                    style: GoogleFonts.dmSans(
+                                      color: Colors.white70,
+                                      fontSize: height * 0.012,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: '${(event['attendees'] != null && event['attendees'] is List ? event['attendees'].length : 0)} people have',
+                                      style: GoogleFonts.dmSans(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: height * 0.018,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: '\nalready registered',
+                                      style: GoogleFonts.dmSans(
+                                        color: Colors.white70,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: height * 0.012,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                textAlign: TextAlign.right,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 6),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF01416A),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: width * 0.04,
+                                    vertical: width * 0.012,
+                                  ),
+                                  minimumSize: Size(width * 0.22, height * 0.04),
+                                ),
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EventDetailScreen(eventId: event['title'] ?? ''),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'Book Now',
                                   style: GoogleFonts.dmSans(
                                     color: Colors.white,
                                     fontWeight: FontWeight.w700,
-                                    fontSize: height * 0.07,
+                                    fontSize: height * 0.018,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  event['title'],
-                                  style: GoogleFonts.dmSans(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: height * 0.045,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${(event['attendees'] != null && event['attendees'] is List ? event['attendees'].length : 0)} people have already registered',
-                                  style: GoogleFonts.dmSans(
-                                    color: Colors.white70,
-                                    fontSize: height * 0.032,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(width: width * 0.02),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF01416A),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
                               ),
-                              padding: EdgeInsets.symmetric(
-                                horizontal: width * 0.06,
-                                vertical: width * 0.025,
-                              ),
-                            ),
-                            onPressed: () {
-                              // Pass the actual event title as eventId to EventDetailScreen
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => EventDetailScreen(eventId: event['title'] ?? ''),
-                                ),
-                              );
-                            },
-                            child: Text(
-                              'Book Now',
-                              style: GoogleFonts.dmSans(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: height * 0.035,
-                              ),
-                            ),
+                            ],
                           ),
                         ],
                       ),

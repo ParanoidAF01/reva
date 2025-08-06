@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/services/service_manager.dart';
 
-
 class PeopleConnectScreen extends StatefulWidget {
   final String userId;
   final String initialName;
@@ -126,9 +125,7 @@ class _PeopleConnectScreenState extends State<PeopleConnectScreen> {
                             children: [
                               CircleAvatar(
                                 radius: width * 0.16,
-                                backgroundImage: (profileImage.startsWith('http') || profileImage.startsWith('https'))
-                                    ? NetworkImage(profileImage)
-                                    : AssetImage(profileImage) as ImageProvider,
+                                backgroundImage: (profileImage.startsWith('http') || profileImage.startsWith('https')) ? NetworkImage(profileImage) : AssetImage(profileImage) as ImageProvider,
                               ),
                               Positioned(
                                 bottom: -30,

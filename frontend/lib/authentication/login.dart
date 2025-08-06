@@ -86,26 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
       List.generate(6, (_) => TextEditingController());
   bool isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _setPhoneNumber();
-  }
-
-  Future<void> _setPhoneNumber() async {
-    try {
-      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
-      String phone = androidInfo.id.substring(0, 10);
-      setState(() {
-        phoneController.text = phone;
-      });
-    } catch (e) {
-      setState(() {
-        phoneController.text = '';
-      });
-    }
-  }
+  // No phone number loading from device
 
   Future<void> _login() async {
     setState(() {

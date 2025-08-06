@@ -97,15 +97,13 @@ class PeopleYouMayKnowCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  
-                      Text(
-                          location,
-                          style: const TextStyle(
-                            color: Color(0xFFB1B5BA),
-                            fontSize: 10.5,
-                          ),
-                        )
-                     
+                  Text(
+                    location,
+                    style: const TextStyle(
+                      color: Color(0xFFB1B5BA),
+                      fontSize: 10.5,
+                    ),
+                  )
                 ],
               ),
               const SizedBox(height: 2),

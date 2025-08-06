@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:reva/authentication/login.dart';
 import 'package:reva/authentication/signup/ekycscreen.dart';
 import '../components/mytextfield.dart';
+import '../../providers/user_provider.dart';
+import '../../services/api_service.dart';
 
 class OrganisationDetailsScreen extends StatefulWidget {
   final bool showBack;
@@ -33,11 +36,11 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
   }
   bool _isValidCompanyType(String type) => companyTypes.contains(type);
   
-  void _validateAndProceed() {
+  Future<void> _validateAndProceed() async {
     final name = companyNameController.text;
     final date = incorporationDateController.text;
     final type = selectedCompanyType;
-    
+
     String? error;
     if (!_isValidCompanyName(name)) {
       error = "Please enter your company/firm name.";
@@ -48,19 +51,48 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
     } else if (!_isValidCompanyType(type)) {
       error = "Please select a valid company type.";
     }
-    
+
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(error), backgroundColor: Colors.red),
       );
       return;
     }
-    
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const EKycScreen()),
-      (route) => false,
-    );
+
+    // Save to provider
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.updateUserData({
+      'companyName': companyNameController.text,
+      'incorporationDate': incorporationDateController.text,
+      'gstin': gstinController.text,
+      'isRegistered': isRegistered,
+      'companyType': selectedCompanyType,
+    });
+    // Send to backend
+    try {
+      final response = await ApiService().put('/profiles/', {
+        'companyName': companyNameController.text,
+        'incorporationDate': incorporationDateController.text,
+        'gstin': gstinController.text,
+        'isRegistered': isRegistered,
+        'companyType': selectedCompanyType,
+      });
+      if (response['success'] == true) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const EKycScreen()),
+          (route) => false,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['message'] ?? 'Failed to update organization details'), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Network error'), backgroundColor: Colors.red),
+      );
+    }
   }
 
   @override

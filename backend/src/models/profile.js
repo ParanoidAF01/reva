@@ -29,7 +29,7 @@ const profileSchema = new mongoose.Schema({
     location: {
         type: String,
     },
-
+    
     organization: {
         type: {
             name: {

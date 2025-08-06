@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/authentication/signup/preferencesScreen.dart';
+import 'package:provider/provider.dart';
+import 'package:reva/providers/user_provider.dart';
+import 'package:reva/services/api_service.dart';
 
 import '../components/mytextfield.dart';
 
@@ -21,7 +24,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
   // Validation helpers
   bool _isValidMobile(String mobile) => RegExp(r'^[0-9]{10}$').hasMatch(mobile.trim());
 
-  void _validateAndProceed() {
+  Future<void> _validateAndProceed() async {
     final mobile = primaryMobileNumber.text;
     String? error;
     if (!_isValidMobile(mobile)) {
@@ -33,11 +36,40 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
       );
       return;
     }
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const PreferencesScreen()),
-      (route) => false,
-    );
+    // Save to provider
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.updateUserData({
+      'primaryMobileNumber': primaryMobileNumber.text,
+      'primaryEmailId': primaryEmailId.text,
+      'websitePortfolio': websitePortfolio.text,
+      'socialMediaLinks': socialMediaLinks.text,
+      'alternateMobileNumbers': alternateMobileNumbers.text,
+    });
+    // Send to backend
+    try {
+      final response = await ApiService().put('/profiles/', {
+        'primaryMobileNumber': primaryMobileNumber.text,
+        'primaryEmailId': primaryEmailId.text,
+        'websitePortfolio': websitePortfolio.text,
+        'socialMediaLinks': socialMediaLinks.text,
+        'alternateMobileNumbers': alternateMobileNumbers.text,
+      });
+      if (response['success'] == true) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const PreferencesScreen()),
+          (route) => false,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['message'] ?? 'Failed to update contact details'), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Network error'), backgroundColor: Colors.red),
+      );
+    }
   }
 
   @override

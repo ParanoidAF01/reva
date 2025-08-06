@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:reva/authentication/signup/contactdetailsscreen.dart';
+import 'package:reva/providers/user_provider.dart';
+import 'package:reva/services/api_service.dart';
 
 class EKycScreen extends StatelessWidget {
   final bool showBack;
@@ -167,11 +170,7 @@ class EKycScreen extends StatelessWidget {
               /// Verify Button
               InkWell(
                 onTap: (){
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const ContactDetailsScreen()),
-                    (route) => false,
-                  );
+                  _validateAndProceed(context);
                 },
                 child: Container(
                   width: double.infinity,
@@ -202,5 +201,36 @@ class EKycScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _validateAndProceed(BuildContext context) async {
+    // Collect eKYC data (add fields as needed)
+    final Map<String, dynamic> data = {
+      // 'aadhaar': aadhaarController.text,
+      // 'pan': panController.text,
+      // Add other fields here
+    };
+    // Save to provider
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.updateUserData(data);
+    // Send to backend
+    try {
+      final response = await ApiService().put('/profiles/', data);
+      if (response['success'] == true) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => ContactDetailsScreen()),
+          (route) => false,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['message'] ?? 'Failed to update eKYC'), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Network error'), backgroundColor: Colors.red),
+      );
+    }
   }
 }

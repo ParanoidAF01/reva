@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/authentication/signup/orginisationdetailscreen.dart';
 import '../components/mytextfield.dart';
+import 'package:provider/provider.dart';
+import 'package:reva/providers/user_provider.dart';
+import 'package:reva/services/api_service.dart';
 
 class CompleteProfileScreen extends StatefulWidget {
   final bool showBack;
@@ -46,7 +49,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     return regex.hasMatch(date.trim());
   }
 
-  void _validateAndProceed() {
+  Future<void> _validateAndProceed() async {
     final name = fullNameController.text;
     final dob = dobController.text;
     final designation = selectedDesignation;
@@ -73,13 +76,42 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       return;
     }
 
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const OrganisationDetailsScreen(),
-      ),
-      (route) => false,
-    );
+    // Save to provider
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.updateUserData({
+      'fullName': name,
+      'dob': dob,
+      'designation': designation,
+      'location': location,
+      'experience': experience,
+    });
+    // Send to backend
+    try {
+      final response = await ApiService().put('/profiles/', {
+        'fullName': name,
+        'dob': dob,
+        'designation': designation,
+        'location': location,
+        'experience': experience,
+      });
+      if (response['success'] == true) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const OrganisationDetailsScreen(),
+          ),
+          (route) => false,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['message'] ?? 'Failed to update profile'), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Network error'), backgroundColor: Colors.red),
+      );
+    }
   }
 
   @override

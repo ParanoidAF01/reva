@@ -8,7 +8,7 @@ import {
     sendConnectionRequest,
     getPendingRequests,
     respondToConnectionRequest,
-    getSentRequests
+    getSentRequests,
 } from "../controllers/connectionController.js";
 import { verifyJWT } from "../middlewares/authMiddleware.js";
 

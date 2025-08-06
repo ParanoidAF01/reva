@@ -226,7 +226,11 @@ const getConnectionCount = asyncHandler(async (req, res) => {
             const designation = connection.profile.designation;
             if (designationCounts.hasOwnProperty(designation)) {
                 designationCounts[designation]++;
+            } else {
+                designationCounts["Other"]++;
             }
+        } else {
+            designationCounts["Other"]++;
         }
     });
 

@@ -5,7 +5,8 @@ import 'package:reva/authentication/signup/preferencesScreen.dart';
 import '../components/mytextfield.dart';
 
 class ContactDetailsScreen extends StatefulWidget {
-  const ContactDetailsScreen({super.key});
+  final bool showBack;
+  const ContactDetailsScreen({Key? key, this.showBack = false}) : super(key: key);
 
   @override
   State<ContactDetailsScreen> createState() => _ContactDetailsScreenState();
@@ -53,6 +54,14 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: height * 0.07),
+                if (widget.showBack)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
                 const Center(
                   child: Text(
                     "Contact Details",

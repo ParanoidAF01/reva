@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:reva/authentication/login.dart';
 
-import 'package:reva/authentication/signup/CompleteProfileScreen.dart';
 import 'package:reva/authentication/signup/verifyotp.dart';
 import 'package:reva/services/auth_service.dart';
 import 'package:reva/providers/user_provider.dart';

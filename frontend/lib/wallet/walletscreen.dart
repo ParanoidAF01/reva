@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/wallet/wallettile.dart';
-import '../notification/notification.dart';
 import '../services/service_manager.dart';
 
 class WalletScreen extends StatefulWidget {

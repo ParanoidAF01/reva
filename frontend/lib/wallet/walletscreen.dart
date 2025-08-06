@@ -47,27 +47,26 @@ class _WalletScreenState extends State<WalletScreen> {
     var width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF22252A),
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          "Wallet",
+          style: GoogleFonts.dmSans(
+              fontSize: 26,
+              fontWeight: FontWeight.w700,
+              color: Colors.white),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            SizedBox(height: height * 0.1),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-              child: Row(
-                children: [
-                  const TriangleIcon(size: 20, color: Colors.white),
-                  SizedBox(width: width * 0.25),
-                  Text(
-                    "Wallet",
-                    style: GoogleFonts.dmSans(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: height * 0.08),
+            SizedBox(height: height * 0.04),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: width * 0.05),
               child: Row(

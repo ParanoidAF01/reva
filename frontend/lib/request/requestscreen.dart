@@ -4,7 +4,6 @@ import 'package:reva/request/requesttile.dart';
 import 'package:reva/services/service_manager.dart';
 import 'package:provider/provider.dart';
 
-import '../notification/notification.dart';
 
 // Provider for pending requests data
 class PendingRequestsProvider extends ChangeNotifier {

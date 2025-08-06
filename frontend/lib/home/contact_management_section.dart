@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:reva/redeem.dart';
 
 class ContactManagementSection extends StatelessWidget {
   final List<ContactCardData> contacts;
@@ -272,64 +273,104 @@ class AchievementCard extends StatelessWidget {
 class NfcCardWidget extends StatelessWidget {
   final NfcCardData data;
   const NfcCardWidget({super.key, required this.data});
-
   @override
   Widget build(BuildContext context) {
-    final requiredConnections = 500;
-    final achievementUnlocked = data.connectionsLeft >= requiredConnections;
-    final remainingConnections = achievementUnlocked ? 0 : (requiredConnections - data.connectionsLeft);
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: const Color(0xFF23262B),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.white24.withOpacity(0.18), width: 1.2),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    // Achievement unlocked if connectionsLeft >= 500
+    final int requiredConnections = 500;
+    final bool achievementUnlocked = data.connectionsLeft >= requiredConnections;
+    final int remainingConnections = achievementUnlocked ? 0 : (requiredConnections - data.connectionsLeft);
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: const Color(0xFF23262B),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: Colors.white24.withOpacity(0.18), width: 1.2),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(data.title, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: Colors.white)),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: achievementUnlocked ? Colors.grey : const Color(0xFF23262B),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.white24),
-                ),
-                child: Text(
-                  achievementUnlocked ? 'Claimed' : 'Claim now',
-                  style: GoogleFonts.dmSans(color: Colors.white, fontSize: 13),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(data.title, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: Colors.white)),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (context) => RedeemPage()),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF23262B),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.white24),
+                      ),
+                      child: Text('Buy?', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 13)),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 2),
+              Text(data.subtitle, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
+              const SizedBox(height: 10),
+              RichText(
+                text: TextSpan(
+                  text: achievementUnlocked
+                      ? 'Achievement unlocked!'
+                      : 'You need ',
+                  style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
+                  children: achievementUnlocked
+                      ? [
+                          TextSpan(
+                            text: '',
+                            style: GoogleFonts.dmSans(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 22),
+                          ),
+                        ]
+                      : [
+                          TextSpan(
+                            text: remainingConnections.toString(),
+                            style: GoogleFonts.dmSans(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 22),
+                          ),
+                          TextSpan(
+                            text: ' more connections to unlock achievement.',
+                            style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
+                          ),
+                        ],
                 ),
               ),
+              const SizedBox(height: 32), // Add more space for button overlap
             ],
           ),
-          const SizedBox(height: 2),
-          Text(data.subtitle, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
-          const SizedBox(height: 10),
-          RichText(
-            text: TextSpan(
-              text: achievementUnlocked ? 'Achievement unlocked!' : 'You need ',
-              style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
-              children: achievementUnlocked
-                  ? []
-                  : [
-                      TextSpan(
-                        text: remainingConnections.toString(),
-                        style: GoogleFonts.dmSans(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 22),
-                      ),
-                      TextSpan(
-                        text: ' more connections to unlock achievement.',
-                        style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
-                      ),
-                    ],
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: -24,
+          child: Center(
+            child: ElevatedButton.icon(
+              onPressed: achievementUnlocked ? data.onClaim : null,
+              icon: const Icon(Icons.lock, color: Colors.white, size: 18),
+              label: Text('Claim now', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF01416A),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                elevation: 2,
+                shadowColor: Colors.black.withOpacity(0.18),
+                minimumSize: const Size(0, 0),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                // Keep the color always, even when disabled
+                disabledBackgroundColor: const Color(0xFF01416A),
+              ),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

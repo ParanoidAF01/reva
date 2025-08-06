@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:reva/authentication/login.dart';
 
 import 'package:reva/authentication/signup/CompleteProfileScreen.dart';
+import 'package:reva/authentication/signup/verifyotp.dart';
 import 'package:reva/services/auth_service.dart';
 import 'package:reva/providers/user_provider.dart';
 
@@ -77,7 +78,7 @@ class _SignUpState extends State<SignUp> {
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-                builder: (context) => const CompleteProfileScreen()));
+                builder: (context) => const VerifyOtp()));
       } else {
         throw Exception(response['message'] ?? 'Signup failed');
       }

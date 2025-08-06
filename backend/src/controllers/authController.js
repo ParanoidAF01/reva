@@ -17,19 +17,19 @@ export const register = asyncHandler(async (req, res) => {
         email,
         mobileNumber,
         mpin,
-        otpVerified
     } = req.body;
+    if (!fullName || !email || !mobileNumber || !mpin) {
+        throw new ApiError(400, 'All fields are required');
+    }
+    if (!/^[0-9]{6}$/.test(mpin)) {
+        throw new ApiError(400, 'MPIN must be 6 digits long');
+    }
 
     const existingUser = await User.findOne({
         $or: [{ email }, { mobileNumber }]
     });
-
     if (existingUser) {
         throw new ApiError(400, 'User with this email or mobile number already exists');
-    }
-
-    if (!otpVerified) {
-        throw new ApiError(400, 'OTP verification is required');
     }
 
     const user = await User.create({

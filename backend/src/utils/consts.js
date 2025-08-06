@@ -38,4 +38,19 @@ const env = {
 
 }
 
+export const DESIGNATIONS = [
+    "Builder",
+    "Loan Provider",
+    "Interior Designer",
+    "Material Supplier",
+    "Legal Advisor",
+    "Vastu Consultant",
+    "Home Buyer",
+    "Property Investor",
+    "Construction Manager",
+    "Real Estate Agent",
+    "Technical Consultant",
+    "Other"
+];
+
 export default env;

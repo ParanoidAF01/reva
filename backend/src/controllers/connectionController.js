@@ -8,6 +8,7 @@ import {
     sendConnectionAcceptedNotification,
     sendConnectionRemovedNotification
 } from "../utils/notificationService.js";
+import { DESIGNATIONS } from "../utils/consts.js";
 
 const connectViaQR = asyncHandler(async (req, res) => {
     const currentUserId = req.user._id;
@@ -197,17 +198,49 @@ const getConnectionSuggestions = asyncHandler(async (req, res) => {
 });
 
 const getConnectionCount = asyncHandler(async (req, res) => {
-    const currentUserId = req.user._id;
+    const userId = req.user._id;
+    if (!userId) {
+        throw new ApiError(401, "User not found");
+    }
 
-    const user = await User.findById(currentUserId).select('connections');
+    const user = await User.findById(userId).populate({
+        path: 'connections',
+        select: 'profile',
+        populate: {
+            path: 'profile',
+            select: 'designation'
+        }
+    });
+
     if (!user) {
         throw new ApiError(404, "User not found");
     }
 
+    const designationCounts = {};
+    DESIGNATIONS.forEach(designation => {
+        designationCounts[designation] = 0;
+    });
+
+    user.connections.forEach(connection => {
+        if (connection.profile && connection.profile.designation) {
+            const designation = connection.profile.designation;
+            if (designationCounts.hasOwnProperty(designation)) {
+                designationCounts[designation]++;
+            } else {
+                designationCounts["Other"]++;
+            }
+        } else {
+            designationCounts["Other"]++;
+        }
+    });
+
+    const numberOfConnections = user.connections.length;
+
     return res.status(200).json(
         new ApiResponse(200, {
-            connectionCount: user.connections.length
-        }, "Connection count retrieved successfully")
+            numberOfConnections,
+            designationCounts
+        }, "Connection count and designation counts retrieved successfully")
     );
 });
 
@@ -275,7 +308,6 @@ const sendConnectionRequest = asyncHandler(async (req, res) => {
         }
     ]);
 
-    // Send notification to the target user
     try {
         await sendConnectionRequestNotification(
             toUserId,
@@ -364,7 +396,6 @@ const respondToConnectionRequest = asyncHandler(async (req, res) => {
         connectionRequest.status = "accepted";
         await connectionRequest.save();
 
-        // Update connections for both users
         await User.findByIdAndUpdate(currentUserId, {
             $push: { connections: connectionRequest.fromUser._id }
         });
@@ -373,7 +404,6 @@ const respondToConnectionRequest = asyncHandler(async (req, res) => {
             $push: { connections: currentUserId }
         });
 
-        // Update status for both users based on new connection count
         const currentUser = await User.findById(currentUserId);
         const fromUser = await User.findById(connectionRequest.fromUser._id);
 
@@ -387,7 +417,6 @@ const respondToConnectionRequest = asyncHandler(async (req, res) => {
             await fromUser.save();
         }
 
-        // Send notification to the sender that their request was accepted
         try {
             await sendConnectionAcceptedNotification(
                 connectionRequest.fromUser._id,
@@ -464,5 +493,5 @@ export {
     sendConnectionRequest,
     getPendingRequests,
     respondToConnectionRequest,
-    getSentRequests
+    getSentRequests,
 }; 

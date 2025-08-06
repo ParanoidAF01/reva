@@ -4,7 +4,8 @@ import 'package:reva/authentication/signup/orginisationdetailscreen.dart';
 import '../components/mytextfield.dart';
 
 class CompleteProfileScreen extends StatefulWidget {
-  const CompleteProfileScreen({super.key});
+  final bool showBack;
+  const CompleteProfileScreen({Key? key, this.showBack = false}) : super(key: key);
 
   @override
   State<CompleteProfileScreen> createState() => _CompleteProfileScreenState();
@@ -36,7 +37,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
   // Validation helpers
   bool _isValidFullName(String name) => name.trim().isNotEmpty;
-  bool _isValidDesignation(String designation) => designation.trim().isNotEmpty;
+  // bool _isValidDesignation(String designation) => designation.trim().isNotEmpty;
   bool _isValidLocation(String location) => locations.contains(location);
   bool _isValidExperience(String exp) => experiences.contains(exp);
   bool _isValidDate(String date) {

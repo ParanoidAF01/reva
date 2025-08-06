@@ -4,7 +4,8 @@ import 'package:reva/authentication/signup/specializationandrecongination.dart';
 
 
 class PreferencesScreen extends StatefulWidget {
-  const PreferencesScreen({super.key});
+  final bool showBack;
+  const PreferencesScreen({Key? key, this.showBack = false}) : super(key: key);
 
   @override
   State<PreferencesScreen> createState() => _PreferencesScreenState();
@@ -36,6 +37,14 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: height * 0.07),
+                if (widget.showBack)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
                 const Center(
                   child: Text(
                     "Preferences",

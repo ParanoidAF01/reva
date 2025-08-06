@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:reva/profile/profile_percentage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -174,7 +175,9 @@ class ProfileScreen extends StatelessWidget {
                                     title: const Text('Notifications', style: TextStyle(color: Colors.white)),
                                     onTap: () {
                                       Navigator.of(context).pop();
-                                      Navigator.of(context).pushNamed('/notification');
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(builder: (_) =>  ProfilePercentageScreen()),
+                                      );
                                     },
                                   ),
                                   ListTile(

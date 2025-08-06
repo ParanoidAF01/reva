@@ -337,7 +337,7 @@ class EventUserProfileScreen extends StatelessWidget {
             : assetPath != null
                 ? Padding(
                     padding: const EdgeInsets.all(7.0),
-                    child: Image.asset(assetPath!, fit: BoxFit.contain),
+                    child: Image.asset(assetPath, fit: BoxFit.contain),
                   )
                 : null,
       ),

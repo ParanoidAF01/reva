@@ -3,7 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/authentication/signup/contactdetailsscreen.dart';
 
 class EKycScreen extends StatelessWidget {
-  const EKycScreen({super.key});
+  final bool showBack;
+  const EKycScreen({Key? key, this.showBack = false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,6 +20,14 @@ class EKycScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: height * 0.07),
+              if (showBack)
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ),
               Center(
                 child: Text(
                   'E-KYC Verification',

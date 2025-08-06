@@ -5,7 +5,8 @@ import 'package:reva/authentication/signup/ekycscreen.dart';
 import '../components/mytextfield.dart';
 
 class OrganisationDetailsScreen extends StatefulWidget {
-  const OrganisationDetailsScreen({super.key});
+  final bool showBack;
+  const OrganisationDetailsScreen({Key? key, this.showBack = false}) : super(key: key);
 
   @override
   State<OrganisationDetailsScreen> createState() => _OrganisationDetailsScreenState();
@@ -86,6 +87,14 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: height * 0.06),
+                if (widget.showBack)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
                 const Center(
                   child: Text(
                     'Organisation Details',

@@ -73,18 +73,33 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       debugPrint('Available events: ${eventsData.map((e) => e['title']).toList()}');
       debugPrint('Looking for event: ${widget.eventId}');
 
+      // Try to find by _id first
       final found = eventsData.firstWhere(
         (e) {
-          final eventTitle = (e['title'] ?? '').toString().toLowerCase().trim();
-          final searchTitle = widget.eventId.toLowerCase().trim();
-          debugPrint('Comparing: "$eventTitle" with "$searchTitle"');
-          return eventTitle == searchTitle;
+          final eventId = (e['_id'] ?? '').toString();
+          final searchId = widget.eventId.toString();
+          debugPrint('Comparing: "$eventId" with "$searchId"');
+          return eventId == searchId;
         },
         orElse: () => null,
       );
 
-      if (found != null) {
-        event = EventModel.fromJson(found);
+      // If not found by _id, fallback to title
+      var eventData = found;
+      if (eventData == null) {
+        eventData = eventsData.firstWhere(
+          (e) {
+            final eventTitle = (e['title'] ?? '').toString().toLowerCase().trim();
+            final searchTitle = widget.eventId.toLowerCase().trim();
+            debugPrint('Comparing: "$eventTitle" with "$searchTitle"');
+            return eventTitle == searchTitle;
+          },
+          orElse: () => null,
+        );
+      }
+
+      if (eventData != null) {
+        event = EventModel.fromJson(eventData);
         debugPrint('Found event: ${event?.title}');
 
         // Check if user has already booked this event

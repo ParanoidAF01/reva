@@ -76,327 +76,374 @@ class ProfileScreen extends StatelessWidget {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     final userProvider = Provider.of<UserProvider>(context);
+    final userData = userProvider.userData ?? {};
+    final String userName = userProvider.userName;
+    final String userLocation = userData['location'] ?? "";
+    final String userExperience = userData['experience'] != null && userData['experience'].toString().isNotEmpty ? "${userData['experience'].toString()} yrs+" : "";
+    final String userLanguages = userData['languages'] ?? "";
+    final String profileImage = userData['profilePicture'] ?? userData['profileImage'] ?? 'assets/dummyprofile.png';
+    final int totalConnections = userData['connections'] is List ? (userData['connections'] as List).length : (userData['totalConnections'] ?? 0);
+    final int eventsAttended = userData['eventsAttended'] ?? (userData['events'] is List ? (userData['events'] as List).length : 0);
+    final String email = userData['user']?['email'] ?? userData['email'] ?? '';
+    final String phone = userData['user']?['mobileNumber'] ?? userData['mobileNumber'] ?? '';
+    final String tag1 = userData['tag1'] ?? "";
+    final String tag2 = userData['tag2'] ?? "";
+    final String tag3 = userData['tag3'] ?? "";
+
+    // Medal logic
+    String medalAsset = '';
+    if (eventsAttended < 20) {
+      medalAsset = 'assets/bronze.png';
+    } else if (eventsAttended < 60) {
+      medalAsset = 'assets/silver.png';
+    } else {
+      medalAsset = 'assets/gold.png';
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 18.0),
-              child: Row(
-                children: [
-                  Text(
-                    "Profile",
-                    style: GoogleFonts.dmSans(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.settings, color: Colors.white, size: 24),
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        backgroundColor: const Color(0xFF23262B),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
-                        ),
-                        builder: (context) {
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ListTile(
-                                leading: const Icon(Icons.account_balance_wallet, color: Colors.white),
-                                title: const Text('Wallet', style: TextStyle(color: Colors.white)),
-                                onTap: () {
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).pushNamed('/wallet');
-                                },
-                              ),
-                              ListTile(
-                                leading: const Icon(Icons.person, color: Colors.white),
-                                title: const Text('Get Subscription', style: TextStyle(color: Colors.white)),
-                                onTap: () {
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (_) => const StartSubscriptionPage()),
-                                  );
-                                },
-                              ),
-                              ListTile(
-                                leading: const Icon(Icons.help_center, color: Colors.white),
-                                title: const Text('Help Center', style: TextStyle(color: Colors.white)),
-                                onTap: () {
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (_) => const HelpCenterScreen()),
-                                  );
-                                },
-                              ),
-                              ListTile(
-                                leading: const Icon(Icons.notifications, color: Colors.white),
-                                title: const Text('Notifications', style: TextStyle(color: Colors.white)),
-                                onTap: () {
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).pushNamed('/notification');
-                                },
-                              ),
-                              ListTile(
-                                leading: const Icon(Icons.logout, color: Colors.white),
-                                title: const Text('Sign Out', style: TextStyle(color: Colors.white)),
-                                onTap: () async {
-                                  await AuthService().logout();
-                                  Navigator.of(context).pushAndRemoveUntil(
-                                    MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-                                    (route) => false,
-                                  );
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ],
+            Positioned.fill(
+              child: Image.asset(
+                'assets/profile_background.png',
+                fit: BoxFit.cover,
               ),
             ),
-            SizedBox(height: height * 0.03),
-            Stack(
-              alignment: Alignment.center,
+            Column(
               children: [
-                Container(
-                  height: height * 0.22,
-                  width: width,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFF1B2B3A),
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(60),
-                      bottomRight: Radius.circular(60),
-                    ),
-                  ),
-                ),
-                Column(
-                  children: [
-                    Stack(
-                      alignment: Alignment.bottomRight,
-                      children: [
-                        Builder(
-                          builder: (context) {
-                            final String? profilePic = userProvider.userData?['profilePicture'];
-                            final bool hasProfilePic = profilePic != null && profilePic.isNotEmpty && !profilePic.contains('assets/');
-                            return CircleAvatar(
-                              radius: 54,
-                              backgroundImage: hasProfilePic ? NetworkImage(profilePic) : const AssetImage('assets/dummyprofile.png') as ImageProvider,
-                            );
-                          },
+                Padding(
+                  padding: EdgeInsets.only(top: height * 0.02, left: 16, right: 16),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                      const Spacer(),
+                      Text(
+                        "Profile",
+                        style: GoogleFonts.dmSans(
+                          fontSize: 26,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
                         ),
-                        Positioned(
-                          bottom: 8,
-                          right: 8,
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => EditProfileScreen(),
-                                ),
+                      ),
+                      const Spacer(),
+                      IconButton(
+                        icon: const Icon(Icons.settings, color: Colors.white, size: 24),
+                        onPressed: () {
+                          showModalBottomSheet(
+                            context: context,
+                            backgroundColor: const Color(0xFF23262B),
+                            shape: const RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+                            ),
+                            builder: (context) {
+                              return Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  ListTile(
+                                    leading: const Icon(Icons.account_balance_wallet, color: Colors.white),
+                                    title: const Text('Wallet', style: TextStyle(color: Colors.white)),
+                                    onTap: () {
+                                      Navigator.of(context).pop();
+                                      Navigator.of(context).pushNamed('/wallet');
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.person, color: Colors.white),
+                                    title: const Text('Get Subscription', style: TextStyle(color: Colors.white)),
+                                    onTap: () {
+                                      Navigator.of(context).pop();
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(builder: (_) => const StartSubscriptionPage()),
+                                      );
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.help_center, color: Colors.white),
+                                    title: const Text('Help Center', style: TextStyle(color: Colors.white)),
+                                    onTap: () {
+                                      Navigator.of(context).pop();
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(builder: (_) => const HelpCenterScreen()),
+                                      );
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.notifications, color: Colors.white),
+                                    title: const Text('Notifications', style: TextStyle(color: Colors.white)),
+                                    onTap: () {
+                                      Navigator.of(context).pop();
+                                      Navigator.of(context).pushNamed('/notification');
+                                    },
+                                  ),
+                                  ListTile(
+                                    leading: const Icon(Icons.logout, color: Colors.white),
+                                    title: const Text('Sign Out', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                    onTap: () async {
+                                      await AuthService().logout();
+                                      Navigator.of(context).pushAndRemoveUntil(
+                                        MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+                                        (route) => false,
+                                      );
+                                    },
+                                  ),
+                                ],
                               );
                             },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
-                              ),
-                              padding: const EdgeInsets.all(4),
-                              child: const Icon(Icons.edit, size: 18, color: Color(0xFF0262AB)),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      userProvider.userName,
-                      style: GoogleFonts.dmSans(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 24,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: height * 0.03),
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+                        );
+                      },
+                      child: CircleAvatar(
+                        radius: width * 0.16,
+                        backgroundImage: (profileImage.toString().isNotEmpty && !profileImage.toString().contains('assets/')) ? NetworkImage(profileImage) : AssetImage('assets/dummyprofile.png') as ImageProvider,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      userProvider.userData?['location'] ?? 'Location not set',
-                      style: GoogleFonts.dmSans(
-                        color: Colors.white.withOpacity(0.7),
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16,
+                    Positioned(
+                      bottom: -30,
+                      right: -30, // Fixed offset for position
+                      child: Image.asset(
+                        medalAsset,
+                        width: width * 0.30, // Only this controls size
+                        height: width * 0.30, // Only this controls size
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
-            SizedBox(height: height * 0.03),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.access_time, color: Colors.white70, size: 18),
-                  const SizedBox(width: 6),
+                SizedBox(height: height * 0.01),
+                Text(
+                  userName,
+                  style: GoogleFonts.dmSans(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 24,
+                  ),
+                ),
+                if (userLocation.isNotEmpty)
                   Text(
-                    (userProvider.userData?['experience'] != null ? (userProvider.userData!['experience'].toString().isNotEmpty ? userProvider.userData!['experience'].toString() + ' yrs+' : 'Experience not set') : 'Experience not set'),
-                    style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14),
-                  ),
-                  const SizedBox(width: 16),
-                  const Icon(Icons.circle, color: Colors.white38, size: 6),
-                  const SizedBox(width: 16),
-                  Text((userProvider.userData?['languages'] != null ? (userProvider.userData!['languages'].toString().isNotEmpty ? userProvider.userData!['languages'] : 'Languages not set') : 'Languages not set'), style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14)),
-                ],
-              ),
-            ),
-            SizedBox(height: height * 0.025),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: _ProfileStatCard(
-                      icon: Icons.people,
-                      label: 'Total Connections',
-                      value: userProvider.userData?['totalConnections']?.toString() ?? '0',
+                    userLocation,
+                    style: GoogleFonts.dmSans(
+                      color: Colors.white.withOpacity(0.8),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 20,
                     ),
                   ),
-                  const SizedBox(width: 18),
-                  Expanded(
-                    child: _ProfileStatCard(
-                      icon: Icons.celebration,
-                      label: 'Events Attended',
-                      value: userProvider.userData?['eventsAttended']?.toString() ?? '0',
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: height * 0.025),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.phone, color: Colors.white70, size: 18),
-                      const SizedBox(width: 8),
-                      Text(userProvider.userData?['user']?['mobileNumber'] ?? 'Phone not set', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Icons.email, color: Colors.white70, size: 18),
-                      const SizedBox(width: 8),
-                      Text(userProvider.userData?['user']?['email'] ?? 'Email not set', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 24.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _SocialIconButton(
-                    assetPath: 'assets/whatsapp.png',
-                    onTap: () async {
-                      final url = Uri.parse('https://wa.me/');
-                      if (await canLaunch(url.toString())) {
-                        await launch(url.toString());
-                      }
-                    },
-                  ),
-                  const SizedBox(width: 18),
-                  _SocialIconButton(
-                    icon: Icons.facebook,
-                    onTap: () async {
-                      final url = Uri.parse('https://facebook.com');
-                      if (await canLaunch(url.toString())) {
-                        await launch(url.toString());
-                      }
-                    },
-                  ),
-                  const SizedBox(width: 18),
-                  _SocialIconButton(
-                    icon: Icons.camera_alt,
-                    onTap: () async {
-                      // Open camera app (Android only)
-                      // Removed unused cameraScheme variable
-                      final url = Uri.parse('intent://camera#Intent;scheme=package;package=com.android.camera;end');
-                      if (await canLaunch(url.toString())) {
-                        await launch(url.toString());
-                      }
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-            // Sign Out Button
-            Padding(
-              padding: const EdgeInsets.only(bottom: 32.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: width * 0.5,
-                    height: 44,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFB00020),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                SizedBox(height: height * 0.01),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (userExperience.isNotEmpty)
+                      Text(
+                        userExperience,
+                        style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14),
+                      ),
+                    if (userExperience.isNotEmpty && userLanguages.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                        child: Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: Colors.white38,
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ),
-                      icon: const Icon(Icons.logout, color: Colors.white),
-                      label: const Text('Sign Out', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                      onPressed: () async {
-                        bool error = false;
-                        try {
-                          await AuthService().logout();
-                        } catch (e) {
-                          error = true;
-                          // Always clear tokens even if API fails
-                          await AuthService().deleteToken('accessToken');
-                          await AuthService().deleteToken('refreshToken');
-                        }
-                        if (context.mounted) {
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-                            (route) => false,
-                          );
-                          if (error) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Session expired or already logged out.')),
-                            );
-                          }
+                    if (userLanguages.isNotEmpty)
+                      Text(
+                        userLanguages,
+                        style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14),
+                      ),
+                  ],
+                ),
+                SizedBox(height: height * 0.01),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (tag1.isNotEmpty) _tagChip(tag1),
+                    if (tag2.isNotEmpty) ...[
+                      SizedBox(width: 8),
+                      _tagChip(tag2),
+                    ],
+                    if (tag3.isNotEmpty) ...[
+                      SizedBox(width: 8),
+                      _tagChip(tag3),
+                    ],
+                  ],
+                ),
+                SizedBox(height: height * 0.03),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: 12),
+                        padding: EdgeInsets.symmetric(vertical: 18),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.18),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(Icons.people, color: Colors.white, size: 28),
+                            SizedBox(height: 6),
+                            Text(
+                              totalConnections.toString(),
+                              style: GoogleFonts.dmSans(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 22,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'Total Connections',
+                              style: GoogleFonts.dmSans(
+                                color: Colors.white.withOpacity(0.7),
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: 12),
+                        padding: EdgeInsets.symmetric(vertical: 18),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.18),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(Icons.celebration, color: Colors.white, size: 28),
+                            SizedBox(height: 6),
+                            Text(
+                              eventsAttended.toString(),
+                              style: GoogleFonts.dmSans(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 22,
+                              ),
+                            ),
+                            SizedBox(height: 2),
+                            Text(
+                              'Events Attended',
+                              style: GoogleFonts.dmSans(
+                                color: Colors.white.withOpacity(0.7),
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: height * 0.06),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: width * 0.12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.phone, color: Colors.white70, size: 18),
+                          SizedBox(width: 8),
+                          Text(phone, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.email, color: Colors.white70, size: 18),
+                          SizedBox(width: 8),
+                          Text(email, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: height * 0.04),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _SocialIconButton(
+                      assetPath: 'assets/whatsapp.png',
+                      onTap: () async {
+                        final url = Uri.parse('https://wa.me/');
+                        if (await canLaunch(url.toString())) {
+                          await launch(url.toString());
                         }
                       },
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+                    SizedBox(width: 18),
+                    _SocialIconButton(
+                      icon: Icons.facebook,
+                      onTap: () async {
+                        final url = Uri.parse('https://facebook.com');
+                        if (await canLaunch(url.toString())) {
+                          await launch(url.toString());
+                        }
+                      },
+                    ),
+                    SizedBox(width: 18),
+                    _SocialIconButton(
+                      icon: Icons.camera_alt,
+                      onTap: () async {
+                        final url = Uri.parse('intent://camera#Intent;scheme=package;package=com.android.camera;end');
+                        if (await canLaunch(url.toString())) {
+                          await launch(url.toString());
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ], // End of children for Column
+            ), // End of Column
+          ], // End of children for Stack
+        ), // End of Stack
+      ), // End of SafeArea
+    ); // End of Scaffold
+  }
+
+  // Add missing _tagChip method outside build
+  Widget _tagChip(String tag) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white24, width: 1),
+      ),
+      child: Text(
+        tag,
+        style: GoogleFonts.dmSans(
+          color: Colors.white,
+          fontWeight: FontWeight.w500,
+          fontSize: 13,
         ),
       ),
     );
   }
-}
+} // End of ProfileScreen class

@@ -55,6 +55,12 @@ const userSchema = new mongoose.Schema({
         default: false
     },
 
+    status: {
+        type: String,
+        enum: ['bronze', 'silver', 'gold'],
+        default: 'bronze'
+    },
+
     profile: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Profile",
@@ -106,6 +112,21 @@ userSchema.pre('save', async function (next) {
         next(error);
     }
 });
+
+// Method to update user status based on connections count
+userSchema.methods.updateStatus = function () {
+    const connectionsCount = this.connections.length;
+
+    if (connectionsCount >= 1000) {
+        this.status = 'gold';
+    } else if (connectionsCount >= 500) {
+        this.status = 'silver';
+    } else {
+        this.status = 'bronze';
+    }
+
+    return this.status;
+};
 
 userSchema.methods.compareMpin = async function (candidateMpin) {
     return bcrypt.compare(candidateMpin, this.mpin);

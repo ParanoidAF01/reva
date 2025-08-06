@@ -50,7 +50,14 @@ const getMyNotifications = asyncHandler(async (req, res) => {
     }
 
     const notifications = await Notification.find(query)
-        .populate('sender', 'fullName email profilePicture')
+        .populate({
+            path: 'sender',
+            select: 'fullName email status',
+            populate: {
+                path: 'profile',
+                select: 'profilePicture'
+            }
+        })
         .sort({ createdAt: -1 })
         .limit(limit * 1)
         .skip((page - 1) * limit)
@@ -80,7 +87,14 @@ const getNotificationById = asyncHandler(async (req, res) => {
 
     const notification = await Notification.findById(notificationId)
         .populate('recipient', 'fullName email')
-        .populate('sender', 'fullName email profilePicture');
+        .populate({
+            path: 'sender',
+            select: 'fullName email status',
+            populate: {
+                path: 'profile',
+                select: 'profilePicture'
+            }
+        });
 
     if (!notification) {
         throw new ApiError(404, "Notification not found");
@@ -112,7 +126,14 @@ const markAsRead = asyncHandler(async (req, res) => {
         notificationId,
         { isRead: true },
         { new: true }
-    ).populate('sender', 'fullName email profilePicture');
+    ).populate({
+        path: 'sender',
+        select: 'fullName email status',
+        populate: {
+            path: 'profile',
+            select: 'profilePicture'
+        }
+    });
 
     return res.status(200).json(
         new ApiResponse(200, updatedNotification, "Notification marked as read")

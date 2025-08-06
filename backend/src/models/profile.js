@@ -21,7 +21,7 @@ const profileSchema = new mongoose.Schema({
     },
     designation: {
         type: String,
-        enum: ["CEO", "CTO", "CFO", "COO", "CMO", "Founder", "Other"],
+        enum: ["Builder", "Loan Provider", "Interior Designer", "Material Supplier", "Legal Advisor", "Vastu Consultant", "Home Buyer", "Property Investor"],
     },
     experience: {
         type: Number,

@@ -17,6 +17,7 @@ export const register = asyncHandler(async (req, res) => {
         email,
         mobileNumber,
         mpin,
+        otpVerified
     } = req.body;
 
     const existingUser = await User.findOne({
@@ -25,6 +26,10 @@ export const register = asyncHandler(async (req, res) => {
 
     if (existingUser) {
         throw new ApiError(400, 'User with this email or mobile number already exists');
+    }
+
+    if (!otpVerified) {
+        throw new ApiError(400, 'OTP verification is required');
     }
 
     const user = await User.create({
@@ -41,7 +46,6 @@ export const register = asyncHandler(async (req, res) => {
     await user.save();
     await profile.save();
 
-    // Send welcome notification
     try {
         await sendWelcomeNotification(user._id, user.fullName);
     } catch (error) {
@@ -73,6 +77,10 @@ export const login = asyncHandler(async (req, res) => {
 
     if (!user) {
         throw new ApiError(401, 'Invalid mobile number or MPIN');
+    }
+
+    if (!user.otpVerified) {
+        throw new ApiError(401, 'OTP verification is required');
     }
 
     const isMpinValid = await user.compareMpin(mpin);
@@ -186,7 +194,7 @@ export const sendOtp = asyncHandler(async (req, res) => {
 
     try {
         const response = await axios.post(env.otp.verifyUrl, {
-            "Text": `Use ${otp} as your User Verification code. Expires in 5 minutes. This code is Confidential. Never Share it with anyone for your safety. LEXORA`,
+            "Text": `Use ${otp} as your User Verification code. This code is Confidential. Never Share it with anyone for your safety. LEXORA`,
             "Number": "91" + mobileNumber,
             "SenderId": "LEXORA",
             "DRNotifyUrl": "https://www.domainname.com/notifyurl",

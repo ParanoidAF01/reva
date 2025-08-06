@@ -62,10 +62,10 @@ const getMyConnections = asyncHandler(async (req, res) => {
     const user = await User.findById(currentUserId)
         .populate({
             path: 'connections',
-            select: 'fullName mobileNumber profilePicture profile',
+            select: 'fullName mobileNumber status',
             populate: {
                 path: 'profile',
-                select: 'designation location organization'
+                select: 'profilePicture designation location organization'
             }
         })
         .select('connections');
@@ -118,6 +118,20 @@ const removeConnection = asyncHandler(async (req, res) => {
         $pull: { connections: currentUserId }
     });
 
+    // Update status for both users based on new connection count
+    const updatedCurrentUser = await User.findById(currentUserId);
+    const updatedConnectionUser = await User.findById(connectionId);
+
+    if (updatedCurrentUser) {
+        updatedCurrentUser.updateStatus();
+        await updatedCurrentUser.save();
+    }
+
+    if (updatedConnectionUser) {
+        updatedConnectionUser.updateStatus();
+        await updatedConnectionUser.save();
+    }
+
     return res.status(200).json(
         new ApiResponse(200, {}, "Connection removed successfully")
     );
@@ -161,8 +175,11 @@ const getConnectionSuggestions = asyncHandler(async (req, res) => {
     }
 
     const suggestions = await User.find(query)
-        .select('fullName mobileNumber profilePicture profile')
-        .populate('profile', 'designation location organization')
+        .select('fullName mobileNumber status')
+        .populate({
+            path: 'profile',
+            select: 'profilePicture designation location organization'
+        })
         .limit(limit * 1)
         .skip((page - 1) * limit)
         .exec();
@@ -242,11 +259,19 @@ const sendConnectionRequest = asyncHandler(async (req, res) => {
     await connectionRequest.populate([
         {
             path: 'fromUser',
-            select: 'fullName mobileNumber profilePicture'
+            select: 'fullName mobileNumber status',
+            populate: {
+                path: 'profile',
+                select: 'profilePicture'
+            }
         },
         {
             path: 'toUser',
-            select: 'fullName mobileNumber profilePicture'
+            select: 'fullName mobileNumber status',
+            populate: {
+                path: 'profile',
+                select: 'profilePicture'
+            }
         }
     ]);
 
@@ -289,10 +314,10 @@ const getPendingRequests = asyncHandler(async (req, res) => {
     const pendingRequests = await ConnectionRequest.find(query)
         .populate({
             path: 'fromUser',
-            select: 'fullName mobileNumber profilePicture profile',
+            select: 'fullName mobileNumber status',
             populate: {
                 path: 'profile',
-                select: 'designation location organization'
+                select: 'profilePicture designation location organization'
             }
         })
         .sort({ createdAt: -1 })
@@ -339,6 +364,7 @@ const respondToConnectionRequest = asyncHandler(async (req, res) => {
         connectionRequest.status = "accepted";
         await connectionRequest.save();
 
+        // Update connections for both users
         await User.findByIdAndUpdate(currentUserId, {
             $push: { connections: connectionRequest.fromUser._id }
         });
@@ -346,6 +372,20 @@ const respondToConnectionRequest = asyncHandler(async (req, res) => {
         await User.findByIdAndUpdate(connectionRequest.fromUser._id, {
             $push: { connections: currentUserId }
         });
+
+        // Update status for both users based on new connection count
+        const currentUser = await User.findById(currentUserId);
+        const fromUser = await User.findById(connectionRequest.fromUser._id);
+
+        if (currentUser) {
+            currentUser.updateStatus();
+            await currentUser.save();
+        }
+
+        if (fromUser) {
+            fromUser.updateStatus();
+            await fromUser.save();
+        }
 
         // Send notification to the sender that their request was accepted
         try {
@@ -392,10 +432,10 @@ const getSentRequests = asyncHandler(async (req, res) => {
     const sentRequests = await ConnectionRequest.find(query)
         .populate({
             path: 'toUser',
-            select: 'fullName mobileNumber profilePicture profile',
+            select: 'fullName mobileNumber status',
             populate: {
                 path: 'profile',
-                select: 'designation location organization'
+                select: 'profilePicture designation location organization'
             }
         })
         .sort({ createdAt: -1 })

@@ -63,11 +63,9 @@ const createSubscription = asyncHandler(async (req, res) => {
         user: userId,
         status: 'active'
     });
-    if (existingActiveSubscription) {
-        throw new ApiError(400, "User already has an active subscription");
-    }
 
-    const startDate = new Date();
+    let subscription;
+    let startDate = new Date();
     let endDate;
 
     switch (plan) {
@@ -84,15 +82,32 @@ const createSubscription = asyncHandler(async (req, res) => {
             throw new ApiError(400, "Invalid billing cycle");
     }
 
-    const subscription = await Subscription.create({
-        user: userId,
-        plan,
-        amountPaid,
-        status: 'active',
-        startDate,
-        endDate,
-        paymentMethod
-    });
+    if (existingActiveSubscription) {
+        const currentEndDate = new Date(existingActiveSubscription.endDate);
+        const extensionDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (24 * 60 * 60 * 1000));
+
+        const newEndDate = new Date(currentEndDate.getTime() + (extensionDays * 24 * 60 * 60 * 1000));
+
+        existingActiveSubscription.endDate = newEndDate;
+        existingActiveSubscription.amountPaid += amountPaid;
+        await existingActiveSubscription.save();
+
+        subscription = existingActiveSubscription;
+    } else {
+        subscription = await Subscription.create({
+            user: userId,
+            plan,
+            amountPaid,
+            status: 'active',
+            startDate,
+            endDate,
+            paymentMethod
+        });
+
+        await User.findByIdAndUpdate(userId, {
+            subscription: subscription._id
+        });
+    }
 
     const transaction = await Transaction.create({
         user: userId,
@@ -103,15 +118,11 @@ const createSubscription = asyncHandler(async (req, res) => {
         paymentMethod
     });
 
-    await User.findByIdAndUpdate(userId, {
-        subscription: subscription._id
-    });
-
     try {
         await sendSubscriptionUpdateNotification(
             userId,
             plan,
-            'active'
+            existingActiveSubscription ? 'extended' : 'active'
         );
     } catch (error) {
         console.error('Failed to send subscription notification:', error);
@@ -121,7 +132,7 @@ const createSubscription = asyncHandler(async (req, res) => {
         .populate('user', 'fullName email');
 
     return res.status(201).json(
-        new ApiResponse(201, populatedSubscription, "Subscription created successfully")
+        new ApiResponse(201, populatedSubscription, existingActiveSubscription ? "Subscription extended successfully" : "Subscription created successfully")
     );
 });
 

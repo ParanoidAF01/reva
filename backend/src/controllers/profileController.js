@@ -12,7 +12,7 @@ const getMyProfile = asyncHandler(async (req, res) => {
     }
 
     const profile = await Profile.findOne({ user: userId })
-        .populate('user', 'fullName email mobileNumber');
+        .populate('user', 'fullName email mobileNumber status');
     if (!profile) {
         throw new ApiError(404, "Profile not found");
     }
@@ -34,7 +34,7 @@ const getProfileById = asyncHandler(async (req, res) => {
     }
 
     const profile = await Profile.findOne({ user: userId })
-        .populate('user', 'fullName email mobileNumber');
+        .populate('user', 'fullName email mobileNumber status');
     if (!profile) {
         throw new ApiError(404, "Profile not found");
     }
@@ -60,7 +60,8 @@ const getProfileById = asyncHandler(async (req, res) => {
             _id: profile.user._id,
             fullName: "***",
             email: "***",
-            mobileNumber: "***"
+            mobileNumber: "***",
+            status: profile.user.status
         },
         profilePicture: profile.profilePicture,
         designation: "***",
@@ -97,7 +98,6 @@ const updateProfile = asyncHandler(async (req, res) => {
         { new: true, runValidators: true }
     );
 
-    // Send profile update notification
     try {
         const updatedFields = Object.keys(req.body);
         if (updatedFields.length > 0) {

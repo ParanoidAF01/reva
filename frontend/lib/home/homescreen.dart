@@ -574,7 +574,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                       label: 'Your progress',
                       unlockText: 'to Unlock',
-                      unlockCard: 'Gold card',
+                      unlockCard: 'Silver card',
                       width: width,
                     ),
                     SizedBox(height: height * 0.01),

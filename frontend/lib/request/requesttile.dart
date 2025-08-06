@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:reva/services/service_manager.dart';
-import 'package:reva/qr/qr_scan_screen.dart';
 
 class RequestTile extends StatelessWidget {
   final String name;
@@ -19,13 +18,36 @@ class RequestTile extends StatelessWidget {
   });
 
   Future<void> _handleAccept(BuildContext context) async {
-    // Navigate to QR scan screen instead of calling accept endpoint
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const QrScanScreen(),
-      ),
-    );
+    await ServiceManager.instance.connections.sendConnectionRequest(requestId);
+    if (context.mounted) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => Scaffold(
+            backgroundColor: const Color(0xFF22252A),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.green, size: 80),
+                  const SizedBox(height: 24),
+                  const Text('Connection request sent!', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0262AB),
+                      shape: const StadiumBorder(),
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 32),
+                    ),
+                    child: const Text('Close', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> _handleReject(BuildContext context) async {

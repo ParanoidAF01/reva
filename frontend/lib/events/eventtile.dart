@@ -63,7 +63,8 @@ class EventTile extends StatelessWidget {
     } else {
       progressColor = const Color.fromARGB(255, 243, 33, 33);
     }
-    String seatsText = maxAttendees > 0 ? "${attendeeCount} of ${maxAttendees} Seats left" : "";
+    int attendeeLeft = maxAttendees > 0 ? maxAttendees - attendeeCount : 0;
+    String seatsText = maxAttendees > 0 ? "${attendeeLeft} of ${maxAttendees} Seats left" : "";
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),

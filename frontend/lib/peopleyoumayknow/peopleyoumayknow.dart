@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:reva/contacts/contacts.dart';
 
 import 'package:reva/peopleyoumayknow/peopleyoumayknowtile.dart';
-import 'package:reva/request/requestscreen.dart';
 import 'package:reva/services/service_manager.dart';
 import 'package:provider/provider.dart';
 
@@ -163,70 +161,6 @@ class _PeopleYouMayKnowBodyState extends State<_PeopleYouMayKnowBody> {
                   ),
                 ],
               ),
-            ),
-          ),
-
-          // Action buttons
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: width * 0.05),
-            child: Column(
-              children: [
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const Contacts()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: widget.height * 0.018),
-                      backgroundColor: const Color(0xFF0262AB),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'Find in Contacts',
-                      style: GoogleFonts.dmSans(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const RequestScreen()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: height * 0.018),
-                      backgroundColor: const Color(0xFF0262AB),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Text(
-                      'View Requests',
-                      style: GoogleFonts.dmSans(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
             ),
           ),
 

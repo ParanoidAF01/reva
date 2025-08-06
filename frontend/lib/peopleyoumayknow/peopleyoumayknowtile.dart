@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:reva/shared/profile_modal.dart';
+import 'package:reva/peopleyoumayknow/people_connect_screen.dart';
 
 class PeopleYouMayKnowCard extends StatelessWidget {
   final String name;
@@ -84,29 +84,28 @@ class PeopleYouMayKnowCard extends StatelessWidget {
                           height: 1.1,
                         ),
                       )
-                    : Icon(
-                        Icons.star,
-                        color: Colors.white,
-                        size: 18,
+                    : Text(
+                        "not available",
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Color(0xFFB1B5BA),
+                          fontSize: 11.5,
+                        ),
                       ),
               ),
               const SizedBox(height: 2),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  location.isNotEmpty
-                      ? Text(
+                  
+                      Text(
                           location,
                           style: const TextStyle(
                             color: Color(0xFFB1B5BA),
                             fontSize: 10.5,
                           ),
                         )
-                      : Icon(
-                          Icons.star,
-                          color: Colors.white,
-                          size: 16,
-                        ),
+                     
                 ],
               ),
               const SizedBox(height: 2),
@@ -114,17 +113,13 @@ class PeopleYouMayKnowCard extends StatelessWidget {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => Dialog(
-                        backgroundColor: Colors.transparent,
-                        insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-                        child: ProfileModal(
-                          name: name,
-                          image: image,
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PeopleConnectScreen(
                           userId: userId,
-                          isConnection: false,
-                          mobileNumber: '******', // We don't have mobile number in suggestions
+                          initialName: name,
+                          initialImage: image,
                         ),
                       ),
                     );

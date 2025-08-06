@@ -153,7 +153,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       onPressed: _saveProfile,
-                      child: const Text('Save', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                      child: const Text('Save', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,color: Colors.white)),
                     ),
                   ),
                 ],

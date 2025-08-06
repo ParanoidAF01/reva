@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:reva/shared/profile_modal.dart';
+import 'package:reva/services/service_manager.dart';
 
 class ContactTile extends StatelessWidget {
   final String name;
@@ -101,27 +101,43 @@ class ContactTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             child: InkWell(
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => Dialog(
-                    backgroundColor: Colors.transparent,
-                    insetPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 24),
-                    child: ProfileModal(
-                      name: name,
-                      image: image,
-                      userId: userId,
-                      mobileNumber: mobileNumber,
-                      isConnection: true,
+              onTap: () async {
+                await ServiceManager.instance.connections.sendConnectionRequest(userId);
+                if (context.mounted) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => Scaffold(
+                        backgroundColor: const Color(0xFF22252A),
+                        body: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.check_circle, color: Colors.green, size: 80),
+                              const SizedBox(height: 24),
+                              const Text('Connection request sent!', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF0262AB),
+                                  shape: const StadiumBorder(),
+                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 32),
+                                ),
+                                child: const Text('Close', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                );
+                  );
+                }
               },
               borderRadius: BorderRadius.circular(6),
               child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                 child: Text(
-                  'View',
+                  'Connect',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,

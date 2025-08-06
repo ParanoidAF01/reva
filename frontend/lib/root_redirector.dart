@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 import 'package:reva/authentication/welcomescreen.dart';
@@ -62,14 +63,20 @@ class _RootRedirectorState extends State<RootRedirector> {
 
   @override
   Widget build(BuildContext context) {
-    // Simple splash screen with logo.png
+    // Splash screen with Lottie animation
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/logo.png', width: 80, height: 80),
+            Lottie.network(
+              'https://cdn.lottielab.com/l/88RomMJcwji6xU.json',
+              width: 500,
+              height: 500,
+              fit: BoxFit.contain,
+              repeat: true,
+            ),
             const SizedBox(height: 24),
             const Text('REVA',
                 style: TextStyle(

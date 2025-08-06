@@ -179,11 +179,35 @@ class _HomeScreenState extends State<HomeScreen> {
       if (response['success'] == true) {
         final suggestions = response['data']['suggestions'] ?? [];
         final mapped = suggestions
-            .map((person) => {
-                  'name': person['fullName'] ?? 'Unknown',
-                  'image': person['profile'] ?? 'assets/dummyprofile.png',
-                  'mobileNumber': person['mobileNumber'] ?? '',
-                })
+            .map((person) {
+              String imageUrl = '';
+              String location = '';
+              String designation = '';
+              if (person['profile'] is Map) {
+                if (person['profile']['profilePicture'] is String && person['profile']['profilePicture'].isNotEmpty) {
+                  imageUrl = person['profile']['profilePicture'];
+                }
+                if (person['profile']['location'] is String) {
+                  location = person['profile']['location'];
+                }
+                if (person['profile']['designation'] is String) {
+                  designation = person['profile']['designation'];
+                }
+              } else if (person['profile'] is String && person['profile'].isNotEmpty) {
+                imageUrl = person['profile'];
+              }
+              if (imageUrl.isEmpty) {
+                imageUrl = 'assets/dummyprofile.png';
+              }
+              return {
+                'name': person['fullName'] ?? 'Unknown',
+                'image': imageUrl,
+                'location': location,
+                'designation': designation,
+                'mobileNumber': person['mobileNumber'] ?? '',
+                'userId': person['_id'] ?? person['userId'] ?? '',
+              };
+            })
             .toList();
         setState(() {
           peopleYouMayKnow = mapped;
@@ -666,10 +690,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             return SizedBox(
                               width: width * 0.42,
                               child: PeopleYouMayKnowCard(
-                                name: person['fullName'] ?? person['name'] ?? 'Unknown',
-                                image: person['profile'] ?? person['image'] ?? 'assets/dummyprofile.png',
-                                userId: person['userId'] ?? '', // Pass userId as required
-                                // Add more fields as needed
+                                name: person['name'] ?? 'Unknown',
+                                image: person['image'] ?? 'assets/dummyprofile.png',
+                                userId: person['userId'] ?? '',
+                                location: person['location'] ?? '',
+                                designation: person['designation'] ?? '',
                               ),
                             );
                           },

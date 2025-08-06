@@ -117,10 +117,7 @@ class ProfileScreen extends StatelessWidget {
                   padding: EdgeInsets.only(top: height * 0.02, left: 16, right: 16),
                   child: Row(
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
+                      // Back button removed
                       const Spacer(),
                       Text(
                         "Profile",

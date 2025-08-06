@@ -76,12 +76,19 @@ class _PeopleYouMayKnowBodyState extends State<_PeopleYouMayKnowBody> {
         final suggestions = response['data']['suggestions'] ?? [];
         // Map API fields to card fields
         final mapped = suggestions
-            .map((person) => {
-                  'name': person['fullName'] ?? 'Unknown',
-                  'image': person['profile'] ?? 'assets/dummyprofile.png',
-                  'mobileNumber': person['mobileNumber'] ?? '',
-                  'userId': person['_id'] ?? '',
-                })
+            .map((person) {
+              String imageUrl = '';
+              if (person['profile'] != null && person['profile'] is String && person['profile'].isNotEmpty) {
+                imageUrl = person['profile'];
+              }
+              return {
+                'name': person['fullName'] ?? 'Unknown',
+                'image': imageUrl.isNotEmpty ? imageUrl : 'assets/dummyprofile.png',
+                'mobileNumber': person['mobileNumber'] ?? '',
+                'userId': person['_id'] ?? '',
+                'location': person['location'] is String ? person['location'] : '',
+              };
+            })
             .toList();
         provider.setPeople(mapped);
       } else {

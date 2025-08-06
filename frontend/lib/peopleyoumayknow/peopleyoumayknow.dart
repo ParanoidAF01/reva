@@ -74,12 +74,25 @@ class _PeopleYouMayKnowBodyState extends State<_PeopleYouMayKnowBody> {
       if (response['success'] == true) {
         final suggestions = response['data']['suggestions'] ?? [];
         final mapped = suggestions
-            .map((person) => {
-                  'name': person['fullName'] ?? 'Unknown',
-                  'image': person['profilePicture'] ?? person['profile'] ?? 'assets/dummyprofile.png',
-                  'mobileNumber': person['mobileNumber'] ?? '',
-                  'userId': person['_id'] ?? '',
-                })
+            .map((person) {
+              var img = '';
+              if (person['profile'] is Map && person['profile']['profilePicture'] is String && person['profile']['profilePicture'].isNotEmpty) {
+                img = person['profile']['profilePicture'];
+              } else if (person['profilePicture'] is String && person['profilePicture'].isNotEmpty) {
+                img = person['profilePicture'];
+              } else if (person['profile'] is String && person['profile'].isNotEmpty) {
+                img = person['profile'];
+              }
+              if (img.isEmpty) {
+                img = 'assets/dummyprofile.png';
+              }
+              return {
+                'name': person['fullName'] ?? 'Unknown',
+                'image': img,
+                'mobileNumber': person['mobileNumber'] ?? '',
+                'userId': person['_id'] ?? '',
+              };
+            })
             .toList();
         provider.setPeople(mapped);
       } else {

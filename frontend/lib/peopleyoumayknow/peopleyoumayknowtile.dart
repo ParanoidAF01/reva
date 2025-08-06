@@ -5,7 +5,16 @@ class PeopleYouMayKnowCard extends StatelessWidget {
   final String name;
   final String image;
   final String userId;
-  const PeopleYouMayKnowCard({super.key, required this.name, required this.image, required this.userId});
+  final String location;
+  final String designation;
+  const PeopleYouMayKnowCard({
+    super.key,
+    required this.name,
+    required this.image,
+    required this.userId,
+    this.location = '',
+    this.designation = '',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -64,12 +73,12 @@ class PeopleYouMayKnowCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 0.5),
-              const Center(
+              Center(
                 child: Text(
-                  'buyer/seller/\ninvestor',
+                  designation.isNotEmpty ? designation : '****',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: Color(0xFFB1B5BA),
+                    color: designation.isNotEmpty ? const Color(0xFFB1B5BA) : Colors.black,
                     fontSize: 11.5,
                     height: 1.1,
                   ),
@@ -80,9 +89,9 @@ class PeopleYouMayKnowCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Text(
-                    'Mumbai',
+                    location.isNotEmpty ? location : '****',
                     style: TextStyle(
-                      color: Color(0xFFB1B5BA),
+                      color: location.isNotEmpty ? const Color(0xFFB1B5BA) : Colors.black,
                       fontSize: 10.5,
                     ),
                   ),

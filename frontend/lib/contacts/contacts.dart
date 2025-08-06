@@ -236,10 +236,10 @@ class _ContactsBodyState extends State<_ContactsBody> {
                     child: Column(
                       children: provider.contacts.map((contact) {
                         String imagePath = 'assets/dummyprofile.png';
-                        if (contact['profile'] is String) {
+                        if (contact['profile'] is Map && contact['profile']['profilePicture'] is String && contact['profile']['profilePicture'].isNotEmpty) {
+                          imagePath = contact['profile']['profilePicture'];
+                        } else if (contact['profile'] is String && contact['profile'].isNotEmpty) {
                           imagePath = contact['profile'];
-                        } else if (contact['profile'] is Map && contact['profile']['image'] != null) {
-                          imagePath = contact['profile']['image'];
                         }
                         return ContactTile(
                           name: contact['fullName'] ?? 'Unknown',

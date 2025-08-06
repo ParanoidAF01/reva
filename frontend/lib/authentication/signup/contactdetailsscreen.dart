@@ -32,7 +32,11 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
       );
       return;
     }
-    Navigator.push(context,MaterialPageRoute(builder: (context)=> const PreferencesScreen()) );
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const PreferencesScreen()),
+      (route) => false,
+    );
   }
 
   @override

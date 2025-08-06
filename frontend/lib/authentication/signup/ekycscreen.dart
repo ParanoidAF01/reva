@@ -158,7 +158,11 @@ class EKycScreen extends StatelessWidget {
               /// Verify Button
               InkWell(
                 onTap: (){
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=> const ContactDetailsScreen()));
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ContactDetailsScreen()),
+                    (route) => false,
+                  );
                 },
                 child: Container(
                   width: double.infinity,

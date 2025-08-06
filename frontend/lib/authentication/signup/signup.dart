@@ -75,10 +75,12 @@ class _SignUpState extends State<SignUp> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Signup successful!')),
         );
+        // Extract mobile number from response
+        String? registeredPhone = response['data']?['user']?['mobileNumber']?.toString();
         Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-                builder: (context) => const VerifyOtp()));
+                builder: (context) => VerifyOtp(prefillPhone: registeredPhone)));
       } else {
         throw Exception(response['message'] ?? 'Signup failed');
       }

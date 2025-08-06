@@ -13,8 +13,21 @@ class CompleteProfileScreen extends StatefulWidget {
 class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   final fullNameController = TextEditingController();
   final dobController = TextEditingController();
-  final designationController = TextEditingController();
-
+  static const List<String> DESIGNATIONS = [
+    "Builder",
+    "Loan Provider",
+    "Interior Designer",
+    "Material Supplier",
+    "Legal Advisor",
+    "Vastu Consultant",
+    "Home Buyer",
+    "Property Investor",
+    "Construction Manager",
+    "Real Estate Agent",
+    "Technical Consultant",
+    "Other"
+  ];
+  String? selectedDesignation;
   String selectedLocation = 'New Delhi';
   String selectedExperience = '2 years';
 
@@ -35,7 +48,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   void _validateAndProceed() {
     final name = fullNameController.text;
     final dob = dobController.text;
-    final designation = designationController.text;
+    final designation = selectedDesignation;
     final location = selectedLocation;
     final experience = selectedExperience;
 
@@ -44,8 +57,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       error = "Please enter your full name.";
     } else if (!_isValidDate(dob)) {
       error = "Please enter a valid date of birth (dd/mm/yyyy).";
-    } else if (!_isValidDesignation(designation)) {
-      error = "Please enter your designation.";
+    } else if (designation == null) {
+      error = "Please select your designation.";
     } else if (!_isValidLocation(location)) {
       error = "Please select a valid location.";
     } else if (!_isValidExperience(experience)) {
@@ -59,11 +72,12 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       return;
     }
 
-    Navigator.push(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
         builder: (context) => const OrganisationDetailsScreen(),
       ),
+      (route) => false,
     );
   }
 
@@ -174,10 +188,24 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                CustomTextField(
-                  label: "Designation",
-                  hint: "CEO",
-                  controller: designationController,
+                const Text(
+                  "Designation",
+                  style: TextStyle(
+                    color: Color(0xFFDFDFDF),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                _customBottomSheetTile(
+                  title: selectedDesignation ?? "Select Designation",
+                  onTap: () => _showBottomSheet(
+                    context,
+                    title: "Select Designation",
+                    options: DESIGNATIONS,
+                    onSelected: (val) {
+                      setState(() => selectedDesignation = val);
+                    },
+                  ),
                 ),
                 const SizedBox(height: 16),
 
@@ -296,24 +324,28 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     showModalBottomSheet(
       backgroundColor: const Color(0xFF2F3237),
       context: context,
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              ...options.map((e) => ListTile(
-                title: Text(e, style: const TextStyle(color: Colors.white)),
-                onTap: () {
-                  Navigator.pop(context);
-                  onSelected(e);
-                },
-              )),
-              const SizedBox(height: 12),
-            ],
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.6,
+            child: ListView(
+              shrinkWrap: true,
+              children: [
+                const SizedBox(height: 12),
+                ...options.map((e) => ListTile(
+                  title: Text(e, style: const TextStyle(color: Colors.white)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    onSelected(e);
+                  },
+                )),
+                const SizedBox(height: 12),
+              ],
+            ),
           ),
         );
       },

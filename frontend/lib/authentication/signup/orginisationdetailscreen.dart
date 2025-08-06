@@ -55,7 +55,11 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
       return;
     }
     
-    Navigator.push(context, MaterialPageRoute(builder: (context)=> const EKycScreen()));
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const EKycScreen()),
+      (route) => false,
+    );
   }
 
   @override

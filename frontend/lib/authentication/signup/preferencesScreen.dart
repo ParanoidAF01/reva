@@ -107,7 +107,11 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                   height: 52,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> const SpecializationAndRecognition()));
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SpecializationAndRecognition()),
+                        (route) => false,
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,

@@ -317,7 +317,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       fontSize: 15)),
                               InkWell(
                                 onTap: () {
-                                  Navigator.pushReplacement(
+                                  Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>

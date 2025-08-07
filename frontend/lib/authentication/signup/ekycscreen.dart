@@ -46,99 +46,73 @@ class _EKycScreenState extends State<EKycScreen> {
 
     // Prefill Aadhaar if present
     final userData = Provider.of<UserProvider>(context).userData ?? {};
-    if ((userData['aadhaarNumber'] ?? '').toString().isNotEmpty &&
-        aadharController.text.isEmpty) {
+    if ((userData['aadhaarNumber'] ?? '').toString().isNotEmpty && aadharController.text.isEmpty) {
       aadharController.text = userData['aadhaarNumber'];
     }
 
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: width * 0.06),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(height: height * 0.07),
-              if (widget.showBack)
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ),
-              Center(
-                child: Text(
-                  'E-KYC Verification',
-                  style: GoogleFonts.dmSans(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              SizedBox(height: height * 0.04),
-
-              SizedBox(
-                width: double.infinity,
-                height: 40,
-                child: OutlinedButton(
-                  onPressed: () => _skipToLogin(context),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF0262AB)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: width * 0.06, vertical: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      "40%",
+                      style: GoogleFonts.dmSans(color: const Color(0xFFD8D8DD), fontSize: 28, fontWeight: FontWeight.w700),
                     ),
-                  ),
-                  child: const Text(
-                    'Skip',
-                    style: TextStyle(
-                      color: Color(0xFF0262AB),
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(width: 8),
+                    Text(
+                      'Of your profile is complete',
+                      style: GoogleFonts.dmSans(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 12),
-
-              /// Progress Text
-              Row(
-                children: [
-                  Text(
-                    "40%   ",
-                    style: GoogleFonts.dmSans(
-                        color: const Color(0xFFD8D8DD),
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700),
-                  ),
-                  Text(
-                    "Completed..",
-                    style: GoogleFonts.dmSans(
-                      color: const Color(0xFF6F6F6F),
-                      fontWeight: FontWeight.w500,
-                      fontSize: 10,
+                Row(
+                  children: [
+                    Container(
+                      width: 120,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                      child: FractionallySizedBox(
+                        alignment: Alignment.centerLeft,
+                        widthFactor: 0.4,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Color(0xFFFFC107),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: SizedBox(
-                  width: width * 0.6,
-                  child: const LinearProgressIndicator(
-                    value: 0.4,
-                    minHeight: 6,
-                    backgroundColor: Colors.white,
-                    valueColor:
-                        AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
-                  ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Complete your profile to 100% for getting free Reva kit + Reva business NFC card !',
+                        style: GoogleFonts.dmSans(
+                          color: Color(0xFFFFC107),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(height: height * 0.04),
-
-              /// Aadhaar Label
+                SizedBox(height: height * 0.04),
+              // Aadhaar Card Number
               const Text(
                 'Adhar Card Number',
                 style: TextStyle(
@@ -147,329 +121,233 @@ class _EKycScreenState extends State<EKycScreen> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-
               SizedBox(height: height * 0.01),
-
-              /// Aadhaar Input
-              // Aadhaar input controller (moved to top for access in button)
-              SizedBox(
+              Container(
+                decoration: BoxDecoration(
+                  color: Color(0xFF23262B),
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: TextField(
                   controller: aadharController,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
+                    prefixIcon: Padding(
+                      padding: EdgeInsets.only(left: 8, right: 8),
+                      child: Icon(Icons.credit_card, color: Color(0xFFFFC107)),
+                    ),
+                    prefixIconConstraints: BoxConstraints(minWidth: 0, minHeight: 0),
                     hintText: '0000 0000 0000',
                     hintStyle: TextStyle(color: Color(0xFF6F6F6F)),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                    contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                   ),
-                  style: const TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
-
-              SizedBox(height: height * 0.02),
-
-              /// Get OTP Button
-              InkWell(
-                onTap: () async {
-                  final aadhar = aadharController.text.trim();
-                  if (aadhar.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Please enter Aadhaar number'),
-                          backgroundColor: Colors.red),
-                    );
-                    return;
-                  }
-
-                  setState(() {
-                    _isLoading = true;
-                  });
-
-                  try {
-                    final aadhaarService = AadhaarService();
-                    final response = await aadhaarService.generateOtp(aadhar);
-
-                    // Debug: Print the response structure
-                    print('Aadhaar OTP Response: $response');
-
-                    if (response['success'] == true) {
-                      setState(() {
-                        // Extract request_id from the correct location
-                        _requestId =
-                            response['data']?['request_id']?.toString();
-                        _otpSent = true;
-                      });
-
-                      // Debug: Print the request_id
-                      print('Request ID: $_requestId');
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('OTP sent successfully'),
-                            backgroundColor: Colors.green),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text(
-                                response['message'] ?? 'Failed to send OTP'),
-                            backgroundColor: Colors.red),
-                      );
-                    }
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text('Error: $e'),
-                          backgroundColor: Colors.red),
-                    );
-                  } finally {
-                    setState(() {
-                      _isLoading = false;
-                    });
-                  }
-                },
-                child: Container(
+              SizedBox(height: height * 0.03),
+              if (!_otpSent) ...[
+                SizedBox(
                   width: double.infinity,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFF0262AB),
-                        Color(0xFF01345A),
-                      ],
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final aadhar = aadharController.text.trim();
+                      if (aadhar.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please enter Aadhaar number'), backgroundColor: Colors.red),
+                        );
+                        return;
+                      }
+                      setState(() => _isLoading = true);
+                      try {
+                        final aadhaarService = AadhaarService();
+                        final response = await aadhaarService.generateOtp(aadhar);
+                        print('Aadhaar OTP Response: $response');
+                        if (response['success'] == true) {
+                          setState(() {
+                            _requestId = response['data']?['request_id']?.toString();
+                            _otpSent = true;
+                          });
+                          print('Request ID: $_requestId');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('OTP sent successfully'), backgroundColor: Colors.green),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(response['message'] ?? 'Failed to send OTP'), backgroundColor: Colors.red),
+                          );
+                        }
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+                        );
+                      } finally {
+                        setState(() => _isLoading = false);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0262AB),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                  ),
-                  child: Center(
                     child: _isLoading
                         ? const SizedBox(
                             width: 20,
                             height: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
+                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                           )
-                        : const Text(
-                            'Get OTP',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                          ),
+                        : const Text('Get OTP', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
                   ),
                 ),
-              ),
-
-              SizedBox(height: height * 0.03),
-
-              /// OTP Label and Resend
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Enter OTP',
-                    style: TextStyle(
-                      color: Color(0xFFD8D8DD),
-                      fontWeight: FontWeight.w500,
-                    ),
+              ] else ...[
+                // OTP Section
+                SizedBox(height: height * 0.01),
+                SizedBox(height: height * 0.01),
+                const Text(
+                  'Enter OTP',
+                  style: TextStyle(
+                    color: Color(0xFFD8D8DD),
+                    fontWeight: FontWeight.w500,
                   ),
-                  if (_otpSent)
+                ),
+                SizedBox(height: height * 0.01),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: List.generate(6, (index) {
+                    return Container(
+                      width: 44,
+                      height: 48,
+                      margin: EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        color: Color(0xFF23262B),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.white24, width: 1),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        otpController.text.length > index ? otpController.text[index] : '',
+                        style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                      ),
+                    );
+                  }),
+                ),
+                SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const SizedBox(),
                     InkWell(
                       onTap: () async {
                         final aadhar = aadharController.text.trim();
                         if (aadhar.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Please enter Aadhaar number'),
-                                backgroundColor: Colors.red),
+                            const SnackBar(content: Text('Please enter Aadhaar number'), backgroundColor: Colors.red),
                           );
                           return;
                         }
-
-                        setState(() {
-                          _isLoading = true;
-                        });
-
+                        setState(() => _isLoading = true);
                         try {
                           final aadhaarService = AadhaarService();
-                          final response =
-                              await aadhaarService.generateOtp(aadhar);
-
+                          final response = await aadhaarService.generateOtp(aadhar);
                           if (response['success'] == true) {
                             setState(() {
-                              _requestId =
-                                  response['data']?['request_id']?.toString();
+                              _requestId = response['data']?['request_id']?.toString();
                             });
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('OTP resent successfully'),
-                                  backgroundColor: Colors.green),
+                              const SnackBar(content: Text('OTP resent successfully'), backgroundColor: Colors.green),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(response['message'] ??
-                                      'Failed to resend OTP'),
-                                  backgroundColor: Colors.red),
+                              SnackBar(content: Text(response['message'] ?? 'Failed to resend OTP'), backgroundColor: Colors.red),
                             );
                           }
                         } catch (e) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                                content: Text('Error: $e'),
-                                backgroundColor: Colors.red),
+                            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
                           );
                         } finally {
-                          setState(() {
-                            _isLoading = false;
-                          });
+                          setState(() => _isLoading = false);
                         }
                       },
-                      child: const Text(
-                        'resend',
-                        style: TextStyle(
-                          color: Color(0xFF0262AB),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
+                      child: const Text('Resend OTP', style: TextStyle(color: Color(0xFF0262AB), fontWeight: FontWeight.w500)),
                     ),
-                ],
-              ),
-
-              SizedBox(height: height * 0.015),
-
-              /// OTP Input
-              TextField(
-                controller: otpController,
-                keyboardType: TextInputType.number,
-                maxLength: 6,
-                decoration: const InputDecoration(
-                  hintText: 'Enter 6-digit OTP',
-                  hintStyle: TextStyle(color: Color(0xFF6F6F6F)),
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                  counterText: '',
+                  ],
                 ),
-                style: const TextStyle(color: Colors.white, fontSize: 18),
-              ),
-
-              SizedBox(height: height * 0.05),
-
-              /// Verify Button
-              InkWell(
-                onTap: () async {
-                  final aadhar = aadharController.text.trim();
-                  final otp = otpController.text.trim();
-
-                  if (aadhar.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Please enter Aadhaar number'),
-                          backgroundColor: Colors.red),
-                    );
-                    return;
-                  }
-
-                  if (otp.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Please enter OTP'),
-                          backgroundColor: Colors.red),
-                    );
-                    return;
-                  }
-
-                  // Debug: Print current state
-                  print('Current Request ID: $_requestId');
-                  print('OTP Sent: $_otpSent');
-
-                  if (_requestId == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text('Please generate OTP first'),
-                          backgroundColor: Colors.red),
-                    );
-                    return;
-                  }
-
-                  setState(() {
-                    _isLoading = true;
-                  });
-
-                  try {
-                    final aadhaarService = AadhaarService();
-                    final response =
-                        await aadhaarService.submitOtp(_requestId!, otp);
-
-                    // Debug: Print the submit response
-                    print('Submit OTP Response: $response');
-
-                    if (response['success'] == true &&
-                        response['data']?['status'] == 'success') {
-                      // Backend handles profile update, just navigate to next screen
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const ContactDetailsScreen()),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content: Text(response['message'] ??
-                                'OTP verification failed'),
-                            backgroundColor: Colors.red),
-                      );
-                    }
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                          content: Text('Error: $e'),
-                          backgroundColor: Colors.red),
-                    );
-                  } finally {
-                    setState(() {
-                      _isLoading = false;
-                    });
-                  }
-                },
-                child: Container(
+                SizedBox(height: 8),
+                // Hidden TextField for OTP input
+                SizedBox(
+                  height: 0,
+                  width: 0,
+                  child: TextField(
+                    controller: otpController,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    autofocus: true,
+                    onChanged: (_) => setState(() {}),
+                    decoration: const InputDecoration(border: InputBorder.none, counterText: ''),
+                    style: const TextStyle(color: Colors.transparent),
+                  ),
+                ),
+                SizedBox(height: 16),
+                SizedBox(
                   width: double.infinity,
-                  height: height * 0.065,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    gradient: const LinearGradient(
-                      colors: [
-                        Color(0xFF0262AB),
-                        Color(0xFF01345A),
-                      ],
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final aadhar = aadharController.text.trim();
+                      final otp = otpController.text.trim();
+                      if (aadhar.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please enter Aadhaar number'), backgroundColor: Colors.red),
+                        );
+                        return;
+                      }
+                      if (otp.isEmpty || otp.length < 6) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please enter OTP'), backgroundColor: Colors.red),
+                        );
+                        return;
+                      }
+                      if (_requestId == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please generate OTP first'), backgroundColor: Colors.red),
+                        );
+                        return;
+                      }
+                      setState(() => _isLoading = true);
+                      try {
+                        final aadhaarService = AadhaarService();
+                        final response = await aadhaarService.submitOtp(_requestId!, otp);
+                        print('Submit OTP Response: $response');
+                        if (response['success'] == true && response['data']?['status'] == 'success') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const ContactDetailsScreen()),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(response['message'] ?? 'OTP verification failed'), backgroundColor: Colors.red),
+                          );
+                        }
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+                        );
+                      } finally {
+                        setState(() => _isLoading = false);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF0262AB),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
-                  ),
-                  child: Center(
-                    child: _isLoading
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : const Text(
-                            'Verify and Continue',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
-                          ),
+                    child: _isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Text('Verify and Continue', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
                   ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
       ),
-    );
+    ));
   }
 }

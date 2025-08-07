@@ -158,10 +158,19 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
 
     // Save to provider
     final userProvider = Provider.of<UserProvider>(context, listen: false);
+    // Convert incorporationDate to ISO format (yyyy-mm-dd) if possible
+    String rawDate = incorporationDateController.text.trim();
+    String isoDate = rawDate;
+    final dateRegex = RegExp(r'^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$');
+    final match = dateRegex.firstMatch(rawDate);
+    if (match != null) {
+      // dd/mm/yyyy or dd-mm-yyyy to yyyy-mm-dd
+      isoDate = '${match.group(3)}-${match.group(2)}-${match.group(1)}';
+    }
     userProvider.updateUserData({
       'organization': {
         'name': companyNameController.text,
-        'incorporationDate': incorporationDateController.text,
+        'incorporationDate': isoDate,
         'gstNumber': gstinController.text,
         'registered': isRegistered,
         'companyType': selectedCompanyType,
@@ -169,17 +178,24 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
     });
     // Save to shared_preferences for persistence
     await _saveFormData();
+    // Debug print for endpoint and payload
+    final endpoint = '/profiles/';
+    final payload = {
+      'organization': {
+        'name': companyNameController.text,
+        'incorporationDate': isoDate,
+        'gstNumber': gstinController.text,
+        'registered': isRegistered,
+        'companyType': selectedCompanyType,
+      }
+    };
+    // ignore: avoid_print
+    print('PUT request to: ' + endpoint);
+    // ignore: avoid_print
+    print('Payload: ' + payload.toString());
     // Send to backend with correct structure
     try {
-      final response = await ApiService().put('/profiles/', {
-        'organization': {
-          'name': companyNameController.text,
-          'incorporationDate': incorporationDateController.text,
-          'gstNumber': gstinController.text,
-          'registered': isRegistered,
-          'companyType': selectedCompanyType,
-        }
-      });
+      final response = await ApiService().put(endpoint, payload);
       if (response['success'] == true) {
         Navigator.push(
           context,

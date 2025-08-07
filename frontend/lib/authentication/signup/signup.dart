@@ -6,6 +6,7 @@ import 'package:reva/authentication/login.dart';
 import 'package:reva/authentication/signup/verifyotp.dart';
 import 'package:reva/services/auth_service.dart';
 import 'package:reva/providers/user_provider.dart';
+import '../../utils/first_login_helper.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -64,6 +65,8 @@ class _SignUpState extends State<SignUp> {
       print('DEBUG: Access token after signup: $accessToken');
 
       if (response['success'] == true && accessToken != null) {
+        // Set hasLoggedInBefore flag
+        await FirstLoginHelper.setHasLoggedIn();
         // Load user data after successful signup
         final userProvider = Provider.of<UserProvider>(context, listen: false);
         await userProvider.loadUserData();

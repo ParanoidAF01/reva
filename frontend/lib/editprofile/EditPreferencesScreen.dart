@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reva/services/api_service.dart';
 import 'package:reva/providers/user_provider.dart';
-import 'package:reva/authentication/components/mytextfield.dart';
 import '../profile/profile_percentage.dart';
 
 class EditPreferencesScreen extends StatefulWidget {
@@ -13,54 +12,68 @@ class EditPreferencesScreen extends StatefulWidget {
 }
 
 class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
-  String operatingLocation = "New Delhi";
-  String interest = "xyz";
-  String propertyType = "sjfshssfs";
-  String networkingPreference = "xyzz";
-  String targetClient = "xyz";
-  List<String> targetClients = [
-    "xyz",
-    "wrwrw",
-    "grrhrh"
-  ];
-  List<String> networkingPreferences = [
-    "xyzz",
-    "wrwrw",
-    "grrhrh"
+  List<String> operatingLoactions = [
+    "India",
+    "International"
   ];
   List<String> propertyTypes = [
-    "sfjfshssfs",
-    "wrwrw",
-    "grrhrh"
+    "Residential",
+    "Commercial",
+    "Industrial",
+    "Agricultural",
+    "Other"
+  ];
+  List<String> networkingPreferences = [
+    "Business",
+    "Technology",
+    "Health",
+    "Education",
+    "Entertainment",
+    "Sports",
+    "Other"
+  ];
+  List<String> targetClients = [
+    "Business",
+    "Technology",
+    "Health",
+    "Education",
+    "Entertainment",
+    "Sports",
+    "Other"
   ];
   List<String> interests = [
-    "xyz",
-    "wrwrw",
-    "grrhrh"
+    "Business",
+    "Technology",
+    "Health",
+    "Education",
+    "Entertainment",
+    "Sports",
+    "Other"
   ];
-  List<String> operatingLoactions = [
-    "New Delhi",
-    "Mumbai",
-    "Haryana"
-  ];
+
+  String operatingLocation = "India";
+  String interest = "Business";
+  String propertyType = "Residential";
+  String networkingPreference = "Business";
+  String targetClient = "Business";
 
   @override
   void initState() {
     super.initState();
     final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-    if ((userData['operatingLocation'] ?? '').toString().isNotEmpty) {
+    if ((userData['operatingLocation'] ?? '').toString().isNotEmpty && operatingLoactions.contains(userData['operatingLocation'])) {
       operatingLocation = userData['operatingLocation'];
     }
-    if ((userData['interest'] ?? '').toString().isNotEmpty) {
+    if ((userData['interest'] ?? '').toString().isNotEmpty && interests.contains(userData['interest'])) {
       interest = userData['interest'];
     }
-    if ((userData['propertyType'] ?? '').toString().isNotEmpty) {
+    if ((userData['propertyType'] ?? '').toString().isNotEmpty && propertyTypes.contains(userData['propertyType'])) {
       propertyType = userData['propertyType'];
     }
-    if ((userData['networkingPreference'] ?? '').toString().isNotEmpty) {
+    if ((userData['networkingPreference'] ?? '').toString().isNotEmpty && networkingPreferences.contains(userData['networkingPreference'])) {
       networkingPreference = userData['networkingPreference'];
     }
-    if ((userData['targetClient'] ?? '').toString().isNotEmpty) {
+    if ((userData['targetClient'] ?? '').toString().isNotEmpty && targetClients.contains(userData['targetClient'])) {
       targetClient = userData['targetClient'];
     }
   }
@@ -68,22 +81,24 @@ class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
   Future<void> _savePreferences() async {
     final preferences = {
       'operatingLocations': operatingLocation,
-      'interests': [interest],
+      'interests': [
+        interest
+      ],
       'propertyType': propertyType,
       'networkingPreferences': networkingPreference,
       'targetClients': targetClient,
     };
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.updateUserData({'preferences': preferences});
+    userProvider.updateUserData({
+      'preferences': preferences
+    });
     try {
       final response = await ApiService().put('/profiles/', {
         'preferences': preferences,
       });
       if (response['success'] == true) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => ProfilePercentageScreen()),
-          (route) => false,
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => ProfilePercentageScreen()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -177,43 +192,43 @@ class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
               children: [
                 SizedBox(height: height * 0.04),
                 _buildBottomSheetField(
-                  label: "Operating Location",
-                  value: operatingLocation,
-                  options: operatingLoactions,
-                  onSelected: (val) {
-                    setState(() => operatingLocation = val);
-                  }),
+                    label: "Operating Location",
+                    value: operatingLocation,
+                    options: operatingLoactions,
+                    onSelected: (val) {
+                      setState(() => operatingLocation = val);
+                    }),
                 _buildBottomSheetField(
-                  label: "Interest",
-                  value: interest,
-                  options: interests,
-                  onSelected: (val) {
-                    setState(() => interest = val);
-                  }),
+                    label: "Interest",
+                    value: interest,
+                    options: interests,
+                    onSelected: (val) {
+                      setState(() => interest = val);
+                    }),
                 const SizedBox(height: 16),
                 _buildBottomSheetField(
-                  label: "Property Type",
-                  value: propertyType,
-                  options: propertyTypes,
-                  onSelected: (val) {
-                    setState(() => propertyType = val);
-                  }),
+                    label: "Property Type",
+                    value: propertyType,
+                    options: propertyTypes,
+                    onSelected: (val) {
+                      setState(() => propertyType = val);
+                    }),
                 const SizedBox(height: 16),
                 _buildBottomSheetField(
-                  label: "Networking Preferences",
-                  value: networkingPreference,
-                  options: networkingPreferences,
-                  onSelected: (val) {
-                    setState(() => networkingPreference = val);
-                  }),
+                    label: "Networking Preferences",
+                    value: networkingPreference,
+                    options: networkingPreferences,
+                    onSelected: (val) {
+                      setState(() => networkingPreference = val);
+                    }),
                 const SizedBox(height: 16),
                 _buildBottomSheetField(
-                  label: "Target Client",
-                  value: targetClient,
-                  options: targetClients,
-                  onSelected: (val) {
-                    setState(() => targetClient = val);
-                  }),
+                    label: "Target Client",
+                    value: targetClient,
+                    options: targetClients,
+                    onSelected: (val) {
+                      setState(() => targetClient = val);
+                    }),
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,

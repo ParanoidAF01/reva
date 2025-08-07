@@ -7,6 +7,9 @@ import 'package:reva/bottomnavigation/bottomnavigation.dart';
 import 'package:reva/services/auth_service.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/start_subscription.dart';
+import 'utils/first_login_helper.dart';
+import 'authentication/login.dart';
+import 'authentication/mpin_verification_screen.dart';
 
 class RootRedirector extends StatefulWidget {
   const RootRedirector({super.key});
@@ -31,34 +34,51 @@ class _RootRedirectorState extends State<RootRedirector> {
 
     final auth = AuthService();
     final token = await auth.getToken('accessToken');
+    final hasLoggedInBefore = await FirstLoginHelper.hasLoggedInBefore();
 
-    if (token != null && token.isNotEmpty) {
-      // User is logged in, check subscription
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      await userProvider.loadUserData();
-      await userProvider.checkSubscription();
-
-      if (!mounted) return;
-
-      // Debug print to verify value
-      debugPrint('RootRedirector: isSubscribed = ${userProvider.isSubscribed}');
-
-      if (userProvider.isSubscribed == true) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const BottomNavigation()),
-        );
-      } else {
-        // User is logged in but not subscribed
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const StartSubscriptionPage()),
-        );
-      }
-    } else {
-      // User is not logged in
+    if (token == null || token.isEmpty) {
+      // No token, show login
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
       );
+      return;
     }
+
+    // Token exists, check user and subscription
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    await userProvider.loadUserData();
+    if (!mounted) return;
+    if (userProvider.userData == null) {
+      // User data failed to load (token invalid)
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+      return;
+    }
+    await userProvider.checkSubscription();
+    if (!mounted) return;
+
+    // If not subscribed, always show subscription page
+    if (userProvider.isSubscribed != true) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const StartSubscriptionPage()),
+      );
+      return;
+    }
+
+    // Subscribed: decide which screen to show
+    // If first open after signup (hasLoggedInBefore == false), show login
+    if (!hasLoggedInBefore) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+      return;
+    }
+
+    // If second or later open, show MPIN screen
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const MpinVerificationScreen()),
+    );
   }
 
   @override

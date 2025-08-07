@@ -46,16 +46,16 @@ class _EditSpecializationAndRecognitionState extends State<EditSpecializationAnd
       'associatedBuilders': associatedBuilders.text.split(','),
     };
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.updateUserData({'specialization': specialization});
+    userProvider.updateUserData({
+      'specialization': specialization
+    });
     try {
       final response = await ApiService().put('/profiles/', {
         'specialization': specialization,
       });
       if (response['success'] == true) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => ProfilePercentageScreen()),
-          (route) => false,
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => ProfilePercentageScreen()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

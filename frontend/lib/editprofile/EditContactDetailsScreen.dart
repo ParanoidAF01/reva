@@ -74,10 +74,8 @@ class _EditContactDetailsScreenState extends State<EditContactDetailsScreen> {
         },
       });
       if (response['success'] == true) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => ProfilePercentageScreen()),
-          (route) => false,
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => ProfilePercentageScreen()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

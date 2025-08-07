@@ -20,6 +20,7 @@ class BottomNavigation extends StatefulWidget {
 
 class _BottomNavigationState extends State<BottomNavigation> {
   late int _currentIndex;
+  Key _profileScreenKey = UniqueKey();
 
   @override
   void initState() {
@@ -57,7 +58,10 @@ class _BottomNavigationState extends State<BottomNavigation> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: const LinearGradient(
-              colors: [Color(0xFF0262AB), Color(0xFF01345A)],
+              colors: [
+                Color(0xFF0262AB),
+                Color(0xFF01345A)
+              ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),
@@ -114,6 +118,10 @@ class _BottomNavigationState extends State<BottomNavigation> {
     return IconButton(
       onPressed: () {
         setState(() {
+          if (index == 3) {
+            // If profile tab is tapped, assign a new key to force reload
+            _profileScreenKey = UniqueKey();
+          }
           _currentIndex = index;
         });
       },
@@ -133,7 +141,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
       case 2:
         return const PostsScreen();
       case 3:
-        return const ProfileScreen();
+        return ProfileScreen(key: _profileScreenKey);
       default:
         return const SizedBox();
     }

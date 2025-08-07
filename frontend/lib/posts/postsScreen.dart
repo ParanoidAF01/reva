@@ -444,6 +444,7 @@ class _PostsScreenState extends State<PostsScreen> {
                                                     color: liked ? Colors.white : Colors.white70,
                                                     size: 20,
                                                   ),
+
                                                 ),
                                               ],
                                             );
@@ -476,7 +477,7 @@ class _PostsScreenState extends State<PostsScreen> {
                                         SizedBox(width: 8),
                                         ElevatedButton(
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: Color(0xFF4A90E2),
+                                            backgroundColor: Color(0xFF01416A),
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(8),
                                             ),

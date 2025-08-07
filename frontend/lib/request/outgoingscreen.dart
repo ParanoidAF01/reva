@@ -4,8 +4,8 @@ import 'package:reva/request/requesttile.dart';
 import 'package:reva/services/service_manager.dart';
 import 'package:provider/provider.dart';
 
-// Provider for pending requests data
-class PendingRequestsProvider extends ChangeNotifier {
+// Provider for outgoing requests data
+class OutgoingRequestsProvider extends ChangeNotifier {
   List<dynamic> _requests = [];
   bool _isLoading = false;
 
@@ -23,64 +23,52 @@ class PendingRequestsProvider extends ChangeNotifier {
   }
 }
 
-class RequestScreen extends StatelessWidget {
-  const RequestScreen({super.key});
+class OutgoingScreen extends StatelessWidget {
+  const OutgoingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
     return ChangeNotifierProvider(
-      create: (_) => PendingRequestsProvider(),
-      child: _RequestScreenBody(height: height, width: width),
+      create: (_) => OutgoingRequestsProvider(),
+      child: _OutgoingScreenBody(height: height, width: width),
     );
   }
 }
 
-class _RequestScreenBody extends StatefulWidget {
+class _OutgoingScreenBody extends StatefulWidget {
   final double height;
   final double width;
-  const _RequestScreenBody({required this.height, required this.width});
+  const _OutgoingScreenBody({required this.height, required this.width});
 
   @override
-  State<_RequestScreenBody> createState() => _RequestScreenBodyState();
+  State<_OutgoingScreenBody> createState() => _OutgoingScreenBodyState();
 }
 
-class _RequestScreenBodyState extends State<_RequestScreenBody> {
+class _OutgoingScreenBodyState extends State<_OutgoingScreenBody> {
+  String _searchQuery = '';
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _fetchPendingRequests();
+      _fetchOutgoingRequests();
     });
   }
 
-  Future<void> _fetchPendingRequests() async {
-    final provider = Provider.of<PendingRequestsProvider>(context, listen: false);
+  Future<void> _fetchOutgoingRequests() async {
+    final provider = Provider.of<OutgoingRequestsProvider>(context, listen: false);
     provider.setLoading(true);
-
     try {
-      final response = await ServiceManager.instance.connections.getPendingRequests();
-      print('PENDING REQUESTS RESPONSE:');
-      print('Response: $response');
-
+      final response = await ServiceManager.instance.connections.getSentRequests();
       if (response['success'] == true) {
-        final requests = response['data']['pendingRequests'] ?? [];
-        print('Requests data: $requests');
-
-        // Log each request to see the structure
-        for (int i = 0; i < requests.length; i++) {
-          print('Request $i: ${requests[i]}');
-          print('Request $i fullName: ${requests[i]['fullName']}');
-          print('Request $i fromUser: ${requests[i]['fromUser']}');
-        }
-
+        final requests = response['data']['sentRequests'] ?? [];
         provider.setRequests(requests);
       } else {
         provider.setRequests([]);
       }
     } catch (e) {
-      print('Error fetching pending requests: $e');
       provider.setRequests([]);
     } finally {
       provider.setLoading(false);
@@ -103,7 +91,7 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
           },
         ),
         title: Text(
-          "Requests",
+          "Outgoing Requests",
           style: GoogleFonts.dmSans(
             fontSize: 22,
             fontWeight: FontWeight.w700,
@@ -132,15 +120,20 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
                         children: [
                           const Icon(Icons.search, color: Colors.white70, size: 22),
                           SizedBox(width: width * 0.02),
-                          const Expanded(
+                          Expanded(
                             child: TextField(
-                              style: TextStyle(color: Colors.white),
+                              style: const TextStyle(color: Colors.white),
                               cursorColor: Colors.white54,
-                              decoration: InputDecoration(
+                              decoration: const InputDecoration(
                                 hintText: 'Search...',
                                 hintStyle: TextStyle(color: Colors.white54),
                                 border: InputBorder.none,
                               ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _searchQuery = value;
+                                });
+                              },
                             ),
                           ),
                         ],
@@ -148,11 +141,8 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
                     ),
                   ),
                   SizedBox(width: width * 0.03),
-                  // Filter Button
                   InkWell(
-                    onTap: () {
-                      // TODO: Add filter action
-                    },
+                    onTap: () {},
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
                       height: width * 0.12,
@@ -186,15 +176,15 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
                 ],
               ),
             ),
-            SizedBox(
-              height: height * 0.03,
-            ),
-
-            // Requests List
-            Consumer<PendingRequestsProvider>(
+            SizedBox(height: height * 0.03),
+            Consumer<OutgoingRequestsProvider>(
               builder: (context, provider, child) {
+                final filteredRequests = provider.requests.where((request) {
+                  final name = (request['fullName'] ?? '').toString().toLowerCase();
+                  return name.contains(_searchQuery.toLowerCase());
+                }).toList();
                 return RefreshIndicator(
-                  onRefresh: _fetchPendingRequests,
+                  onRefresh: _fetchOutgoingRequests,
                   color: const Color(0xFF0262AB),
                   backgroundColor: const Color(0xFF22252A),
                   child: SingleChildScrollView(
@@ -215,13 +205,13 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
                                 children: [
                                   SizedBox(height: height * 0.1),
                                   Icon(
-                                    Icons.person_add_disabled,
+                                    Icons.send_and_archive,
                                     size: 64,
                                     color: Colors.white54,
                                   ),
                                   SizedBox(height: 16),
                                   Text(
-                                    'No pending requests',
+                                    'No requests sent',
                                     style: GoogleFonts.dmSans(
                                       fontSize: 18,
                                       fontWeight: FontWeight.w600,
@@ -230,7 +220,41 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
                                   ),
                                   SizedBox(height: 8),
                                   Text(
-                                    'You don\'t have any pending connection requests',
+                                    'You haven\'t sent any connection requests',
+                                    style: GoogleFonts.dmSans(
+                                      fontSize: 14,
+                                      color: Colors.white38,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        else if (filteredRequests.isEmpty)
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+                            child: Center(
+                              child: Column(
+                                children: [
+                                  SizedBox(height: height * 0.1),
+                                  Icon(
+                                    Icons.search_off,
+                                    size: 64,
+                                    color: Colors.white54,
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'No results found',
+                                    style: GoogleFonts.dmSans(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white54,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'No outgoing requests match your search',
                                     style: GoogleFonts.dmSans(
                                       fontSize: 14,
                                       color: Colors.white38,
@@ -243,14 +267,14 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
                           )
                         else
                           Column(
-                            children: provider.requests.map((request) {
-                              // For incoming, user data is in fromUser
-                              final user = request['fromUser'] ?? {};
+                            children: filteredRequests.map((request) {
+                              // For outgoing, user data is in toUser
+                              final user = request['toUser'] ?? {};
                               return RequestTile(
                                 userData: user,
                                 requestId: request['_id'] ?? '',
-                                onRefresh: _fetchPendingRequests,
-                                isOutgoing: false,
+                                onRefresh: _fetchOutgoingRequests,
+                                isOutgoing: true,
                               );
                             }).toList(),
                           ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/authentication/components/mytextfield.dart';
 import 'package:provider/provider.dart';
 import 'package:reva/services/api_service.dart';
@@ -62,8 +61,10 @@ class _EditCompleteProfileScreenState extends State<EditCompleteProfileScreen> {
         dobController.text = formattedDob;
       }
     }
-    if ((userData['designation'] ?? '').toString().isNotEmpty) {
+    if ((userData['designation'] ?? '').toString().isNotEmpty && DESIGNATIONS.contains(userData['designation'])) {
       selectedDesignation = userData['designation'];
+    } else {
+      selectedDesignation = DESIGNATIONS.first;
     }
     if ((userData['location'] ?? '').toString().isNotEmpty) {
       selectedLocation = userData['location'];
@@ -71,9 +72,12 @@ class _EditCompleteProfileScreenState extends State<EditCompleteProfileScreen> {
     if (userData['experience'] != null) {
       final exp = userData['experience'];
       if (exp is int) {
-        if (exp == 0) selectedExperience = 'Less than 1 year';
-        else if (exp == 1) selectedExperience = '1 year';
-        else if (exp == 2) selectedExperience = '2 years';
+        if (exp == 0)
+          selectedExperience = 'Less than 1 year';
+        else if (exp == 1)
+          selectedExperience = '1 year';
+        else if (exp == 2)
+          selectedExperience = '2 years';
         else if (exp == 3) selectedExperience = '3+ years';
       } else if (exp is String && exp.isNotEmpty) {
         selectedExperience = exp;
@@ -115,7 +119,6 @@ class _EditCompleteProfileScreenState extends State<EditCompleteProfileScreen> {
     else if (selectedExperience == '2 years')
       experienceNum = 2;
     else if (selectedExperience == '3+ years') experienceNum = 3;
-
 
     // Convert dob to ISO format (yyyy-mm-dd) regardless of input separator
     String dobIso = '';
@@ -169,10 +172,8 @@ class _EditCompleteProfileScreenState extends State<EditCompleteProfileScreen> {
         'experience': experienceNum,
       });
       if (response['success'] == true) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => ProfilePercentageScreen()),
-          (route) => false,
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => ProfilePercentageScreen()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

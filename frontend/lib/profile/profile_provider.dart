@@ -10,7 +10,7 @@ class ProfileProvider extends ChangeNotifier {
       name: profileData['fullName'] ?? _profile.name,
       location: profileData['location'] ?? _profile.location,
       experience: profileData['experience'] ?? _profile.experience,
-      languages: profileData['languages'] ?? _profile.languages,
+      language: profileData['language'] ?? _profile.language,
       phone: profileData['mobileNumber'] ?? _profile.phone,
       email: profileData['email'] ?? _profile.email,
       avatarPath: profileData['avatar'] ?? _profile.avatarPath,
@@ -19,11 +19,12 @@ class ProfileProvider extends ChangeNotifier {
     );
     notifyListeners();
   }
+
   UserProfile _profile = UserProfile(
     name: 'Abhishek Singh',
     location: 'Delhi NCR',
     experience: '4+ years',
-    languages: 'Hindi, English',
+    language: 'Hindi, English',
     phone: '+91 **********',
     email: 'a*********************',
     avatarPath: 'assets/dummyprofile.png',
@@ -43,14 +44,12 @@ class ProfileProvider extends ChangeNotifier {
           name: profileData['fullName'] ?? _profile.name,
           location: profileData['location'] ?? _profile.location,
           experience: profileData['experience'] ?? _profile.experience,
-          languages: profileData['languages'] ?? _profile.languages,
+          language: profileData['language'] ?? _profile.language,
           phone: profileData['mobileNumber'] ?? _profile.phone,
           email: profileData['email'] ?? _profile.email,
           avatarPath: profileData['avatar'] ?? _profile.avatarPath,
-          totalConnections:
-              profileData['totalConnections'] ?? _profile.totalConnections,
-          eventsAttended:
-              profileData['eventsAttended'] ?? _profile.eventsAttended,
+          totalConnections: profileData['totalConnections'] ?? _profile.totalConnections,
+          eventsAttended: profileData['eventsAttended'] ?? _profile.eventsAttended,
         );
         notifyListeners();
       }
@@ -66,7 +65,7 @@ class ProfileProvider extends ChangeNotifier {
         'fullName': profile.name,
         'location': profile.location,
         'experience': profile.experience,
-        'languages': profile.languages,
+        'language': profile.language,
         'mobileNumber': profile.phone,
         'email': profile.email,
         'avatar': profile.avatarPath,
@@ -85,7 +84,7 @@ class ProfileProvider extends ChangeNotifier {
     String? name,
     String? location,
     String? experience,
-    String? languages,
+    String? language,
     String? phone,
     String? email,
     String? avatarPath,
@@ -96,7 +95,7 @@ class ProfileProvider extends ChangeNotifier {
       name: name,
       location: location,
       experience: experience,
-      languages: languages,
+      language: language,
       phone: phone,
       email: email,
       avatarPath: avatarPath,

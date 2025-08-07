@@ -4,26 +4,26 @@ class BronzeCard extends StatelessWidget {
   final String name;
   final String location;
   final String experience;
-  final String languages;
+  final String language;
   final String tag1;
   final String tag2;
   final String tag3;
   final String kycStatus;
   final double tagSpacing;
   final double kycGap;
-  const BronzeCard({
+  BronzeCard({
     super.key,
     required this.name,
     required this.location,
     required this.experience,
-    required this.languages,
+    required this.language,
     required this.tag1,
     required this.tag2,
     required this.tag3,
-    required this.kycStatus,
+    String? kycStatus,
     this.tagSpacing = 2.0,
     this.kycGap = 30.0,
-  });
+  }) : kycStatus = (kycStatus != null && kycStatus.isNotEmpty) ? kycStatus : 'KYC Not Verified';
 
   @override
   Widget build(BuildContext context) {
@@ -113,15 +113,15 @@ class BronzeCard extends StatelessWidget {
                   ),
                 ),
               ),
-              // Languages (only if present, below experience)
-              if (languages.isNotEmpty)
+              // Language (only if present, below experience)
+              if (language.isNotEmpty)
                 Positioned(
                   left: 23,
                   top: 129,
                   child: SizedBox(
                     width: 168,
                     child: Text(
-                      languages,
+                      language,
                       style: const TextStyle(
                         color: Color(0xFFBDBDBD),
                         fontSize: 12,
@@ -136,14 +136,18 @@ class BronzeCard extends StatelessWidget {
               if (kycStatus.isNotEmpty)
                 Positioned(
                   right: 23,
-                  top: languages.isNotEmpty ? 149 : 129,
+                  top: language.isNotEmpty ? 149 : 129,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.check, color: Colors.green, size: 16),
+                      Icon(
+                        kycStatus.toLowerCase() == 'verified' ? Icons.check_circle : Icons.cancel,
+                        color: kycStatus.toLowerCase() == 'verified' ? Colors.green : Colors.red,
+                        size: 18,
+                      ),
                       const SizedBox(width: 4),
                       Text(
-                        kycStatus,
+                        kycStatus.toLowerCase() == 'verified' ? 'KYC Verified' : 'KYC Not Verified',
                         style: const TextStyle(
                           color: Color(0xFFBDBDBD),
                           fontSize: 12,
@@ -159,7 +163,7 @@ class BronzeCard extends StatelessWidget {
               if (tag1.isNotEmpty || tag2.isNotEmpty || tag3.isNotEmpty)
                 Positioned(
                   left: 15,
-                  top: languages.isNotEmpty ? 169 : 149,
+                  top: language.isNotEmpty ? 155 : 140,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,

@@ -6,6 +6,7 @@ import '../services/auth_service.dart';
 import '../providers/user_provider.dart';
 import '../bottomnavigation/bottomnavigation.dart';
 import '../start_subscription.dart';
+import '../utils/first_login_helper.dart';
 
 class MpinVerificationScreen extends StatefulWidget {
   const MpinVerificationScreen({super.key});
@@ -93,6 +94,8 @@ class _MpinVerificationScreenState extends State<MpinVerificationScreen> {
       final response = await _authService.verifyMpin(mpin);
 
       if (response['success'] == true) {
+        // Set hasLoggedInBefore flag
+        await FirstLoginHelper.setHasLoggedIn();
         // Update username from response if available
         if (response['data'] != null && response['data']['user'] != null) {
           setState(() {
@@ -363,6 +366,7 @@ class _MpinVerificationScreenState extends State<MpinVerificationScreen> {
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
                 await _authService.logout();
+                await FirstLoginHelper.clearHasLoggedIn();
                 if (!mounted) return;
                 // Use a more reliable navigation approach
                 _navigateToWelcome();

@@ -240,9 +240,9 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
     final specialization = {
       'reraRegistered': reraRegestration,
       'reraNumber': reraNUmber.text,
-      'networkingMembers': networkingMember.text.split(','),
+      'networkingMembers': networkingMember.text,
       'realEstateWebsite': realEstateWebsite.text,
-      'associatedBuilders': associatedBuilders.text.split(','),
+      'associatedBuilders': associatedBuilders.text,
     };
     // Save to provider
     final userProvider = Provider.of<UserProvider>(context, listen: false);

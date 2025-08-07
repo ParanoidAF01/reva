@@ -41,9 +41,9 @@ class _EditSpecializationAndRecognitionState extends State<EditSpecializationAnd
     final specialization = {
       'reraRegistered': reraRegestration,
       'reraNumber': reraNUmber.text,
-      'networkingMembers': networkingMember.text.split(','),
+      'networkingMembers': networkingMember.text,
       'realEstateWebsite': realEstateWebsite.text,
-      'associatedBuilders': associatedBuilders.text.split(','),
+      'associatedBuilders': associatedBuilders.text,
     };
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     userProvider.updateUserData({

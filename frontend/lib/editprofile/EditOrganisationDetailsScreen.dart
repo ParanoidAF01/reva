@@ -85,6 +85,7 @@ class _EditOrganisationDetailsScreenState extends State<EditOrganisationDetailsS
     final regex = RegExp(r'^(0[1-9]|[12][0-9]|3[01])[\/\-](0[1-9]|1[0-2])[\/\-](19|20)\d{2}$');
     return regex.hasMatch(date.trim());
   }
+
   bool _isValidCompanyType(String type) => companyTypes.contains(type);
 
   Future<void> _saveOrganisationDetails() async {
@@ -142,7 +143,9 @@ class _EditOrganisationDetailsScreenState extends State<EditOrganisationDetailsS
         }
       });
       if (response['success'] == true) {
-        Navigator.pop(context);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => ProfilePercentageScreen()),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response['message'] ?? 'Failed to update organization details'), backgroundColor: Colors.red),

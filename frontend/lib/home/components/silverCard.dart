@@ -163,7 +163,7 @@ class SilverCard extends StatelessWidget {
               if (tag1.isNotEmpty || tag2.isNotEmpty || tag3.isNotEmpty)
                 Positioned(
                   left: 15,
-                  top: language.isNotEmpty ? 155 : 140, 
+                  top: language.isNotEmpty ? 155 : 140,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,

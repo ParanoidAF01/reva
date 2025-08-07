@@ -64,109 +64,109 @@ class SharePostScreen extends StatelessWidget {
                                 children: [
                                   Builder(
                                     builder: (context) {
-                            final userProvider = Provider.of<UserProvider>(context, listen: false);
-                            final profilePic = userProvider.userData?['profilePicture'] ?? userProvider.userData?['profileImage'] ?? 'assets/dummyprofile.png';
-                            return CircleAvatar(
-                              radius: 24,
-                              backgroundImage: profilePic != null && profilePic.toString().isNotEmpty && !profilePic.toString().contains('assets/') ? NetworkImage(profilePic) : const AssetImage('assets/dummyprofile.png') as ImageProvider,
-                            );
-                          },
-                        ),
-                        const SizedBox(width: 12),
-                        Builder(
-                          builder: (context) {
-                            final userProvider = Provider.of<UserProvider>(context, listen: false);
-                            final userName = userProvider.userName;
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  userName,
-                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  "$usedPosts/$maxPosts Posts",
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                        const Spacer(),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF0262AB),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          ),
-                          onPressed: usedPosts >= maxPosts
-                              ? null
-                              : () async {
-                                  final text = postController.text.trim();
-                                  String? mediaUrl;
-                                  if (pickedFile != null) {
-                                    if (pickedType == 'photo') {
-                                      mediaUrl = await CloudinaryService.uploadImage(File(pickedFile!.path));
-                                      if (mediaUrl == null) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Failed to upload image to Cloudinary')),
-                                        );
-                                        return;
-                                      }
-                                    } else if (pickedType == 'video') {
-                                      // Implement Cloudinary video upload if needed
-                                      mediaUrl = await CloudinaryService.uploadImage(File(pickedFile!.path));
-                                      if (mediaUrl == null) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          const SnackBar(content: Text('Failed to upload video to Cloudinary')),
-                                        );
-                                        return;
-                                      }
-                                    }
-                                  }
-                                  if (text.isNotEmpty || mediaUrl != null) {
-                                    try {
-                                      // Debug print to verify mediaUrl
-                                      print('DEBUG: mediaUrl to send: $mediaUrl');
-                                      final postData = {
-                                        'content': text.isNotEmpty ? text : ' ',
-                                        'images': (pickedType == 'photo' && mediaUrl != null && mediaUrl.startsWith('https://res.cloudinary.com'))
-                                            ? [
-                                                mediaUrl
-                                              ]
-                                            : [],
-                                        'videos': (pickedType == 'video' && mediaUrl != null && mediaUrl.startsWith('https://res.cloudinary.com'))
-                                            ? [
-                                                mediaUrl
-                                              ]
-                                            : [],
-                                      };
-                                      print('DEBUG: postData to send: $postData');
-                                      final response = await ServiceManager.instance.posts.createPost(postData);
-                                      if (response['success'] == true) {
-                                        Navigator.of(context).pop();
-                                      } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text(response['message'] ?? 'Failed to create post')),
-                                        );
-                                      }
-                                    } catch (e) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('Error creating post: $e')),
+                                      final userProvider = Provider.of<UserProvider>(context, listen: false);
+                                      final profilePic = userProvider.userData?['profilePicture'] ?? userProvider.userData?['profileImage'] ?? 'assets/dummyprofile.png';
+                                      return CircleAvatar(
+                                        radius: 24,
+                                        backgroundImage: profilePic != null && profilePic.toString().isNotEmpty && !profilePic.toString().contains('assets/') ? NetworkImage(profilePic) : const AssetImage('assets/dummyprofile.png') as ImageProvider,
                                       );
-                                    }
-                                  }
-                                },
-                          child: const Text(
-                            "Post",
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                                    },
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Builder(
+                                    builder: (context) {
+                                      final userProvider = Provider.of<UserProvider>(context, listen: false);
+                                      final userName = userProvider.userName;
+                                      return Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            userName,
+                                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                          ),
+                                          Text(
+                                            "$usedPosts/$maxPosts Posts",
+                                            style: const TextStyle(color: Colors.grey),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                  const Spacer(),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF0262AB),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                    ),
+                                    onPressed: usedPosts >= maxPosts
+                                        ? null
+                                        : () async {
+                                            final text = postController.text.trim();
+                                            String? mediaUrl;
+                                            if (pickedFile != null) {
+                                              if (pickedType == 'photo') {
+                                                mediaUrl = await CloudinaryService.uploadImage(File(pickedFile!.path));
+                                                if (mediaUrl == null) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    const SnackBar(content: Text('Failed to upload image to Cloudinary')),
+                                                  );
+                                                  return;
+                                                }
+                                              } else if (pickedType == 'video') {
+                                                // Implement Cloudinary video upload if needed
+                                                mediaUrl = await CloudinaryService.uploadImage(File(pickedFile!.path));
+                                                if (mediaUrl == null) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    const SnackBar(content: Text('Failed to upload video to Cloudinary')),
+                                                  );
+                                                  return;
+                                                }
+                                              }
+                                            }
+                                            if (text.isNotEmpty || mediaUrl != null) {
+                                              try {
+                                                // Debug print to verify mediaUrl
+                                                print('DEBUG: mediaUrl to send: $mediaUrl');
+                                                final postData = {
+                                                  'content': text.isNotEmpty ? text : ' ',
+                                                  'images': (pickedType == 'photo' && mediaUrl != null && mediaUrl.startsWith('https://res.cloudinary.com'))
+                                                      ? [
+                                                          mediaUrl
+                                                        ]
+                                                      : [],
+                                                  'videos': (pickedType == 'video' && mediaUrl != null && mediaUrl.startsWith('https://res.cloudinary.com'))
+                                                      ? [
+                                                          mediaUrl
+                                                        ]
+                                                      : [],
+                                                };
+                                                print('DEBUG: postData to send: $postData');
+                                                final response = await ServiceManager.instance.posts.createPost(postData);
+                                                if (response['success'] == true) {
+                                                  Navigator.of(context).pop();
+                                                } else {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    SnackBar(content: Text(response['message'] ?? 'Failed to create post')),
+                                                  );
+                                                }
+                                              } catch (e) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(content: Text('Error creating post: $e')),
+                                                );
+                                              }
+                                            }
+                                          },
+                                    child: const Text(
+                                      "Post",
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             const SizedBox(height: 24),
                             // Prompt Text
                             Padding(

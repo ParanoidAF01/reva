@@ -37,7 +37,9 @@ class _EditEKycScreenState extends State<EditEKycScreen> {
         'kycVerified': true,
       });
       if (response['success'] == true) {
-        Navigator.pop(context);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => ProfilePercentageScreen()),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response['message'] ?? 'Failed to update KYC'), backgroundColor: Colors.red),

@@ -81,19 +81,25 @@ class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
   Future<void> _savePreferences() async {
     final preferences = {
       'operatingLocations': operatingLocation,
-      'interests': [interest],
+      'interests': [
+        interest
+      ],
       'propertyType': propertyType,
       'networkingPreferences': networkingPreference,
       'targetClients': targetClient,
     };
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.updateUserData({'preferences': preferences});
+    userProvider.updateUserData({
+      'preferences': preferences
+    });
     try {
       final response = await ApiService().put('/profiles/', {
         'preferences': preferences,
       });
       if (response['success'] == true) {
-        Navigator.pop(context);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => ProfilePercentageScreen()),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response['message'] ?? 'Failed to update preferences'), backgroundColor: Colors.red),
@@ -186,43 +192,43 @@ class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
               children: [
                 SizedBox(height: height * 0.04),
                 _buildBottomSheetField(
-                  label: "Operating Location",
-                  value: operatingLocation,
-                  options: operatingLoactions,
-                  onSelected: (val) {
-                    setState(() => operatingLocation = val);
-                  }),
+                    label: "Operating Location",
+                    value: operatingLocation,
+                    options: operatingLoactions,
+                    onSelected: (val) {
+                      setState(() => operatingLocation = val);
+                    }),
                 _buildBottomSheetField(
-                  label: "Interest",
-                  value: interest,
-                  options: interests,
-                  onSelected: (val) {
-                    setState(() => interest = val);
-                  }),
+                    label: "Interest",
+                    value: interest,
+                    options: interests,
+                    onSelected: (val) {
+                      setState(() => interest = val);
+                    }),
                 const SizedBox(height: 16),
                 _buildBottomSheetField(
-                  label: "Property Type",
-                  value: propertyType,
-                  options: propertyTypes,
-                  onSelected: (val) {
-                    setState(() => propertyType = val);
-                  }),
+                    label: "Property Type",
+                    value: propertyType,
+                    options: propertyTypes,
+                    onSelected: (val) {
+                      setState(() => propertyType = val);
+                    }),
                 const SizedBox(height: 16),
                 _buildBottomSheetField(
-                  label: "Networking Preferences",
-                  value: networkingPreference,
-                  options: networkingPreferences,
-                  onSelected: (val) {
-                    setState(() => networkingPreference = val);
-                  }),
+                    label: "Networking Preferences",
+                    value: networkingPreference,
+                    options: networkingPreferences,
+                    onSelected: (val) {
+                      setState(() => networkingPreference = val);
+                    }),
                 const SizedBox(height: 16),
                 _buildBottomSheetField(
-                  label: "Target Client",
-                  value: targetClient,
-                  options: targetClients,
-                  onSelected: (val) {
-                    setState(() => targetClient = val);
-                  }),
+                    label: "Target Client",
+                    value: targetClient,
+                    options: targetClients,
+                    onSelected: (val) {
+                      setState(() => targetClient = val);
+                    }),
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,

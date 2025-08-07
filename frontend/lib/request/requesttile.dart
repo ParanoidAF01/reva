@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:reva/services/service_manager.dart';
 import 'package:reva/qr/qr_scan_screen.dart';
 
-
 class RequestTile extends StatelessWidget {
   Future<void> _handleScanQR(BuildContext context) async {
     Navigator.of(context).push(
@@ -11,6 +10,7 @@ class RequestTile extends StatelessWidget {
       ),
     );
   }
+
   final Map<String, dynamic> userData;
   final String requestId;
   final VoidCallback? onRefresh;
@@ -99,9 +99,7 @@ class RequestTile extends StatelessWidget {
           // Profile Image
           CircleAvatar(
             radius: width * 0.06,
-            backgroundImage: (profilePic != null && profilePic.isNotEmpty)
-                ? NetworkImage(profilePic)
-                : AssetImage('assets/dummyprofile.png') as ImageProvider,
+            backgroundImage: (profilePic != null && profilePic.isNotEmpty) ? NetworkImage(profilePic) : AssetImage('assets/dummyprofile.png') as ImageProvider,
           ),
           const SizedBox(width: 12),
 
@@ -157,7 +155,6 @@ class RequestTile extends StatelessWidget {
               ],
             ),
           ),
-
 
           // Accept Button (only for incoming)
           if (!isOutgoing)

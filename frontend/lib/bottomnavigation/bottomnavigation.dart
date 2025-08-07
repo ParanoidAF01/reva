@@ -58,7 +58,10 @@ class _BottomNavigationState extends State<BottomNavigation> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             gradient: const LinearGradient(
-              colors: [Color(0xFF0262AB), Color(0xFF01345A)],
+              colors: [
+                Color(0xFF0262AB),
+                Color(0xFF01345A)
+              ],
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
             ),

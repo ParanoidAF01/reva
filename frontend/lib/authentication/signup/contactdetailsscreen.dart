@@ -45,6 +45,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
       }
     }
   }
+
   // Validation helpers
   bool _isValidMobile(String mobile) => RegExp(r'^[0-9]{10}$').hasMatch(mobile.trim());
 

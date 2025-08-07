@@ -85,9 +85,12 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       // Map experience number to string option if possible
       final exp = userData['experience'];
       if (exp is int) {
-        if (exp == 0) selectedExperience = 'Less than 1 year';
-        else if (exp == 1) selectedExperience = '1 year';
-        else if (exp == 2) selectedExperience = '2 years';
+        if (exp == 0)
+          selectedExperience = 'Less than 1 year';
+        else if (exp == 1)
+          selectedExperience = '1 year';
+        else if (exp == 2)
+          selectedExperience = '2 years';
         else if (exp == 3) selectedExperience = '3+ years';
       } else if (exp is String && exp.isNotEmpty) {
         selectedExperience = exp;

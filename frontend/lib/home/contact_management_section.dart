@@ -49,88 +49,88 @@ class ContactManagementSection extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(top: 0), // minimal non-negative gap
           child: GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: contacts.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 4,
-            mainAxisSpacing: 0,
-            crossAxisSpacing: 0,
-            childAspectRatio: 0.55,
-          ),
-          itemBuilder: (context, i) {
-            final c = contacts[i];
-            return LayoutBuilder(
-              builder: (context, constraints) {
-                final double borderRadius = 22 * tileRadiusScale;
-                final double tileWidth = constraints.maxWidth * 0.9;
-                final double tileHeight = constraints.maxHeight * 1.0; // Use full height per tile
-                final double iconSize = tileHeight * 0.20 * tileIconScale;
-                final double countFont = tileHeight * 0.18 * tileCountFontScale;
-                final double labelFont = tileHeight * 0.11 * tileLabelFontScale;
-                final double avatarTop = -iconSize * 0.12;
-                return Center(
-                  child: SizedBox(
-                    width: tileWidth,
-                    height: tileHeight,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(borderRadius),
-                        image: const DecorationImage(
-                          image: AssetImage('assets/contactmanagement_tile.png'),
-                          fit: BoxFit.cover,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: contacts.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              mainAxisSpacing: 0,
+              crossAxisSpacing: 0,
+              childAspectRatio: 0.55,
+            ),
+            itemBuilder: (context, i) {
+              final c = contacts[i];
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final double borderRadius = 22 * tileRadiusScale;
+                  final double tileWidth = constraints.maxWidth * 0.9;
+                  final double tileHeight = constraints.maxHeight * 1.0; // Use full height per tile
+                  final double iconSize = tileHeight * 0.20 * tileIconScale;
+                  final double countFont = tileHeight * 0.18 * tileCountFontScale;
+                  final double labelFont = tileHeight * 0.11 * tileLabelFontScale;
+                  final double avatarTop = -iconSize * 0.12;
+                  return Center(
+                    child: SizedBox(
+                      width: tileWidth,
+                      height: tileHeight,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(borderRadius),
+                          image: const DecorationImage(
+                            image: AssetImage('assets/contactmanagement_tile.png'),
+                            fit: BoxFit.cover,
+                          ),
                         ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          SizedBox(height: tileHeight * 0.06),
-                          Container(
-                            width: iconSize,
-                            height: iconSize,
-                            decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.13),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white.withOpacity(0.10), width: 1.2 * tilePaddingScale),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            SizedBox(height: tileHeight * 0.06),
+                            Container(
+                              width: iconSize,
+                              height: iconSize,
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.13),
+                                shape: BoxShape.circle,
+                                border: Border.all(color: Colors.white.withOpacity(0.10), width: 1.2 * tilePaddingScale),
+                              ),
+                              child: Center(child: SizedBox(width: iconSize * 0.7, height: iconSize * 0.7, child: c.icon)),
                             ),
-                            child: Center(child: SizedBox(width: iconSize * 0.7, height: iconSize * 0.7, child: c.icon)),
-                          ),
-                          SizedBox(height: tileHeight * 0.02),
-                          Text(
-                            c.count,
-                            style: GoogleFonts.dmSans(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: countFont,
-                              letterSpacing: 0.2,
-                            ),
-                          ),
-                          SizedBox(height: tileHeight * 0.005 * tilePaddingScale),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                            child: Text(
-                              c.label,
+                            SizedBox(height: tileHeight * 0.02),
+                            Text(
+                              c.count,
                               style: GoogleFonts.dmSans(
                                 color: Colors.white,
-                                fontWeight: FontWeight.w400,
-                                fontSize: labelFont,
-                                height: 1.13,
-                                letterSpacing: 0.01,
+                                fontWeight: FontWeight.w700,
+                                fontSize: countFont,
+                                letterSpacing: 0.2,
                               ),
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                        ],
+                            SizedBox(height: tileHeight * 0.005 * tilePaddingScale),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                              child: Text(
+                                c.label,
+                                style: GoogleFonts.dmSans(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: labelFont,
+                                  height: 1.13,
+                                  letterSpacing: 0.01,
+                                ),
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
-            );
-          },
+                  );
+                },
+              );
+            },
           ),
         ),
         const SizedBox(height: 24),
@@ -323,9 +323,7 @@ class NfcCardWidget extends StatelessWidget {
               const SizedBox(height: 10),
               RichText(
                 text: TextSpan(
-                  text: achievementUnlocked
-                      ? 'Achievement unlocked!'
-                      : 'You need ',
+                  text: achievementUnlocked ? 'Achievement unlocked!' : 'You need ',
                   style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
                   children: achievementUnlocked
                       ? [

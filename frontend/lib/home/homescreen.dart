@@ -774,7 +774,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text('Subscription Status', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: Colors.white)),
                               const SizedBox(width: 8),
-                              const Spacer(flex: 2,),
+                              const Spacer(
+                                flex: 2,
+                              ),
                               Icon(Icons.circle, color: subscriptionActive ? Colors.greenAccent : Colors.red, size: 12),
                               const SizedBox(width: 2),
                               Text(subscriptionActive ? 'Active' : 'Inactive', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 13)),

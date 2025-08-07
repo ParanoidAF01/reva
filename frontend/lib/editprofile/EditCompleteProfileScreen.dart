@@ -72,9 +72,12 @@ class _EditCompleteProfileScreenState extends State<EditCompleteProfileScreen> {
     if (userData['experience'] != null) {
       final exp = userData['experience'];
       if (exp is int) {
-        if (exp == 0) selectedExperience = 'Less than 1 year';
-        else if (exp == 1) selectedExperience = '1 year';
-        else if (exp == 2) selectedExperience = '2 years';
+        if (exp == 0)
+          selectedExperience = 'Less than 1 year';
+        else if (exp == 1)
+          selectedExperience = '1 year';
+        else if (exp == 2)
+          selectedExperience = '2 years';
         else if (exp == 3) selectedExperience = '3+ years';
       } else if (exp is String && exp.isNotEmpty) {
         selectedExperience = exp;
@@ -116,7 +119,6 @@ class _EditCompleteProfileScreenState extends State<EditCompleteProfileScreen> {
     else if (selectedExperience == '2 years')
       experienceNum = 2;
     else if (selectedExperience == '3+ years') experienceNum = 3;
-
 
     // Convert dob to ISO format (yyyy-mm-dd) regardless of input separator
     String dobIso = '';
@@ -170,7 +172,9 @@ class _EditCompleteProfileScreenState extends State<EditCompleteProfileScreen> {
         'experience': experienceNum,
       });
       if (response['success'] == true) {
-        Navigator.pop(context);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => ProfilePercentageScreen()),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response['message'] ?? 'Failed to update profile'), backgroundColor: Colors.red),

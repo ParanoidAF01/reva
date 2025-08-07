@@ -83,7 +83,6 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
   int eventsAttended = 0;
   bool _loadingEvents = true;
 
-
   @override
   void initState() {
     super.initState();

@@ -11,7 +11,6 @@ import 'package:reva/editprofile/EditPreferencesScreen.dart';
 import 'package:reva/editprofile/EditSpecializationAndRecognition.dart';
 import 'package:reva/services/api_service.dart';
 
-
 class ProfilePercentageScreen extends StatefulWidget {
   const ProfilePercentageScreen({Key? key}) : super(key: key);
 
@@ -19,13 +18,34 @@ class ProfilePercentageScreen extends StatefulWidget {
   State<ProfilePercentageScreen> createState() => _ProfilePercentageScreenState();
 }
 
-class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> {
+class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with RouteAware {
   late Future<Map<String, dynamic>> _profileFuture;
 
   @override
   void initState() {
     super.initState();
     _profileFuture = _fetchProfile();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final routeObserver = ModalRoute.of(context)?.navigator?.widget.observers.whereType<RouteObserver<PageRoute>>().firstOrNull;
+    routeObserver?.subscribe(this, ModalRoute.of(context)! as PageRoute);
+  }
+
+  @override
+  void dispose() {
+    final routeObserver = ModalRoute.of(context)?.navigator?.widget.observers.whereType<RouteObserver<PageRoute>>().firstOrNull;
+    routeObserver?.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    setState(() {
+      _profileFuture = _fetchProfile();
+    });
   }
 
   Future<Map<String, dynamic>> _fetchProfile() async {
@@ -51,7 +71,6 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     final cardColor = const Color(0xFF23262B);
@@ -248,24 +267,7 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> {
                         ),
                         Row(
                           children: [
-                            Expanded(
-                              child: buildSectionCard(
-                                'E-KYC',
-                                Icons.event,
-                                sectionStatus['E-KYC']!,
-                                () async {
-                                  await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => EditEKycScreen(),
-                                    ),
-                                  );
-                                  setState(() {
-                                    _profileFuture = _fetchProfile();
-                                  });
-                                },
-                              ),
-                            ),
+                          
                             Expanded(
                               child: buildSectionCard(
                                 'Contact Details',

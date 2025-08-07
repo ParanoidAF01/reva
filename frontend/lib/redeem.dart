@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:reva/home/components/goldCard.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:reva/services/nfc_card_service.dart';
+import 'package:reva/services/profile_service.dart';
 
 class RedeemPage extends StatefulWidget {
   const RedeemPage({super.key});
@@ -10,17 +11,21 @@ class RedeemPage extends StatefulWidget {
   State<RedeemPage> createState() => _RedeemPageState();
 }
 
-class _RedeemPageState extends State<RedeemPage>
-    with SingleTickerProviderStateMixin {
+class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateMixin, RouteAware {
   bool _showGoldCard = false;
   late AnimationController _controller;
   late Animation<double> _animation;
   bool achievementUnlocked = false; // Set to false to test locked state
   late Razorpay _razorpay;
   final NfcCardService _nfcCardService = NfcCardService();
+  final ProfileService _profileService = ProfileService();
+  Map<String, dynamic>? _profileData;
+  bool _profileLoading = true;
   Future<void> _claimNfcCard() async {
     // You can collect user info here if needed
-    final requestData = {"note": "Requesting NFC card"};
+    final requestData = {
+      "note": "Requesting NFC card"
+    };
     try {
       final response = await _nfcCardService.requestNfcCard(requestData);
       if (response["success"] == true) {
@@ -29,9 +34,7 @@ class _RedeemPageState extends State<RedeemPage>
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text(response["message"] ?? "Failed to request NFC Card.")),
+          SnackBar(content: Text(response["message"] ?? "Failed to request NFC Card.")),
         );
       }
     } catch (e) {
@@ -55,13 +58,51 @@ class _RedeemPageState extends State<RedeemPage>
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    _fetchProfile();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final routeObserver = ModalRoute.of(context)?.navigator?.widget.observers.whereType<RouteObserver<PageRoute>>().firstOrNull;
+    routeObserver?.subscribe(this, ModalRoute.of(context)! as PageRoute);
   }
 
   @override
   void dispose() {
+    final routeObserver = ModalRoute.of(context)?.navigator?.widget.observers.whereType<RouteObserver<PageRoute>>().firstOrNull;
+    routeObserver?.unsubscribe(this);
     _razorpay.clear();
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    _fetchProfile();
+  }
+
+  Future<void> _fetchProfile() async {
+    setState(() {
+      _profileLoading = true;
+    });
+    try {
+      final res = await _profileService.getMyProfile();
+      if (res['success'] == true && res['data'] != null) {
+        setState(() {
+          _profileData = res['data'];
+          _profileLoading = false;
+        });
+      } else {
+        setState(() {
+          _profileLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _profileLoading = false;
+      });
+    }
   }
 
   void _flipCard() {
@@ -90,8 +131,7 @@ class _RedeemPageState extends State<RedeemPage>
               child: CircleAvatar(
                 radius: 22,
                 backgroundColor: Colors.white,
-                child:
-                    Image.asset('assets/celebrate.png', height: 32, width: 32),
+                child: Image.asset('assets/celebrate.png', height: 32, width: 32),
               ),
             ),
             SizedBox(height: height * 0.02),
@@ -103,59 +143,44 @@ class _RedeemPageState extends State<RedeemPage>
                   color: const Color(0xFF22252A),
                   borderRadius: BorderRadius.circular(22),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 22, horizontal: 18),
+                padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 18),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const Text('Want NFC Card?',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 20)),
+                        const Text('Want NFC Card?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
                         const Spacer(),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color: const Color(0xFF232E1B),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Text('Congratulations!',
-                              style: TextStyle(
-                                  color: Color(0xFF7ED957),
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 13)),
+                          child: const Text('Congratulations!', style: TextStyle(color: Color(0xFF7ED957), fontWeight: FontWeight.w500, fontSize: 13)),
                         ),
                       ],
                     ),
                     const SizedBox(height: 4),
-                    const Text('UNLOCKED',
-                        style: TextStyle(
-                            color: Colors.white54,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500)),
+                    const Text('UNLOCKED', style: TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500)),
                     const SizedBox(height: 16),
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF0262AB), Color(0xFF5B8DCB)],
+                          colors: [
+                            Color(0xFF0262AB),
+                            Color(0xFF5B8DCB)
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 12, horizontal: 10),
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
                       child: const Text(
                         'You will receive your card at the provided address.',
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500),
+                        style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -172,8 +197,7 @@ class _RedeemPageState extends State<RedeemPage>
                   color: const Color(0xFF22252A),
                   borderRadius: BorderRadius.circular(22),
                 ),
-                padding:
-                    const EdgeInsets.symmetric(vertical: 28, horizontal: 18),
+                padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 18),
                 child: achievementUnlocked
                     ? GestureDetector(
                         onTap: _flipCard,
@@ -190,23 +214,15 @@ class _RedeemPageState extends State<RedeemPage>
                                   ..rotateY(angle),
                                 child: Column(
                                   children: [
-                                    const Text('Achievement Unlocked!',
-                                        style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 20)),
+                                    const Text('Achievement Unlocked!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
                                     SizedBox(height: height * 0.02),
                                     CircleAvatar(
                                       radius: 38,
                                       backgroundColor: const Color(0xFF22252A),
-                                      child: Image.asset('assets/giftbox.png',
-                                          height: 54, width: 54),
+                                      child: Image.asset('assets/celebrate.png', height: 54, width: 54),
                                     ),
                                     SizedBox(height: height * 0.01),
-                                    const Text('Tap the box to reveal',
-                                        style: TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 15)),
+                                    const Text('Tap the box to reveal', style: TextStyle(color: Colors.white70, fontSize: 15)),
                                   ],
                                 ),
                               );
@@ -223,55 +239,51 @@ class _RedeemPageState extends State<RedeemPage>
                                         CircleAvatar(
                                           radius: 18,
                                           backgroundColor: Colors.white,
-                                          child: Image.asset(
-                                              'assets/celebrate.png',
-                                              height: 26,
-                                              width: 26),
+                                          child: Image.asset('assets/celebrate.png', height: 26, width: 26),
                                         ),
                                         const SizedBox(width: 10),
-                                        const Text('Congratulations!',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 20)),
+                                        const Text('Congratulations!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
                                       ],
                                     ),
                                     SizedBox(height: height * 0.02),
-                                    GoldCard(
-                                      name: "Ayush Kumar.",
-                                      location: "Delhi NCR",
-                                      experience: "4+ years",
-                                      language: "Hindi, English",
-                                      tag1: "Commercial",
-                                      tag2: "Plots",
-                                      tag3: "Rental",
-                                      kycStatus: "KYC Approved",
-                                    ),
+                                    _profileLoading
+                                        ? const CircularProgressIndicator()
+                                        : GoldCard(
+                                            name: (_profileData?['fullName'] ?? _profileData?['user']?['fullName'] ?? '-').toString(),
+                                            location: (_profileData?['location'] ?? _profileData?['user']?['location'] ?? '-').toString(),
+                                            experience: (_profileData?['experience'] ?? _profileData?['user']?['experience'] ?? '-').toString(),
+                                            language: (_profileData?['language'] ?? _profileData?['user']?['language'] ?? '-').toString(),
+                                            tag1: (_profileData?['tags'] is List && (_profileData?['tags'] as List).isNotEmpty)
+                                                ? (_profileData?['tags'] as List)[0].toString()
+                                                : (_profileData?['user']?['tags'] is List && (_profileData?['user']?['tags'] as List).isNotEmpty)
+                                                    ? (_profileData?['user']?['tags'] as List)[0].toString()
+                                                    : 'Commercial',
+                                            tag2: (_profileData?['tags'] is List && (_profileData?['tags'] as List).length > 1)
+                                                ? (_profileData?['tags'] as List)[1].toString()
+                                                : (_profileData?['user']?['tags'] is List && (_profileData?['user']?['tags'] as List).length > 1)
+                                                    ? (_profileData?['user']?['tags'] as List)[1].toString()
+                                                    : 'Plots',
+                                            tag3: (_profileData?['tags'] is List && (_profileData?['tags'] as List).length > 2)
+                                                ? (_profileData?['tags'] as List)[2].toString()
+                                                : (_profileData?['user']?['tags'] is List && (_profileData?['user']?['tags'] as List).length > 2)
+                                                    ? (_profileData?['user']?['tags'] as List)[2].toString()
+                                                    : 'Rental',
+                                            kycStatus: (_profileData?['kycStatus'] ?? _profileData?['user']?['kycStatus'] ?? '').toString(),
+                                          ),
                                     SizedBox(height: height * 0.01),
-                                    const Text('Golden league unlocked',
-                                        style: TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 15)),
+                                    const Text('Golden league unlocked', style: TextStyle(color: Colors.white70, fontSize: 15)),
                                     SizedBox(height: height * 0.02),
                                     SizedBox(
                                       width: double.infinity,
                                       child: ElevatedButton(
                                         onPressed: _claimNfcCard,
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              const Color(0xFF0262AB),
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 14),
-                                          shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(12)),
+                                          backgroundColor: const Color(0xFF0262AB),
+                                          padding: const EdgeInsets.symmetric(vertical: 14),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                           elevation: 0,
                                         ),
-                                        child: const Text('Redeem Now!',
-                                            style: TextStyle(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.w700,
-                                                fontSize: 16)),
+                                        child: const Text('Redeem Now!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)),
                                       ),
                                     ),
                                   ],
@@ -283,22 +295,15 @@ class _RedeemPageState extends State<RedeemPage>
                       )
                     : Column(
                         children: [
-                          const Text('Achievement Locked',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 20)),
+                          const Text('Achievement Locked', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
                           SizedBox(height: height * 0.02),
                           const CircleAvatar(
                             radius: 38,
                             backgroundColor: Color(0xFF22252A),
-                            child: Icon(Icons.lock,
-                                color: Colors.white54, size: 38),
+                            child: Icon(Icons.lock, color: Colors.white54, size: 38),
                           ),
                           SizedBox(height: height * 0.01),
-                          const Text('Unlock this card for ₹5000',
-                              style: TextStyle(
-                                  color: Colors.white70, fontSize: 15)),
+                          const Text('Unlock this card for ₹5000', style: TextStyle(color: Colors.white70, fontSize: 15)),
                           SizedBox(height: height * 0.02),
                           SizedBox(
                             width: double.infinity,
@@ -306,17 +311,11 @@ class _RedeemPageState extends State<RedeemPage>
                               onPressed: _openCheckout,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF0262AB),
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12)),
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                                 elevation: 0,
                               ),
-                              child: const Text('Pay Now',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 16)),
+                              child: const Text('Pay Now', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)),
                             ),
                           ),
                         ],
@@ -341,7 +340,7 @@ class _RedeemPageState extends State<RedeemPage>
         "note": "NFC card requested after successful payment"
       };
 
-      final nfcResponse = await _nfcCardService.requestNfcCard(requestData);
+      await _nfcCardService.requestNfcCard(requestData);
 
       // Update UI state
       setState(() {
@@ -401,8 +400,7 @@ class _RedeemPageState extends State<RedeemPage>
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
-                "Payment successful but NFC card request failed. Please contact support."),
+            content: Text("Payment successful but NFC card request failed. Please contact support."),
             backgroundColor: Colors.orange,
           ));
         }
@@ -466,9 +464,14 @@ class _RedeemPageState extends State<RedeemPage>
       'amount': 500000, // ₹5000 in paise
       'name': 'REVA',
       'description': 'Unlock Achievement Card',
-      'prefill': {'contact': '9123456789', 'email': 'testuser@example.com'},
+      'prefill': {
+        'contact': '9123456789',
+        'email': 'testuser@example.com'
+      },
       'external': {
-        'wallets': ['paytm']
+        'wallets': [
+          'paytm'
+        ]
       }
     };
     try {

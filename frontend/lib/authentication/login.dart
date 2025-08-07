@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 
 import 'package:reva/authentication/signup/signup.dart';
 import 'package:reva/authentication/signup/otpscreen.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:reva/services/auth_service.dart';
 import 'package:reva/bottomnavigation/bottomnavigation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -12,6 +11,7 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:reva/start_subscription.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:reva/providers/user_provider.dart';
+import '../utils/first_login_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -110,6 +110,8 @@ class _LoginScreenState extends State<LoginScreen> {
           await AuthService().login(mobileNumber: phone, mpin: mpin);
 
       if (response['success'] == true) {
+        // Set hasLoggedInBefore flag
+        await FirstLoginHelper.setHasLoggedIn();
         // Load user data after successful login
         final userProvider = Provider.of<UserProvider>(context, listen: false);
         await userProvider.loadUserData();

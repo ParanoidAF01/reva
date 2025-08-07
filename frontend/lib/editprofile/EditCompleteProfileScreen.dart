@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/authentication/components/mytextfield.dart';
 import 'package:provider/provider.dart';
 import 'package:reva/services/api_service.dart';

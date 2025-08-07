@@ -8,6 +8,7 @@ import {
     sendConnectionRequest,
     getPendingRequests,
     respondToConnectionRequest,
+    cancelConnectionRequest,
     getSentRequests,
 } from "../controllers/connectionController.js";
 import { verifyJWT } from "../middlewares/authMiddleware.js";
@@ -25,6 +26,7 @@ connectionRoute.delete("/:connectionId", removeConnection);
 connectionRoute.post("/request", sendConnectionRequest);
 connectionRoute.get("/pending-requests", getPendingRequests);
 connectionRoute.put("/request/:requestId/respond", respondToConnectionRequest);
+connectionRoute.put("/request/:requestId/cancel", cancelConnectionRequest);
 connectionRoute.get("/sent-requests", getSentRequests);
 
 export default connectionRoute; 

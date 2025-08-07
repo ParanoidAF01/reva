@@ -484,6 +484,35 @@ const getSentRequests = asyncHandler(async (req, res) => {
     );
 });
 
+const cancelConnectionRequest = asyncHandler(async (req, res) => {
+    const currentUserId = req.user._id;
+    if (!currentUserId) {
+        throw new ApiError(400, "User ID is required");
+    }
+
+    const { requestId } = req.params;
+    if (!requestId) {
+        throw new ApiError(400, "Request ID is required");
+    }
+
+    const connectionRequest = await ConnectionRequest.findOne({
+        _id: requestId,
+        fromUser: currentUserId,
+        status: "pending"
+    }).populate('toUser');
+    if (!connectionRequest) {
+        throw new ApiError(404, "Connection request not found or cannot be cancelled");
+    }
+
+    await ConnectionRequest.findByIdAndDelete(requestId);
+
+    return res.status(200).json(
+        new ApiResponse(200, {
+            message: "Connection request cancelled successfully"
+        }, "Connection request cancelled successfully")
+    );
+});
+
 export {
     connectViaQR,
     getMyConnections,
@@ -493,5 +522,6 @@ export {
     sendConnectionRequest,
     getPendingRequests,
     respondToConnectionRequest,
+    cancelConnectionRequest,
     getSentRequests,
 }; 

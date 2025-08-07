@@ -79,7 +79,7 @@ export const register = asyncHandler(async (req, res) => {
                 email: user.email,
                 mobileNumber: user.mobileNumber,
                 fullName: user.fullName,
-                mpin: user.mpin
+                mpin: user.mpin,
             },
             profile: {
                 id: profile._id,
@@ -87,6 +87,10 @@ export const register = asyncHandler(async (req, res) => {
             tokens: {
                 accessToken,
                 refreshToken
+            },
+            verifications: {
+                kyc: profile.kycVerified,
+                otp: user.otpVerified
             }
         }
     });
@@ -147,6 +151,10 @@ export const login = asyncHandler(async (req, res) => {
             tokens: {
                 accessToken,
                 refreshToken
+            },
+            verifications: {
+                kyc: profile.kycVerified,
+                otp: user.otpVerified
             }
         }
     });
@@ -173,6 +181,11 @@ export const verifyMpin = asyncHandler(async (req, res) => {
         throw new ApiError(401, 'Invalid MPIN');
     }
 
+    const profile = await Profile.findOne({ user: userId });
+    if (!profile) {
+        throw new ApiError(404, 'Profile not found');
+    }
+
     res.status(200).json({
         success: true,
         message: "MPIN verified successfully",
@@ -182,6 +195,10 @@ export const verifyMpin = asyncHandler(async (req, res) => {
                 fullName: user.fullName,
                 email: user.email,
                 mobileNumber: user.mobileNumber
+            },
+            verifications: {
+                kyc: profile.kycVerified,
+                otp: user.otpVerified
             }
         }
     });
@@ -304,8 +321,8 @@ export const verifyOtp = asyncHandler(async (req, res) => {
 export const forgotPassword = asyncHandler(async (req, res) => {
     const { mobileNumber, newMpin } = req.body;
 
-    if (!newMpin || newMpin.length < 4 || newMpin.length > 6) {
-        throw new ApiError(400, 'MPIN must be 4-6 digits');
+    if (!newMpin || newMpin.length !== 6) {
+        throw new ApiError(400, 'MPIN must be 6 digits');
     }
 
     const user = await User.findOne({ mobileNumber });

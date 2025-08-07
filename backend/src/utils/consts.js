@@ -36,6 +36,11 @@ const env = {
         keySecret: process.env.RAZORPAY_KEY_SECRET,
     },
 
+    aadhaar: {
+        url: process.env.AADHAAR_API_URL || null,
+        key: process.env.AADHAAR_API_KEY || null,
+    },
+
 }
 
 export const DESIGNATIONS = [

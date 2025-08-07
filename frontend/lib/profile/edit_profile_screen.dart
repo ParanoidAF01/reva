@@ -69,7 +69,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
       final Map<String, dynamic> payload = {
         'location': locationController.text,
-        'language': languagesController.text.trim(),
+        'languages': languagesController.text.trim(),
         if (avatarUrl != null) 'profilePicture': avatarUrl,
       };
       if (experienceController.text.trim().isNotEmpty) {
@@ -153,7 +153,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       ),
                       onPressed: _saveProfile,
-                      child: const Text('Save', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                      child: const Text('Save', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16,color: Colors.white)),
                     ),
                   ),
                 ],

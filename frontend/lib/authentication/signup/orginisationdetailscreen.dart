@@ -20,68 +20,22 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
   final incorporationDateController = TextEditingController();
   final gstinController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-    if (userData['organization'] != null && userData['organization'] is Map) {
-      final org = userData['organization'];
-      if ((org['name'] ?? '').toString().isNotEmpty) {
-        companyNameController.text = org['name'];
-      }
-      if ((org['incorporationDate'] ?? '').toString().isNotEmpty) {
-        final dateRaw = org['incorporationDate'];
-        String? formattedDate;
-        if (dateRaw is String && dateRaw.isNotEmpty) {
-          DateTime? dt;
-          try {
-            dt = DateTime.tryParse(dateRaw);
-          } catch (_) {}
-          if (dt != null) {
-            formattedDate = '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
-          } else if (dateRaw.contains('-')) {
-            final parts = dateRaw.split('-');
-            if (parts.length == 3) {
-              formattedDate = '${parts[2].padLeft(2, '0')}/${parts[1].padLeft(2, '0')}/${parts[0]}';
-            }
-          }
-          formattedDate ??= dateRaw;
-          incorporationDateController.text = formattedDate;
-        }
-      }
-      if ((org['gstNumber'] ?? '').toString().isNotEmpty) {
-        gstinController.text = org['gstNumber'];
-      }
-    }
-  }
-
   bool isRegistered = false;
 
   String selectedCompanyType = 'New Delhi';
   String selectedGstin = '2 years';
 
-  final List<String> companyTypes = [
-    'New Delhi',
-    'Private Ltd',
-    'LLP',
-    'Proprietorship'
-  ];
-  final List<String> gstinOptions = [
-    'Less than 1 year',
-    '1 year',
-    '2 years',
-    '3+ years'
-  ];
-
+  final List<String> companyTypes = ['New Delhi', 'Private Ltd', 'LLP', 'Proprietorship'];
+  final List<String> gstinOptions = ['Less than 1 year', '1 year', '2 years', '3+ years'];
+  
   // Validation helpers
   bool _isValidCompanyName(String name) => name.trim().isNotEmpty;
   bool _isValidIncorporationDate(String date) {
     final regex = RegExp(r'^(0[1-9]|[12][0-9]|3[01])[\/\-](0[1-9]|1[0-2])[\/\-](19|20)\d{2}$');
     return regex.hasMatch(date.trim());
   }
-
   bool _isValidCompanyType(String type) => companyTypes.contains(type);
-
+  
   Future<void> _validateAndProceed() async {
     final name = companyNameController.text;
     final date = incorporationDateController.text;
@@ -193,7 +147,10 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                   children: [
                     Text(
                       "20%   ",
-                      style: GoogleFonts.dmSans(color: const Color(0xFFD8D8DD), fontSize: 18, fontWeight: FontWeight.w700),
+                      style: GoogleFonts.dmSans(
+                          color: const Color(0xFFD8D8DD),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700),
                     ),
                     Text(
                       "Completed..",
@@ -214,7 +171,8 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                       value: 0.2,
                       minHeight: 6,
                       backgroundColor: Colors.white,
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
+                      valueColor:
+                      AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
                     ),
                   ),
                 ),
@@ -278,8 +236,7 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                               onPrimary: Colors.white,
                               surface: Color(0xFF22252A),
                               onSurface: Colors.white,
-                            ),
-                            dialogTheme: DialogThemeData(backgroundColor: Color(0xFF23262B)),
+                            ), dialogTheme: DialogThemeData(backgroundColor: Color(0xFF23262B)),
                           ),
                           child: child!,
                         );
@@ -325,8 +282,8 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildGradientButton('Skip', width, () {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+                    _buildGradientButton('Skip', width, (){
+                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const LoginScreen()));
                     }),
                     _buildGradientButton('Next', width, _validateAndProceed),
                   ],
@@ -398,7 +355,7 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
     );
   }
 
-  Widget _buildGradientButton(String label, double width, void Function()? onTap) {
+  Widget _buildGradientButton(String label, double width,void Function()? onTap ) {
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -407,10 +364,7 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           gradient: const LinearGradient(
-            colors: [
-              Color(0xFF0262AB),
-              Color(0xFF01345A)
-            ],
+            colors: [Color(0xFF0262AB), Color(0xFF01345A)],
           ),
         ),
         child: Center(

@@ -242,7 +242,7 @@ class _HomeScreenState extends State<HomeScreen> {
           final String userName = userProvider.userName;
           final String userLocation = userData['location'] ?? "";
           final String userExperience = userData['experience'] != null && userData['experience'].toString().isNotEmpty ? "${userData['experience'].toString()} yrs+" : "";
-          final String userLanguages = userData['language'] ?? "";
+          final String userLanguages = userData['languages'] ?? "";
           final String profileImage = userData['profilePicture'] ?? userData['profileImage'] ?? 'assets/dummyprofile.png';
           final int revaConnections = userData['numberOfConnections'] ?? 0;
           final int pendingRequests = userData['pendingRequests'] ?? 0;
@@ -427,7 +427,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         tag1: (userData['tag1'] != null && userData['tag1'].toString().isNotEmpty) ? userData['tag1'] : "",
                         tag2: (userData['tag2'] != null && userData['tag2'].toString().isNotEmpty) ? userData['tag2'] : "",
                         tag3: (userData['tag3'] != null && userData['tag3'].toString().isNotEmpty) ? userData['tag3'] : "",
-                        kycStatus: userData['kycVerified'] == true ? 'KYC approved' : 'KYC not approved',
+                        kycStatus: (userData['kycStatus'] != null && userData['kycStatus'].toString().isNotEmpty) ? userData['kycStatus'] : "",
                       )
                     else if (userEvents.length >= 20 && userEvents.length < 60)
                       SilverCard(
@@ -773,9 +773,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text('Subscription Status', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: Colors.white)),
                               const SizedBox(width: 8),
-                              const Spacer(
-                                flex: 2,
-                              ),
+                              const Spacer(flex: 2,),
                               Icon(Icons.circle, color: subscriptionActive ? Colors.greenAccent : Colors.red, size: 12),
                               const SizedBox(width: 2),
                               Text(subscriptionActive ? 'Active' : 'Inactive', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 13)),

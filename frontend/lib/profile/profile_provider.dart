@@ -10,7 +10,7 @@ class ProfileProvider extends ChangeNotifier {
       name: profileData['fullName'] ?? _profile.name,
       location: profileData['location'] ?? _profile.location,
       experience: profileData['experience'] ?? _profile.experience,
-      languages: profileData['language'] ?? _profile.languages,
+      languages: profileData['languages'] ?? _profile.languages,
       phone: profileData['mobileNumber'] ?? _profile.phone,
       email: profileData['email'] ?? _profile.email,
       avatarPath: profileData['avatar'] ?? _profile.avatarPath,
@@ -19,7 +19,6 @@ class ProfileProvider extends ChangeNotifier {
     );
     notifyListeners();
   }
-
   UserProfile _profile = UserProfile(
     name: 'Abhishek Singh',
     location: 'Delhi NCR',
@@ -44,12 +43,14 @@ class ProfileProvider extends ChangeNotifier {
           name: profileData['fullName'] ?? _profile.name,
           location: profileData['location'] ?? _profile.location,
           experience: profileData['experience'] ?? _profile.experience,
-          languages: profileData['language'] ?? _profile.languages,
+          languages: profileData['languages'] ?? _profile.languages,
           phone: profileData['mobileNumber'] ?? _profile.phone,
           email: profileData['email'] ?? _profile.email,
           avatarPath: profileData['avatar'] ?? _profile.avatarPath,
-          totalConnections: profileData['totalConnections'] ?? _profile.totalConnections,
-          eventsAttended: profileData['eventsAttended'] ?? _profile.eventsAttended,
+          totalConnections:
+              profileData['totalConnections'] ?? _profile.totalConnections,
+          eventsAttended:
+              profileData['eventsAttended'] ?? _profile.eventsAttended,
         );
         notifyListeners();
       }
@@ -65,7 +66,7 @@ class ProfileProvider extends ChangeNotifier {
         'fullName': profile.name,
         'location': profile.location,
         'experience': profile.experience,
-        'language': profile.languages,
+        'languages': profile.languages,
         'mobileNumber': profile.phone,
         'email': profile.email,
         'avatar': profile.avatarPath,

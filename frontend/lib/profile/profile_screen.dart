@@ -144,7 +144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final String userName = userProvider.userName;
     final String userLocation = userData['location'] ?? "";
     final String userExperience = userData['experience'] != null && userData['experience'].toString().isNotEmpty ? "${userData['experience'].toString()} yrs+" : "";
-    final String userLanguages = userData['language'] ?? "";
+    final String userLanguages = userData['languages'] ?? "";
     final String profileImage = userData['profilePicture'] ?? userData['profileImage'] ?? 'assets/dummyprofile.png';
     final String email = userData['user']?['email'] ?? userData['email'] ?? '';
     final String phone = userData['user']?['mobileNumber'] ?? userData['mobileNumber'] ?? '';
@@ -316,9 +316,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     if (userExperience.isNotEmpty && userLanguages.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Text(
-                          '•',
-                          style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
+                        child: Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: Colors.white38,
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ),
                     if (userLanguages.isNotEmpty)

@@ -8,8 +8,7 @@ import 'package:reva/services/api_service.dart';
 import '../components/mytextfield.dart';
 
 class SpecializationAndRecognition extends StatefulWidget {
-  final bool showBack;
-  const SpecializationAndRecognition({Key? key, this.showBack = false}) : super(key: key);
+  const SpecializationAndRecognition({super.key});
 
   @override
   State<SpecializationAndRecognition> createState() => _SpecializationAndRecognitionState();
@@ -19,27 +18,9 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
   bool reraRegestration = false;
 
   TextEditingController reraNUmber = TextEditingController();
-  TextEditingController networkingMember = TextEditingController();
-  TextEditingController realEstateWebsite = TextEditingController();
-  TextEditingController associatedBuilders = TextEditingController();
-  @override
-  void initState() {
-    super.initState();
-    final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-    if ((userData['reraNumber'] ?? '').toString().isNotEmpty) {
-      reraNUmber.text = userData['reraNumber'];
-    }
-    if ((userData['networkingMember'] ?? '').toString().isNotEmpty) {
-      networkingMember.text = userData['networkingMember'];
-    }
-    if ((userData['realEstateWebsite'] ?? '').toString().isNotEmpty) {
-      realEstateWebsite.text = userData['realEstateWebsite'];
-    }
-    if ((userData['associatedBuilders'] ?? '').toString().isNotEmpty) {
-      associatedBuilders.text = userData['associatedBuilders'];
-    }
-  }
-
+  TextEditingController networkingMember= TextEditingController();
+  TextEditingController realEstateWebsite= TextEditingController();
+  TextEditingController associatedBuilders= TextEditingController();
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -99,45 +80,48 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'RERA Regestration',
-                  style: TextStyle(
-                    color: Color(0xFFDFDFDF),
-                    fontWeight: FontWeight.w600,
-                  ),
+
+              const Text(
+                'RERA Regestration',
+                style: TextStyle(
+                  color: Color(0xFFDFDFDF),
+                  fontWeight: FontWeight.w600,
                 ),
-                const SizedBox(height: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF2F3237),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  height: 48,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'yes or no',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      Switch(
-                        value: reraRegestration,
-                        onChanged: (val) {
-                          setState(() => reraRegestration = val);
-                        },
-                        activeColor: Colors.blue,
-                      ),
-                    ],
-                  ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2F3237),
+                  borderRadius: BorderRadius.circular(8),
                 ),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                height: 48,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'yes or no',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    Switch(
+                      value: reraRegestration,
+                      onChanged: (val) {
+                        setState(() => reraRegestration = val);
+                      },
+                      activeColor: Colors.blue,
+                    ),
+                  ],
+                ),
+              ),
                 const SizedBox(height: 16),
+
                 CustomTextField(
                   label: "RERA NUMBER",
                   hint: "0000 0000 00",
                   controller: reraNUmber,
                 ),
                 const SizedBox(height: 16),
+
                 CustomTextField(
                   label: "Networking Member (Optional)",
                   hint: "ibrddg,bere,enhs",
@@ -155,6 +139,7 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
                   hint: "esgopesg,gsgeg,drhhr",
                   controller: associatedBuilders,
                 ),
+
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
@@ -173,10 +158,7 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
                     child: Ink(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF0262AB),
-                            Color(0xFF01345A)
-                          ],
+                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -215,9 +197,7 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
     };
     // Save to provider
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.updateUserData({
-      'specialization': specialization
-    });
+    userProvider.updateUserData({'specialization': specialization});
     // Send to backend with correct structure
     try {
       final response = await ApiService().put('/profiles/', {
@@ -230,26 +210,14 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
           (route) => false,
         );
       } else {
-        _showErrorSnackBar(response['message'] ?? 'Failed to update specialization');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['message'] ?? 'Failed to update specialization'), backgroundColor: Colors.red),
+        );
       }
     } catch (e) {
-      _showErrorSnackBar(e.toString().replaceAll('Exception:', '').trim());
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Network error'), backgroundColor: Colors.red),
+      );
     }
-  }
-
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-        ),
-        backgroundColor: const Color(0xFFB00020),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        duration: const Duration(seconds: 3),
-      ),
-    );
   }
 }

@@ -18,33 +18,9 @@ class ContactDetailsScreen extends StatefulWidget {
 class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
   TextEditingController primaryMobileNumber = TextEditingController();
   TextEditingController primaryEmailId = TextEditingController();
-  TextEditingController websitePortfolio = TextEditingController();
-  TextEditingController socialMediaLinks = TextEditingController();
-  TextEditingController alternateMobileNumbers = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-    if ((userData['user']?['mobileNumber'] ?? userData['mobileNumber'] ?? '').toString().isNotEmpty) {
-      primaryMobileNumber.text = userData['user']?['mobileNumber'] ?? userData['mobileNumber'];
-    }
-    if ((userData['user']?['email'] ?? userData['email'] ?? '').toString().isNotEmpty) {
-      primaryEmailId.text = userData['user']?['email'] ?? userData['email'];
-    }
-    if ((userData['alternateNumber'] ?? '').toString().isNotEmpty) {
-      alternateMobileNumbers.text = userData['alternateNumber'];
-    }
-    if (userData['socialMediaLinks'] != null && userData['socialMediaLinks'] is Map) {
-      final links = userData['socialMediaLinks'];
-      if ((links['website'] ?? '').toString().isNotEmpty) {
-        websitePortfolio.text = links['website'];
-      }
-      if ((links['instagram'] ?? '').toString().isNotEmpty) {
-        socialMediaLinks.text = links['instagram'];
-      }
-    }
-  }
+  TextEditingController websitePortfolio= TextEditingController();
+  TextEditingController socialMediaLinks= TextEditingController();
+  TextEditingController alternateMobileNumbers= TextEditingController();
   // Validation helpers
   bool _isValidMobile(String mobile) => RegExp(r'^[0-9]{10}$').hasMatch(mobile.trim());
 
@@ -164,18 +140,21 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
+
                 CustomTextField(
                   label: "Primary Mobile Number",
                   hint: "00000 00000",
                   controller: primaryMobileNumber,
                 ),
                 const SizedBox(height: 16),
+
                 CustomTextField(
                   label: "Primary EmailId",
                   hint: "xyz@gmail.com",
                   controller: primaryEmailId,
                 ),
                 const SizedBox(height: 16),
+
                 CustomTextField(
                   label: "Website / Portfolio",
                   hint: "www.xyz.com",
@@ -193,6 +172,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                   hint: "00000 00000",
                   controller: alternateMobileNumbers,
                 ),
+
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
@@ -209,10 +189,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                     child: Ink(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF0262AB),
-                            Color(0xFF01345A)
-                          ],
+                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -232,7 +209,42 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                // Skip button removed
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushReplacementNamed(context, '/login');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Ink(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'Skip',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 24),
               ],
             ),

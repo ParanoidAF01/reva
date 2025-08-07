@@ -441,7 +441,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         children: [
           Text(title, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 12)),
           const SizedBox(height: 4),
-          Text(value, style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+          Text(
+            value,
+            style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ],
       ),
     );
@@ -474,9 +479,19 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(day, style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15)),
+              Text(
+                day,
+                style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               const SizedBox(width: 6),
-              Text(month, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
+              Text(
+                month,
+                style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
         ],

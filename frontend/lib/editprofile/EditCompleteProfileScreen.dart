@@ -62,8 +62,10 @@ class _EditCompleteProfileScreenState extends State<EditCompleteProfileScreen> {
         dobController.text = formattedDob;
       }
     }
-    if ((userData['designation'] ?? '').toString().isNotEmpty) {
+    if ((userData['designation'] ?? '').toString().isNotEmpty && DESIGNATIONS.contains(userData['designation'])) {
       selectedDesignation = userData['designation'];
+    } else {
+      selectedDesignation = DESIGNATIONS.first;
     }
     if ((userData['location'] ?? '').toString().isNotEmpty) {
       selectedLocation = userData['location'];
@@ -169,11 +171,7 @@ class _EditCompleteProfileScreenState extends State<EditCompleteProfileScreen> {
         'experience': experienceNum,
       });
       if (response['success'] == true) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => ProfilePercentageScreen()),
-          (route) => false,
-        );
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response['message'] ?? 'Failed to update profile'), backgroundColor: Colors.red),

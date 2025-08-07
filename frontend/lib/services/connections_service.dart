@@ -1,6 +1,10 @@
 import 'api_service.dart';
 
 class ConnectionsService {
+  // Cancel outgoing connection request
+  Future<Map<String, dynamic>> cancelConnectionRequest(String requestId) async {
+    return await _apiService.put('/connections/request/$requestId/cancel', {});
+  }
   final ApiService _apiService = ApiService();
 
   // Connect via QR code

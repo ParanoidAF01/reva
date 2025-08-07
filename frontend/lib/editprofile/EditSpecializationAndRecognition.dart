@@ -52,11 +52,7 @@ class _EditSpecializationAndRecognitionState extends State<EditSpecializationAnd
         'specialization': specialization,
       });
       if (response['success'] == true) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => ProfilePercentageScreen()),
-          (route) => false,
-        );
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response['message'] ?? 'Failed to update specialization'), backgroundColor: Colors.red),

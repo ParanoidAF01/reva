@@ -237,11 +237,11 @@ class _RedeemPageState extends State<RedeemPage>
                                       ],
                                     ),
                                     SizedBox(height: height * 0.02),
-                                    const GoldCard(
+                                    GoldCard(
                                       name: "Ayush Kumar.",
                                       location: "Delhi NCR",
                                       experience: "4+ years",
-                                      languages: "Hindi, English",
+                                      language: "Hindi, English",
                                       tag1: "Commercial",
                                       tag2: "Plots",
                                       tag3: "Rental",

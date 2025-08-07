@@ -2,7 +2,7 @@ class UserProfile {
   String name;
   String location;
   String experience;
-  String languages;
+  String language;
   String phone;
   String email;
   String avatarPath;
@@ -13,7 +13,7 @@ class UserProfile {
     required this.name,
     required this.location,
     required this.experience,
-    required this.languages,
+    required this.language,
     required this.phone,
     required this.email,
     required this.avatarPath,
@@ -25,7 +25,7 @@ class UserProfile {
     String? name,
     String? location,
     String? experience,
-    String? languages,
+    String? language,
     String? phone,
     String? email,
     String? avatarPath,
@@ -36,7 +36,7 @@ class UserProfile {
       name: name ?? this.name,
       location: location ?? this.location,
       experience: experience ?? this.experience,
-      languages: languages ?? this.languages,
+      language: language ?? this.language,
       phone: phone ?? this.phone,
       email: email ?? this.email,
       avatarPath: avatarPath ?? this.avatarPath,

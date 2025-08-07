@@ -17,7 +17,7 @@ class EditProfileScreen extends StatefulWidget {
 class _EditProfileScreenState extends State<EditProfileScreen> {
   late TextEditingController locationController;
   late TextEditingController experienceController;
-  late TextEditingController languagesController;
+  late TextEditingController languageController;
   File? pickedImage;
   bool isLoading = false;
 
@@ -31,14 +31,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       expText = userData!['experience'].toString();
     }
     experienceController = TextEditingController(text: expText);
-    languagesController = TextEditingController(text: userData?['languages'] ?? '');
+    languageController = TextEditingController(text: userData?['language'] ?? '');
   }
 
   @override
   void dispose() {
     locationController.dispose();
     experienceController.dispose();
-    languagesController.dispose();
+    languageController.dispose();
     super.dispose();
   }
 
@@ -69,7 +69,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       }
       final Map<String, dynamic> payload = {
         'location': locationController.text,
-        'languages': languagesController.text.trim(),
+        'language': languageController.text.trim(),
         if (avatarUrl != null) 'profilePicture': avatarUrl,
       };
       if (experienceController.text.trim().isNotEmpty) {
@@ -142,7 +142,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   const SizedBox(height: 24),
                   _editField('Location', locationController),
                   _editField('Experience', experienceController),
-                  _editField('Languages', languagesController),
+                  _editField('Language', languageController),
                   const SizedBox(height: 32),
                   SizedBox(
                     width: double.infinity,

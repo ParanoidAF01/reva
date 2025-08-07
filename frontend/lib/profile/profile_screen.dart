@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:reva/profile/profile_percentage.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -77,15 +78,45 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
   int totalConnections = 0;
   int eventsAttended = 0;
   bool _loadingEvents = true;
 
+
   @override
   void initState() {
     super.initState();
-    fetchCounts();
+    _fetchUserProfileAndCounts();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribe to RouteObserver
+    final routeObserver = ModalRoute.of(context)?.navigator?.widget.observers.whereType<RouteObserver<PageRoute>>().firstOrNull;
+    routeObserver?.subscribe(this, ModalRoute.of(context)! as PageRoute);
+  }
+
+  @override
+  void dispose() {
+    // Unsubscribe from RouteObserver
+    final routeObserver = ModalRoute.of(context)?.navigator?.widget.observers.whereType<RouteObserver<PageRoute>>().firstOrNull;
+    routeObserver?.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // Called when coming back to this screen
+    _fetchUserProfileAndCounts();
+    setState(() {}); // Triggers rebuild and refetches Provider data
+  }
+
+  Future<void> _fetchUserProfileAndCounts() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    await userProvider.loadUserData();
+    await fetchCounts();
   }
 
   Future<void> fetchCounts() async {
@@ -144,7 +175,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final String userName = userProvider.userName;
     final String userLocation = userData['location'] ?? "";
     final String userExperience = userData['experience'] != null && userData['experience'].toString().isNotEmpty ? "${userData['experience'].toString()} yrs+" : "";
-    final String userLanguages = userData['languages'] ?? "";
+    final String userLanguages = userData['language'] ?? "";
     final String profileImage = userData['profilePicture'] ?? userData['profileImage'] ?? 'assets/dummyprofile.png';
     final String email = userData['user']?['email'] ?? userData['email'] ?? '';
     final String phone = userData['user']?['mobileNumber'] ?? userData['mobileNumber'] ?? '';
@@ -316,13 +347,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     if (userExperience.isNotEmpty && userLanguages.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Container(
-                          width: 6,
-                          height: 6,
-                          decoration: const BoxDecoration(
-                            color: Colors.white38,
-                            shape: BoxShape.circle,
-                          ),
+                        child: Text(
+                          '•',
+                          style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ),
                     if (userLanguages.isNotEmpty)
@@ -443,7 +470,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: height * 0.04),
+                // Add space before social buttons
+                SizedBox(height: 32),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

@@ -17,14 +17,15 @@ class _EditOrganisationDetailsScreenState extends State<EditOrganisationDetailsS
   final incorporationDateController = TextEditingController();
   final gstinController = TextEditingController();
   bool isRegistered = false;
-  String selectedCompanyType = 'New Delhi';
+  String selectedCompanyType = 'Private Limited';
   String selectedGstin = '2 years';
 
   final List<String> companyTypes = [
-    'New Delhi',
-    'Private Ltd',
+    'Private Limited',
+    'Public Limited',
     'LLP',
-    'Proprietorship'
+    'Partnership',
+    'Other',
   ];
   final List<String> gstinOptions = [
     'Less than 1 year',
@@ -41,6 +42,11 @@ class _EditOrganisationDetailsScreenState extends State<EditOrganisationDetailsS
       final org = userData['organization'];
       if ((org['name'] ?? '').toString().isNotEmpty) {
         companyNameController.text = org['name'];
+      }
+      if ((org['companyType'] ?? '').toString().isNotEmpty && companyTypes.contains(org['companyType'])) {
+        selectedCompanyType = org['companyType'];
+      } else {
+        selectedCompanyType = companyTypes.first;
       }
       if ((org['incorporationDate'] ?? '').toString().isNotEmpty) {
         final dateRaw = org['incorporationDate'];
@@ -136,11 +142,7 @@ class _EditOrganisationDetailsScreenState extends State<EditOrganisationDetailsS
         }
       });
       if (response['success'] == true) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => ProfilePercentageScreen()),
-          (route) => false,
-        );
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response['message'] ?? 'Failed to update organization details'), backgroundColor: Colors.red),

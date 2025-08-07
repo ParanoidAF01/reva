@@ -245,12 +245,13 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
                         else
                           Column(
                             children: provider.requests.map((request) {
+                              // For incoming, user data is in fromUser
+                              final user = request['fromUser'] ?? {};
                               return RequestTile(
-                                name: request['fullName'] ?? 'Unknown',
-                                image: request['profile'] ?? 'assets/dummyprofile.png',
-                                mobileNumber: request['mobileNumber'] ?? '',
+                                userData: user,
                                 requestId: request['_id'] ?? '',
                                 onRefresh: _fetchPendingRequests,
+                                isOutgoing: false,
                               );
                             }).toList(),
                           ),

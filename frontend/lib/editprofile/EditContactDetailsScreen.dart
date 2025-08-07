@@ -74,11 +74,7 @@ class _EditContactDetailsScreenState extends State<EditContactDetailsScreen> {
         },
       });
       if (response['success'] == true) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => ProfilePercentageScreen()),
-          (route) => false,
-        );
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response['message'] ?? 'Failed to update contact details'), backgroundColor: Colors.red),

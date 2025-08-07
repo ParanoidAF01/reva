@@ -5,6 +5,7 @@ import '../components/mytextfield.dart';
 import 'package:provider/provider.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/services/api_service.dart';
+import 'package:reva/authentication/login.dart';
 
 class CompleteProfileScreen extends StatefulWidget {
   final bool showBack;
@@ -15,6 +16,14 @@ class CompleteProfileScreen extends StatefulWidget {
 }
 
 class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
+  void _skipToLogin(BuildContext context) {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
   final fullNameController = TextEditingController();
   final dobController = TextEditingController();
   static const List<String> DESIGNATIONS = [
@@ -33,16 +42,81 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   ];
   String? selectedDesignation;
   String selectedLocation = 'New Delhi';
-  String selectedExperience = '2 years';
+  String selectedExperience = '';
 
-  final List<String> locations = ['New Delhi', 'Mumbai', 'Bangalore', 'Chennai'];
-  final List<String> experiences = ['Less than 1 year', '1 year', '2 years', '3+ years'];
+  @override
+  void initState() {
+    super.initState();
+    final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+    // Full name: try user['fullName'] first, then fallback
+    String? fullName = userData['user']?['fullName'] ?? userData['fullName'];
+    if ((fullName ?? '').toString().isNotEmpty) {
+      fullNameController.text = fullName!;
+    }
+    // Date of Birth: parse and format as dd/mm/yyyy
+    if ((userData['dateOfBirth'] ?? '').toString().isNotEmpty) {
+      final dobRaw = userData['dateOfBirth'];
+      String? formattedDob;
+      if (dobRaw is String && dobRaw.isNotEmpty) {
+        // Try to parse ISO or other formats
+        DateTime? dt;
+        try {
+          dt = DateTime.tryParse(dobRaw);
+        } catch (_) {}
+        if (dt != null) {
+          formattedDob = '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+        } else if (dobRaw.contains('-')) {
+          final parts = dobRaw.split('-');
+          if (parts.length == 3) {
+            formattedDob = '${parts[2].padLeft(2, '0')}/${parts[1].padLeft(2, '0')}/${parts[0]}';
+          }
+        }
+        formattedDob ??= dobRaw;
+        dobController.text = formattedDob;
+      }
+    }
+    if ((userData['designation'] ?? '').toString().isNotEmpty) {
+      selectedDesignation = userData['designation'];
+    }
+    if ((userData['location'] ?? '').toString().isNotEmpty) {
+      selectedLocation = userData['location'];
+    }
+    if (userData['experience'] != null) {
+      // Map experience number to string option if possible
+      final exp = userData['experience'];
+      if (exp is int) {
+        if (exp == 0) selectedExperience = 'Less than 1 year';
+        else if (exp == 1) selectedExperience = '1 year';
+        else if (exp == 2) selectedExperience = '2 years';
+        else if (exp == 3) selectedExperience = '3+ years';
+      } else if (exp is String && exp.isNotEmpty) {
+        selectedExperience = exp;
+      }
+    }
+  }
+
+  final List<String> locations = [
+    'New Delhi',
+    'Mumbai',
+    'Bangalore',
+    'Chennai'
+  ];
+  final List<String> experienceOptions = [
+    'Less than 1 year',
+    '1 year',
+    '2 years',
+    '3+ years'
+  ];
 
   // Validation helpers
   bool _isValidFullName(String name) => name.trim().isNotEmpty;
   // bool _isValidDesignation(String designation) => designation.trim().isNotEmpty;
   bool _isValidLocation(String location) => locations.contains(location);
-  bool _isValidExperience(String exp) => experiences.contains(exp);
+  bool _isValidExperience(String exp) {
+    // Accept only the defined experience options
+    return experienceOptions.contains(exp);
+  }
+
   bool _isValidDate(String date) {
     // Accepts dd/mm/yyyy or dd-mm-yyyy
     final regex = RegExp(r'^(0[1-9]|[12][0-9]|3[01])[\/\-](0[1-9]|1[0-2])[\/\-](19|20)\d{2}$');
@@ -54,7 +128,24 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     final dob = dobController.text;
     final designation = selectedDesignation;
     final location = selectedLocation;
-    final experience = selectedExperience;
+    // Convert experience string to number
+    int experienceNum = 0;
+    if (selectedExperience == 'Less than 1 year')
+      experienceNum = 0;
+    else if (selectedExperience == '1 year')
+      experienceNum = 1;
+    else if (selectedExperience == '2 years')
+      experienceNum = 2;
+    else if (selectedExperience == '3+ years') experienceNum = 3;
+
+    // Convert dob to ISO format (yyyy-mm-dd)
+    String dobIso = '';
+    try {
+      final parts = dob.split('/');
+      if (parts.length == 3) {
+        dobIso = '${parts[2]}-${parts[1].padLeft(2, '0')}-${parts[0].padLeft(2, '0')}';
+      }
+    } catch (_) {}
 
     String? error;
     if (!_isValidFullName(name)) {
@@ -65,7 +156,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       error = "Please select your designation.";
     } else if (!_isValidLocation(location)) {
       error = "Please select a valid location.";
-    } else if (!_isValidExperience(experience)) {
+    } else if (!_isValidExperience(selectedExperience)) {
       error = "Please select your real estate experience.";
     }
 
@@ -80,19 +171,19 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     userProvider.updateUserData({
       'fullName': name,
-      'dob': dob,
+      'dateOfBirth': dobIso,
       'designation': designation,
       'location': location,
-      'experience': experience,
+      'experience': experienceNum,
     });
     // Send to backend with correct structure
     try {
       final response = await ApiService().put('/profiles/', {
         'fullName': name,
-        'dateOfBirth': dob,
+        'dateOfBirth': dobIso,
         'designation': designation,
         'location': location,
-        'experience': experience,
+        'experience': experienceNum,
       });
       if (response['success'] == true) {
         Navigator.push(
@@ -139,6 +230,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
+                // Skip button removed
                 Row(
                   children: [
                     Text(
@@ -173,14 +265,12 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-
                 CustomTextField(
                   label: "Full Name (As per PAN / Aadhaar)",
                   hint: "User name",
                   controller: fullNameController,
                 ),
                 const SizedBox(height: 16),
-
                 GestureDetector(
                   onTap: () async {
                     FocusScope.of(context).unfocus();
@@ -197,7 +287,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                               onPrimary: Colors.white,
                               surface: Color(0xFF22252A),
                               onSurface: Colors.white,
-                            ), dialogTheme: DialogThemeData(backgroundColor: Color(0xFF23262B)),
+                            ),
+                            dialogTheme: DialogThemeData(backgroundColor: Color(0xFF23262B)),
                           ),
                           child: child!,
                         );
@@ -219,7 +310,6 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-
                 const Text(
                   "Designation",
                   style: TextStyle(
@@ -240,7 +330,6 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-
                 const Text(
                   "Location",
                   style: TextStyle(
@@ -261,7 +350,6 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-
                 const Text(
                   "Real Estate Experience",
                   style: TextStyle(
@@ -271,17 +359,16 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 ),
                 const SizedBox(height: 8),
                 _customBottomSheetTile(
-                  title: selectedExperience,
+                  title: selectedExperience.isEmpty ? "Select Experience" : selectedExperience,
                   onTap: () => _showBottomSheet(
                     context,
                     title: "Select Experience",
-                    options: experiences,
+                    options: experienceOptions,
                     onSelected: (val) {
                       setState(() => selectedExperience = val);
                     },
                   ),
                 ),
-
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
@@ -298,7 +385,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     child: Ink(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
+                          colors: [
+                            Color(0xFF0262AB),
+                            Color(0xFF01345A)
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -348,11 +438,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   }
 
   void _showBottomSheet(
-      BuildContext context, {
-        required String title,
-        required List<String> options,
-        required Function(String) onSelected,
-      }) {
+    BuildContext context, {
+    required String title,
+    required List<String> options,
+    required Function(String) onSelected,
+  }) {
     showModalBottomSheet(
       backgroundColor: const Color(0xFF2F3237),
       context: context,
@@ -369,12 +459,12 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               children: [
                 const SizedBox(height: 12),
                 ...options.map((e) => ListTile(
-                  title: Text(e, style: const TextStyle(color: Colors.white)),
-                  onTap: () {
-                    Navigator.pop(context);
-                    onSelected(e);
-                  },
-                )),
+                      title: Text(e, style: const TextStyle(color: Colors.white)),
+                      onTap: () {
+                        Navigator.pop(context);
+                        onSelected(e);
+                      },
+                    )),
                 const SizedBox(height: 12),
               ],
             ),

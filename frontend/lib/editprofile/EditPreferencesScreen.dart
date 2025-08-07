@@ -13,54 +13,68 @@ class EditPreferencesScreen extends StatefulWidget {
 }
 
 class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
-  String operatingLocation = "New Delhi";
-  String interest = "xyz";
-  String propertyType = "sjfshssfs";
-  String networkingPreference = "xyzz";
-  String targetClient = "xyz";
-  List<String> targetClients = [
-    "xyz",
-    "wrwrw",
-    "grrhrh"
-  ];
-  List<String> networkingPreferences = [
-    "xyzz",
-    "wrwrw",
-    "grrhrh"
+  List<String> operatingLoactions = [
+    "India",
+    "International"
   ];
   List<String> propertyTypes = [
-    "sfjfshssfs",
-    "wrwrw",
-    "grrhrh"
+    "Residential",
+    "Commercial",
+    "Industrial",
+    "Agricultural",
+    "Other"
+  ];
+  List<String> networkingPreferences = [
+    "Business",
+    "Technology",
+    "Health",
+    "Education",
+    "Entertainment",
+    "Sports",
+    "Other"
+  ];
+  List<String> targetClients = [
+    "Business",
+    "Technology",
+    "Health",
+    "Education",
+    "Entertainment",
+    "Sports",
+    "Other"
   ];
   List<String> interests = [
-    "xyz",
-    "wrwrw",
-    "grrhrh"
+    "Business",
+    "Technology",
+    "Health",
+    "Education",
+    "Entertainment",
+    "Sports",
+    "Other"
   ];
-  List<String> operatingLoactions = [
-    "New Delhi",
-    "Mumbai",
-    "Haryana"
-  ];
+
+  String operatingLocation = "India";
+  String interest = "Business";
+  String propertyType = "Residential";
+  String networkingPreference = "Business";
+  String targetClient = "Business";
 
   @override
   void initState() {
     super.initState();
     final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-    if ((userData['operatingLocation'] ?? '').toString().isNotEmpty) {
+    if ((userData['operatingLocation'] ?? '').toString().isNotEmpty && operatingLoactions.contains(userData['operatingLocation'])) {
       operatingLocation = userData['operatingLocation'];
     }
-    if ((userData['interest'] ?? '').toString().isNotEmpty) {
+    if ((userData['interest'] ?? '').toString().isNotEmpty && interests.contains(userData['interest'])) {
       interest = userData['interest'];
     }
-    if ((userData['propertyType'] ?? '').toString().isNotEmpty) {
+    if ((userData['propertyType'] ?? '').toString().isNotEmpty && propertyTypes.contains(userData['propertyType'])) {
       propertyType = userData['propertyType'];
     }
-    if ((userData['networkingPreference'] ?? '').toString().isNotEmpty) {
+    if ((userData['networkingPreference'] ?? '').toString().isNotEmpty && networkingPreferences.contains(userData['networkingPreference'])) {
       networkingPreference = userData['networkingPreference'];
     }
-    if ((userData['targetClient'] ?? '').toString().isNotEmpty) {
+    if ((userData['targetClient'] ?? '').toString().isNotEmpty && targetClients.contains(userData['targetClient'])) {
       targetClient = userData['targetClient'];
     }
   }
@@ -80,11 +94,7 @@ class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
         'preferences': preferences,
       });
       if (response['success'] == true) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => ProfilePercentageScreen()),
-          (route) => false,
-        );
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(response['message'] ?? 'Failed to update preferences'), backgroundColor: Colors.red),

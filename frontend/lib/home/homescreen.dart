@@ -17,6 +17,7 @@ import 'package:reva/posts/createpost.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/contacts/contacts.dart';
 import 'package:reva/request/requestscreen.dart';
+import 'package:reva/request/outgoingscreen.dart';
 import 'package:reva/start_subscription.dart';
 // import 'package:reva/wallet/walletscreen.dart';
 
@@ -242,7 +243,7 @@ class _HomeScreenState extends State<HomeScreen> {
           final String userName = userProvider.userName;
           final String userLocation = userData['location'] ?? "";
           final String userExperience = userData['experience'] != null && userData['experience'].toString().isNotEmpty ? "${userData['experience'].toString()} yrs+" : "";
-          final String userLanguages = userData['languages'] ?? "";
+          // Removed unused userLanguage variable
           final String profileImage = userData['profilePicture'] ?? userData['profileImage'] ?? 'assets/dummyprofile.png';
           final int revaConnections = userData['numberOfConnections'] ?? 0;
           final int pendingRequests = userData['pendingRequests'] ?? 0;
@@ -423,10 +424,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         name: userName,
                         location: userLocation,
                         experience: userExperience,
-                        languages: userLanguages,
-                        tag1: (userData['tag1'] != null && userData['tag1'].toString().isNotEmpty) ? userData['tag1'] : "",
-                        tag2: (userData['tag2'] != null && userData['tag2'].toString().isNotEmpty) ? userData['tag2'] : "",
-                        tag3: (userData['tag3'] != null && userData['tag3'].toString().isNotEmpty) ? userData['tag3'] : "",
+                        language: (userData['language'] != null && userData['language'].toString().isNotEmpty) ? userData['language'] : '',
+                        tag1: (userData['tag1'] != null && userData['tag1'].toString().isNotEmpty) ? userData['tag1'] : "Commercial",
+                        tag2: (userData['tag2'] != null && userData['tag2'].toString().isNotEmpty) ? userData['tag2'] : "Rental",
+                        tag3: (userData['tag3'] != null && userData['tag3'].toString().isNotEmpty) ? userData['tag3'] : "Plots",
                         kycStatus: (userData['kycStatus'] != null && userData['kycStatus'].toString().isNotEmpty) ? userData['kycStatus'] : "",
                       )
                     else if (userEvents.length >= 20 && userEvents.length < 60)
@@ -434,10 +435,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         name: userName,
                         location: userLocation,
                         experience: userExperience,
-                        languages: userLanguages,
-                        tag1: (userData['tag1'] != null && userData['tag1'].toString().isNotEmpty) ? userData['tag1'] : "",
-                        tag2: (userData['tag2'] != null && userData['tag2'].toString().isNotEmpty) ? userData['tag2'] : "",
-                        tag3: (userData['tag3'] != null && userData['tag3'].toString().isNotEmpty) ? userData['tag3'] : "",
+                        language: (userData['language'] != null && userData['language'].toString().isNotEmpty) ? userData['language'] : '',
+                        tag1: (userData['tag1'] != null && userData['tag1'].toString().isNotEmpty) ? userData['tag1'] : "Commercial",
+                        tag2: (userData['tag2'] != null && userData['tag2'].toString().isNotEmpty) ? userData['tag2'] : "Rental",
+                        tag3: (userData['tag3'] != null && userData['tag3'].toString().isNotEmpty) ? userData['tag3'] : "Plots",
                         kycStatus: (userData['kycStatus'] != null && userData['kycStatus'].toString().isNotEmpty) ? userData['kycStatus'] : "",
                       )
                     else if (userEvents.length >= 80)
@@ -445,10 +446,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         name: userName,
                         location: userLocation,
                         experience: userExperience,
-                        languages: userLanguages,
-                        tag1: (userData['tag1'] != null && userData['tag1'].toString().isNotEmpty) ? userData['tag1'] : "",
-                        tag2: (userData['tag2'] != null && userData['tag2'].toString().isNotEmpty) ? userData['tag2'] : "",
-                        tag3: (userData['tag3'] != null && userData['tag3'].toString().isNotEmpty) ? userData['tag3'] : "",
+                        language: (userData['language'] != null && userData['language'].toString().isNotEmpty) ? userData['language'] : '',
+                        tag1: (userData['tag1'] != null && userData['tag1'].toString().isNotEmpty) ? userData['tag1'] : "Commercial",
+                        tag2: (userData['tag2'] != null && userData['tag2'].toString().isNotEmpty) ? userData['tag2'] : "Rental",
+                        tag3: (userData['tag3'] != null && userData['tag3'].toString().isNotEmpty) ? userData['tag3'] : "Plots",
                         kycStatus: (userData['kycStatus'] != null && userData['kycStatus'].toString().isNotEmpty) ? userData['kycStatus'] : "",
                       ),
                     SizedBox(height: height * 0.02),
@@ -544,7 +545,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const RequestScreen(),
+                                  builder: (context) => const OutgoingScreen(),
                                 ),
                               );
                             },

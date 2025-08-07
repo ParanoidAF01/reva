@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:reva/services/api_service.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/authentication/components/mytextfield.dart';
-
+import 'package:reva/profile/profile_percentage.dart';
 class EditContactDetailsScreen extends StatefulWidget {
   const EditContactDetailsScreen({Key? key}) : super(key: key);
 

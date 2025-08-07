@@ -43,6 +43,8 @@ export const register = asyncHandler(async (req, res) => {
         user: user._id,
     });
 
+    user.profile = profile._id;
+
     const accessToken = jwt.sign(
         { id: user._id },
         env.jwt.secret,

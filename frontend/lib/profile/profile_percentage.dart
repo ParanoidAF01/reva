@@ -1,31 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:reva/authentication/signup/CompleteProfileScreen.dart';
-import 'package:reva/authentication/signup/contactdetailsscreen.dart';
-import 'package:reva/authentication/signup/ekycscreen.dart';
-import 'package:reva/authentication/signup/orginisationdetailscreen.dart';
-import 'package:reva/authentication/signup/preferencesScreen.dart';
+import 'package:provider/provider.dart';
+import 'package:reva/editprofile/EditCompleteProfileScreen.dart';
+import 'package:reva/editprofile/EditContactDetailsScreen.dart';
+import 'package:reva/editprofile/EditEKycScreen.dart';
+import 'package:reva/editprofile/EditOrganisationDetailsScreen.dart';
+import 'package:reva/editprofile/EditPreferencesScreen.dart';
+import 'package:reva/editprofile/EditSpecializationAndRecognition.dart';
+import '../providers/user_provider.dart';
+import 'profile_screen.dart';
+
+
 
 class ProfilePercentageScreen extends StatelessWidget {
   ProfilePercentageScreen({Key? key}) : super(key: key);
 
-  // Mock completion status for each section
-  final Map<String, bool> sectionStatus = const {
-    'Overview': true,
-    'Org. Details': true,
-    'E-KYC': true,
-    'Contact Details': true,
-    'Preferences': false,
-    'Recognition': true,
-  };
-
-  int get completedCount => sectionStatus.values.where((v) => v).length;
-  int get totalCount => sectionStatus.length;
-  double get percent => completedCount / totalCount;
-  int get percentInt => (percent * 100).round();
-
   @override
   Widget build(BuildContext context) {
+
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     final cardColor = const Color(0xFF23262B);
@@ -42,6 +34,29 @@ class ProfilePercentageScreen extends StatelessWidget {
       fontWeight: FontWeight.w400,
       fontSize: 14,
     );
+
+    final userData = Provider.of<UserProvider>(context).userData ?? {};
+
+    // Section completion logic
+    bool overviewComplete = (userData['fullName'] ?? '').toString().isNotEmpty && (userData['dateOfBirth'] ?? '').toString().isNotEmpty && (userData['gender'] ?? '').toString().isNotEmpty;
+    bool orgDetailsComplete = (userData['organization'] != null && userData['organization'] is Map && ((userData['organization']['name'] ?? '').toString().isNotEmpty));
+    bool ekycComplete = (userData['aadhaarNumber'] ?? '').toString().isNotEmpty || (userData['ekycStatus'] ?? '').toString().toLowerCase() == 'completed' || (userData['kycVerified'] == true);
+    bool contactDetailsComplete = (userData['user']?['email'] ?? userData['email'] ?? '').toString().isNotEmpty && (userData['user']?['mobileNumber'] ?? userData['mobileNumber'] ?? '').toString().isNotEmpty;
+    bool preferencesComplete = (userData['preferences'] != null && userData['preferences'] is List && (userData['preferences'] as List).isNotEmpty);
+    bool recognitionComplete = (userData['recognition'] != null && userData['recognition'] is List && (userData['recognition'] as List).isNotEmpty);
+
+    final Map<String, bool> sectionStatus = {
+      'Overview': overviewComplete,
+      'Org. Details': orgDetailsComplete,
+      'E-KYC': ekycComplete,
+      'Contact Details': contactDetailsComplete,
+      'Preferences': preferencesComplete,
+      'Recognition': recognitionComplete,
+    };
+    int completedCount = sectionStatus.values.where((v) => v).length;
+    int totalCount = sectionStatus.length;
+    double percent = totalCount == 0 ? 0 : completedCount / totalCount;
+    int percentInt = (percent * 100).round();
 
     Widget buildSectionCard(String label, IconData icon, bool completed, VoidCallback onTap) {
       return GestureDetector(
@@ -83,6 +98,18 @@ class ProfilePercentageScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF22252A),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: const Text('Profile Completion', style: TextStyle(color: Colors.white)),
+        centerTitle: true,
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -165,7 +192,7 @@ class ProfilePercentageScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => CompleteProfileScreen(showBack: true),
+                                  builder: (_) => EditCompleteProfileScreen(),
                                 ),
                               );
                             },
@@ -180,7 +207,7 @@ class ProfilePercentageScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => OrganisationDetailsScreen(showBack: true),
+                                  builder: (_) => EditOrganisationDetailsScreen(),
                                 ),
                               );
                             },
@@ -199,7 +226,7 @@ class ProfilePercentageScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => EKycScreen(showBack: true),
+                                  builder: (_) => EditEKycScreen(),
                                 ),
                               );
                             },
@@ -214,7 +241,7 @@ class ProfilePercentageScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => ContactDetailsScreen(showBack: true),
+                                  builder: (_) => EditContactDetailsScreen(),
                                 ),
                               );
                             },
@@ -233,7 +260,7 @@ class ProfilePercentageScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => PreferencesScreen(showBack: true),
+                                  builder: (_) => EditPreferencesScreen(),
                                 ),
                               );
                             },
@@ -245,7 +272,12 @@ class ProfilePercentageScreen extends StatelessWidget {
                             Icons.emoji_events,
                             sectionStatus['Recognition']!,
                             () {
-                              
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => EditSpecializationAndRecognition(),
+                                ),
+                              );
                             },
                           ),
                         ),
@@ -253,44 +285,7 @@ class ProfilePercentageScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                SizedBox(height: height * 0.06),
-                SizedBox(
-                  width: double.infinity,
-                  height: 54,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // TODO: Continue action
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Ink(
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Center(
-                        child: Text(
-                          'Continue',
-                          style: GoogleFonts.dmSans(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(height: height * 0.04),
+                // Removed Continue button
               ],
             ),
           ),

@@ -1,27 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:reva/authentication/login.dart';
-import 'package:reva/providers/user_provider.dart';
 import 'package:reva/services/api_service.dart';
+import 'package:reva/providers/user_provider.dart';
+import 'package:reva/authentication/components/mytextfield.dart';
+import '../profile/profile_percentage.dart';
 
-import '../components/mytextfield.dart';
-
-class SpecializationAndRecognition extends StatefulWidget {
-  final bool showBack;
-  const SpecializationAndRecognition({Key? key, this.showBack = false}) : super(key: key);
+class EditSpecializationAndRecognition extends StatefulWidget {
+  const EditSpecializationAndRecognition({Key? key}) : super(key: key);
 
   @override
-  State<SpecializationAndRecognition> createState() => _SpecializationAndRecognitionState();
+  State<EditSpecializationAndRecognition> createState() => _EditSpecializationAndRecognitionState();
 }
 
-class _SpecializationAndRecognitionState extends State<SpecializationAndRecognition> {
+class _EditSpecializationAndRecognitionState extends State<EditSpecializationAndRecognition> {
   bool reraRegestration = false;
-
   TextEditingController reraNUmber = TextEditingController();
   TextEditingController networkingMember = TextEditingController();
   TextEditingController realEstateWebsite = TextEditingController();
   TextEditingController associatedBuilders = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -40,12 +37,50 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
     }
   }
 
+  Future<void> _saveSpecialization() async {
+    final specialization = {
+      'reraRegistered': reraRegestration,
+      'reraNumber': reraNUmber.text,
+      'networkingMembers': networkingMember.text.split(','),
+      'realEstateWebsite': realEstateWebsite.text,
+      'associatedBuilders': associatedBuilders.text.split(','),
+    };
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    userProvider.updateUserData({'specialization': specialization});
+    try {
+      final response = await ApiService().put('/profiles/', {
+        'specialization': specialization,
+      });
+      if (response['success'] == true) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => ProfilePercentageScreen()),
+          (route) => false,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response['message'] ?? 'Failed to update specialization'), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Network error'), backgroundColor: Colors.red),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF22252A),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Edit Specialization & Recognition', style: TextStyle(color: Colors.white)),
+      ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: width * 0.08),
@@ -53,52 +88,7 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: height * 0.07),
-                const Center(
-                  child: Text(
-                    "Specialisation & Recognition",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Text(
-                      "100%   ",
-                      style: GoogleFonts.dmSans(
-                        color: const Color(0xFFD8D8DD),
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      "Completed..",
-                      style: GoogleFonts.dmSans(
-                        color: const Color(0xFF6F6F6F),
-                        fontWeight: FontWeight.w500,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: SizedBox(
-                    width: width * 0.6,
-                    child: const LinearProgressIndicator(
-                      value: 1,
-                      minHeight: 6,
-                      backgroundColor: Colors.white,
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
+                SizedBox(height: height * 0.04),
                 const Text(
                   'RERA Regestration',
                   style: TextStyle(
@@ -160,9 +150,7 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: () {
-                      _validateAndProceed();
-                    },
+                    onPressed: _saveSpecialization,
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
@@ -184,7 +172,7 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
                       ),
                       child: const Center(
                         child: Text(
-                          'Next',
+                          'Save',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -200,55 +188,6 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Future<void> _validateAndProceed() async {
-    // Build specialization object
-    final specialization = {
-      'reraRegistered': reraRegestration,
-      'reraNumber': reraNUmber.text,
-      'networkingMembers': networkingMember.text.split(','),
-      'realEstateWebsite': realEstateWebsite.text,
-      'associatedBuilders': associatedBuilders.text.split(','),
-    };
-    // Save to provider
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.updateUserData({
-      'specialization': specialization
-    });
-    // Send to backend with correct structure
-    try {
-      final response = await ApiService().put('/profiles/', {
-        'specialization': specialization,
-      });
-      if (response['success'] == true) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-          (route) => false,
-        );
-      } else {
-        _showErrorSnackBar(response['message'] ?? 'Failed to update specialization');
-      }
-    } catch (e) {
-      _showErrorSnackBar(e.toString().replaceAll('Exception:', '').trim());
-    }
-  }
-
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-        ),
-        backgroundColor: const Color(0xFFB00020),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        duration: const Duration(seconds: 3),
       ),
     );
   }

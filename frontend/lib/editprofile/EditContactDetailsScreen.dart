@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:reva/authentication/signup/preferencesScreen.dart';
 import 'package:provider/provider.dart';
-import 'package:reva/providers/user_provider.dart';
 import 'package:reva/services/api_service.dart';
+import 'package:reva/providers/user_provider.dart';
+import 'package:reva/authentication/components/mytextfield.dart';
+import '../profile/profile_percentage.dart';
 
-import '../components/mytextfield.dart';
-
-class ContactDetailsScreen extends StatefulWidget {
-  final bool showBack;
-  const ContactDetailsScreen({Key? key, this.showBack = false}) : super(key: key);
+class EditContactDetailsScreen extends StatefulWidget {
+  const EditContactDetailsScreen({Key? key}) : super(key: key);
 
   @override
-  State<ContactDetailsScreen> createState() => _ContactDetailsScreenState();
+  State<EditContactDetailsScreen> createState() => _EditContactDetailsScreenState();
 }
 
-class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
+class _EditContactDetailsScreenState extends State<EditContactDetailsScreen> {
   TextEditingController primaryMobileNumber = TextEditingController();
   TextEditingController primaryEmailId = TextEditingController();
   TextEditingController websitePortfolio = TextEditingController();
@@ -45,10 +42,10 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
       }
     }
   }
-  // Validation helpers
+
   bool _isValidMobile(String mobile) => RegExp(r'^[0-9]{10}$').hasMatch(mobile.trim());
 
-  Future<void> _validateAndProceed() async {
+  Future<void> _saveContactDetails() async {
     final mobile = primaryMobileNumber.text;
     String? error;
     if (!_isValidMobile(mobile)) {
@@ -60,30 +57,27 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
       );
       return;
     }
-    // Save to provider
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     userProvider.updateUserData({
       'alternateNumber': alternateMobileNumbers.text,
       'socialMediaLinks': {
         'website': websitePortfolio.text,
         'instagram': socialMediaLinks.text,
-        // Add other social fields as needed
       },
     });
-    // Send to backend with correct structure
     try {
       final response = await ApiService().put('/profiles/', {
         'alternateNumber': alternateMobileNumbers.text,
         'socialMediaLinks': {
           'website': websitePortfolio.text,
           'instagram': socialMediaLinks.text,
-          // Add other social fields as needed
         },
       });
       if (response['success'] == true) {
-        Navigator.push(
+        Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const PreferencesScreen()),
+          MaterialPageRoute(builder: (context) => ProfilePercentageScreen()),
+          (route) => false,
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -103,6 +97,12 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF22252A),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Edit Contact Details', style: TextStyle(color: Colors.white)),
+      ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: width * 0.08),
@@ -110,60 +110,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: height * 0.07),
-                if (widget.showBack)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                const Center(
-                  child: Text(
-                    "Contact Details",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Text(
-                      "60%   ",
-                      style: GoogleFonts.dmSans(
-                        color: const Color(0xFFD8D8DD),
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      "Completed..",
-                      style: GoogleFonts.dmSans(
-                        color: const Color(0xFF6F6F6F),
-                        fontWeight: FontWeight.w500,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: SizedBox(
-                    width: width * 0.6,
-                    child: const LinearProgressIndicator(
-                      value: 0.6,
-                      minHeight: 6,
-                      backgroundColor: Colors.white,
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
+                SizedBox(height: height * 0.04),
                 CustomTextField(
                   label: "Primary Mobile Number",
                   hint: "00000 00000",
@@ -198,7 +145,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: _validateAndProceed,
+                    onPressed: _saveContactDetails,
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
@@ -220,7 +167,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                       ),
                       child: const Center(
                         child: Text(
-                          'Next',
+                          'Save',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -231,8 +178,6 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                // Skip button removed
                 const SizedBox(height: 24),
               ],
             ),

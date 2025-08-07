@@ -1,29 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:reva/authentication/signup/orginisationdetailscreen.dart';
-import '../components/mytextfield.dart';
+import 'package:reva/authentication/components/mytextfield.dart';
 import 'package:provider/provider.dart';
-import 'package:reva/providers/user_provider.dart';
 import 'package:reva/services/api_service.dart';
-import 'package:reva/authentication/login.dart';
+import 'package:reva/providers/user_provider.dart';
+import '../profile/profile_percentage.dart';
 
-class CompleteProfileScreen extends StatefulWidget {
-  final bool showBack;
-  const CompleteProfileScreen({Key? key, this.showBack = false}) : super(key: key);
+class EditCompleteProfileScreen extends StatefulWidget {
+  const EditCompleteProfileScreen({Key? key}) : super(key: key);
 
   @override
-  State<CompleteProfileScreen> createState() => _CompleteProfileScreenState();
+  State<EditCompleteProfileScreen> createState() => _EditCompleteProfileScreenState();
 }
 
-class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
-  void _skipToLogin(BuildContext context) {
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
-      (route) => false,
-    );
-  }
-
+class _EditCompleteProfileScreenState extends State<EditCompleteProfileScreen> {
   final fullNameController = TextEditingController();
   final dobController = TextEditingController();
   static const List<String> DESIGNATIONS = [
@@ -48,17 +38,14 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   void initState() {
     super.initState();
     final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-    // Full name: try user['fullName'] first, then fallback
     String? fullName = userData['user']?['fullName'] ?? userData['fullName'];
     if ((fullName ?? '').toString().isNotEmpty) {
       fullNameController.text = fullName!;
     }
-    // Date of Birth: parse and format as dd/mm/yyyy
     if ((userData['dateOfBirth'] ?? '').toString().isNotEmpty) {
       final dobRaw = userData['dateOfBirth'];
       String? formattedDob;
       if (dobRaw is String && dobRaw.isNotEmpty) {
-        // Try to parse ISO or other formats
         DateTime? dt;
         try {
           dt = DateTime.tryParse(dobRaw);
@@ -82,7 +69,6 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       selectedLocation = userData['location'];
     }
     if (userData['experience'] != null) {
-      // Map experience number to string option if possible
       final exp = userData['experience'];
       if (exp is int) {
         if (exp == 0) selectedExperience = 'Less than 1 year';
@@ -108,27 +94,19 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     '3+ years'
   ];
 
-  // Validation helpers
   bool _isValidFullName(String name) => name.trim().isNotEmpty;
-  // bool _isValidDesignation(String designation) => designation.trim().isNotEmpty;
   bool _isValidLocation(String location) => locations.contains(location);
-  bool _isValidExperience(String exp) {
-    // Accept only the defined experience options
-    return experienceOptions.contains(exp);
-  }
-
+  bool _isValidExperience(String exp) => experienceOptions.contains(exp);
   bool _isValidDate(String date) {
-    // Accepts dd/mm/yyyy or dd-mm-yyyy
     final regex = RegExp(r'^(0[1-9]|[12][0-9]|3[01])[\/\-](0[1-9]|1[0-2])[\/\-](19|20)\d{2}$');
     return regex.hasMatch(date.trim());
   }
 
-  Future<void> _validateAndProceed() async {
+  Future<void> _saveProfile() async {
     final name = fullNameController.text;
     final dob = dobController.text;
     final designation = selectedDesignation;
     final location = selectedLocation;
-    // Convert experience string to number
     int experienceNum = 0;
     if (selectedExperience == 'Less than 1 year')
       experienceNum = 0;
@@ -138,14 +116,21 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       experienceNum = 2;
     else if (selectedExperience == '3+ years') experienceNum = 3;
 
-    // Convert dob to ISO format (yyyy-mm-dd)
+
+    // Convert dob to ISO format (yyyy-mm-dd) regardless of input separator
     String dobIso = '';
     try {
-      final parts = dob.split('/');
+      String sep = dob.contains('/') ? '/' : (dob.contains('-') ? '-' : '');
+      final parts = sep.isNotEmpty ? dob.split(sep) : [];
       if (parts.length == 3) {
+        // dd/mm/yyyy or dd-mm-yyyy
         dobIso = '${parts[2]}-${parts[1].padLeft(2, '0')}-${parts[0].padLeft(2, '0')}';
+      } else {
+        dobIso = dob; // fallback
       }
-    } catch (_) {}
+    } catch (_) {
+      dobIso = dob;
+    }
 
     String? error;
     if (!_isValidFullName(name)) {
@@ -167,7 +152,6 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       return;
     }
 
-    // Save to provider (optional, for local state)
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     userProvider.updateUserData({
       'fullName': name,
@@ -176,7 +160,6 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       'location': location,
       'experience': experienceNum,
     });
-    // Send to backend with correct structure
     try {
       final response = await ApiService().put('/profiles/', {
         'fullName': name,
@@ -186,11 +169,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         'experience': experienceNum,
       });
       if (response['success'] == true) {
-        Navigator.push(
+        Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(
-            builder: (context) => const OrganisationDetailsScreen(),
-          ),
+          MaterialPageRoute(builder: (context) => ProfilePercentageScreen()),
+          (route) => false,
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -211,6 +193,12 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF22252A),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Edit Overview', style: TextStyle(color: Colors.white)),
+      ),
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: width * 0.08),
@@ -218,53 +206,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: height * 0.07),
-                const Center(
-                  child: Text(
-                    "Complete your profile",
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                // Skip button removed
-                Row(
-                  children: [
-                    Text(
-                      "0%   ",
-                      style: GoogleFonts.dmSans(
-                        color: const Color(0xFFD8D8DD),
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    Text(
-                      "Completed..",
-                      style: GoogleFonts.dmSans(
-                        color: const Color(0xFF6F6F6F),
-                        fontWeight: FontWeight.w500,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: SizedBox(
-                    width: width * 0.6,
-                    child: const LinearProgressIndicator(
-                      value: 0.0,
-                      minHeight: 6,
-                      backgroundColor: Colors.white,
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
+                SizedBox(height: height * 0.04),
                 CustomTextField(
                   label: "Full Name (As per PAN / Aadhaar)",
                   hint: "User name",
@@ -374,7 +316,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                   width: double.infinity,
                   height: 52,
                   child: ElevatedButton(
-                    onPressed: _validateAndProceed,
+                    onPressed: _saveProfile,
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.zero,
                       shape: RoundedRectangleBorder(
@@ -396,7 +338,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                       ),
                       child: const Center(
                         child: Text(
-                          'Next',
+                          'Save',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
@@ -430,47 +372,32 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(title, style: const TextStyle(color: Colors.grey)),
-            const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+            const Icon(Icons.arrow_drop_down, color: Colors.white),
           ],
         ),
       ),
     );
   }
 
-  void _showBottomSheet(
-    BuildContext context, {
-    required String title,
-    required List<String> options,
-    required Function(String) onSelected,
-  }) {
+  void _showBottomSheet(BuildContext context, {required String title, required List<String> options, required void Function(String) onSelected}) {
     showModalBottomSheet(
-      backgroundColor: const Color(0xFF2F3237),
       context: context,
-      isScrollControlled: true,
+      backgroundColor: const Color(0xFF2F3237),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) {
-        return SafeArea(
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.6,
-            child: ListView(
-              shrinkWrap: true,
-              children: [
-                const SizedBox(height: 12),
-                ...options.map((e) => ListTile(
-                      title: Text(e, style: const TextStyle(color: Colors.white)),
-                      onTap: () {
-                        Navigator.pop(context);
-                        onSelected(e);
-                      },
-                    )),
-                const SizedBox(height: 12),
-              ],
-            ),
-          ),
-        );
-      },
+      builder: (_) => ListView(
+        shrinkWrap: true,
+        children: options.map((option) {
+          return ListTile(
+            title: Text(option, style: const TextStyle(color: Colors.white)),
+            onTap: () {
+              Navigator.pop(context);
+              onSelected(option);
+            },
+          );
+        }).toList(),
+      ),
     );
   }
 }

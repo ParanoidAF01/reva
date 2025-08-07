@@ -9,7 +9,6 @@ class SubscriptionService {
     if (cached != null) {
       return Map<String, dynamic>.from(jsonDecode(cached));
     }
-    return null;
   }
 
   Future<void> cacheSubscription(Map<String, dynamic> data) async {
@@ -29,6 +28,7 @@ class SubscriptionService {
     return await _apiService.post('/subscriptions/create', subscriptionData);
   }
 
+  // Check subscription status
   // Cancel subscription
   Future<Map<String, dynamic>> cancelSubscription() async {
     return await _apiService.post('/subscriptions/cancel', {});

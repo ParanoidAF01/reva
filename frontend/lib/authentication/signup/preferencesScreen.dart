@@ -5,7 +5,6 @@ import 'package:reva/authentication/signup/specializationandrecongination.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/services/api_service.dart';
 
-
 class PreferencesScreen extends StatefulWidget {
   final bool showBack;
   const PreferencesScreen({Key? key, this.showBack = false}) : super(key: key);
@@ -15,17 +14,58 @@ class PreferencesScreen extends StatefulWidget {
 }
 
 class _PreferencesScreenState extends State<PreferencesScreen> {
-  String operatingLocation="New Delhi";
-  String interest="xyz";
-  String propertyType="sjfshssfs";
-  String networkingPreference="xyzz";
-  String targetClient="xyz";
-  List<String> targetClients=["xyz","wrwrw","grrhrh"];
+  String operatingLocation = "New Delhi";
+  String interest = "xyz";
+  String propertyType = "sjfshssfs";
+  String networkingPreference = "xyzz";
+  String targetClient = "xyz";
+  List<String> targetClients = [
+    "xyz",
+    "wrwrw",
+    "grrhrh"
+  ];
 
-  List<String> networkingPreferences=["xyzz","wrwrw","grrhrh"];
-  List<String> propertyTypes=["sfjfshssfs","wrwrw","grrhrh"];
-  List<String> interests=["xyz","wrwrw","grrhrh"];
-  List<String> operatingLoactions=["New Delhi", "Mumbai", "Haryana"];
+  List<String> networkingPreferences = [
+    "xyzz",
+    "wrwrw",
+    "grrhrh"
+  ];
+  List<String> propertyTypes = [
+    "sfjfshssfs",
+    "wrwrw",
+    "grrhrh"
+  ];
+  List<String> interests = [
+    "xyz",
+    "wrwrw",
+    "grrhrh"
+  ];
+  List<String> operatingLoactions = [
+    "New Delhi",
+    "Mumbai",
+    "Haryana"
+  ];
+  @override
+  void initState() {
+    super.initState();
+    final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+    if ((userData['operatingLocation'] ?? '').toString().isNotEmpty) {
+      operatingLocation = userData['operatingLocation'];
+    }
+    if ((userData['interest'] ?? '').toString().isNotEmpty) {
+      interest = userData['interest'];
+    }
+    if ((userData['propertyType'] ?? '').toString().isNotEmpty) {
+      propertyType = userData['propertyType'];
+    }
+    if ((userData['networkingPreference'] ?? '').toString().isNotEmpty) {
+      networkingPreference = userData['networkingPreference'];
+    }
+    if ((userData['targetClient'] ?? '').toString().isNotEmpty) {
+      targetClient = userData['targetClient'];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -93,26 +133,44 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-
-                _buildBottomSheetField(label: "Operating Location", value: operatingLocation, options: operatingLoactions, onSelected: (val) {
-                  setState(() => operatingLocation = val);
-                }),
-                _buildBottomSheetField(label: "Interest", value: interest, options: interests, onSelected: (val) {
-                  setState(() => interest = val);
-                }),
+                _buildBottomSheetField(
+                    label: "Operating Location",
+                    value: operatingLocation,
+                    options: operatingLoactions,
+                    onSelected: (val) {
+                      setState(() => operatingLocation = val);
+                    }),
+                _buildBottomSheetField(
+                    label: "Interest",
+                    value: interest,
+                    options: interests,
+                    onSelected: (val) {
+                      setState(() => interest = val);
+                    }),
                 const SizedBox(height: 16),
-                _buildBottomSheetField(label: "Property Type", value: propertyType, options: propertyTypes, onSelected: (val) {
-                  setState(() => propertyType = val);
-                }),
+                _buildBottomSheetField(
+                    label: "Property Type",
+                    value: propertyType,
+                    options: propertyTypes,
+                    onSelected: (val) {
+                      setState(() => propertyType = val);
+                    }),
                 const SizedBox(height: 16),
-                _buildBottomSheetField(label: "Networking Preferences", value: networkingPreference, options: networkingPreferences, onSelected: (val) {
-                  setState(() =>networkingPreference = val);
-                }),
+                _buildBottomSheetField(
+                    label: "Networking Preferences",
+                    value: networkingPreference,
+                    options: networkingPreferences,
+                    onSelected: (val) {
+                      setState(() => networkingPreference = val);
+                    }),
                 const SizedBox(height: 16),
-                _buildBottomSheetField(label: "Target Client", value: targetClient, options: targetClients, onSelected: (val) {
-                  setState(() =>targetClient = val);
-                }),
-
+                _buildBottomSheetField(
+                    label: "Target Client",
+                    value: targetClient,
+                    options: targetClients,
+                    onSelected: (val) {
+                      setState(() => targetClient = val);
+                    }),
                 const SizedBox(height: 32),
                 SizedBox(
                   width: double.infinity,
@@ -131,7 +189,10 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                     child: Ink(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
+                          colors: [
+                            Color(0xFF0262AB),
+                            Color(0xFF01345A)
+                          ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -151,42 +212,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _skipPreferences();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Ink(
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'Skip',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                // Skip button removed
                 const SizedBox(height: 24),
               ],
             ),
@@ -198,24 +224,30 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
 
   Future<void> _validateAndProceed() async {
     // Collect data
-    final data = {
-      'operatingLocation': operatingLocation,
-      'interest': interest,
+    // Build preferences object
+    final preferences = {
+      'operatingLocations': operatingLocation,
+      'interests': [
+        interest
+      ],
       'propertyType': propertyType,
-      'networkingPreference': networkingPreference,
-      'targetClient': targetClient,
+      'networkingPreferences': networkingPreference,
+      'targetClients': targetClient,
     };
     // Save to provider
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.updateUserData(data);
+    userProvider.updateUserData({
+      'preferences': preferences
+    });
     // Send to backend
     try {
-      final response = await ApiService().put('/profiles/', data);
+      final response = await ApiService().put('/profiles/', {
+        'preferences': preferences,
+      });
       if (response['success'] == true) {
-        Navigator.pushAndRemoveUntil(
+        Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const SpecializationAndRecognition()),
-          (route) => false,
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -8,6 +8,8 @@ import 'providers/user_provider.dart';
 import 'contacts/contacts.dart';
 import 'request/requestscreen.dart';
 
+import 'authentication/login.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -30,6 +32,7 @@ class MyApp extends StatelessWidget {
           '/wallet': (context) => const WalletScreen(),
           '/contacts': (context) => const Contacts(),
           '/requests': (context) => const RequestScreen(),
+          '/login': (context) => const LoginScreen(),
         },
       ),
     );

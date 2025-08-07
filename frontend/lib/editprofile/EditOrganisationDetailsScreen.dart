@@ -1,24 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:reva/authentication/login.dart';
-import 'package:reva/authentication/signup/ekycscreen.dart';
-import '../components/mytextfield.dart';
-import '../../providers/user_provider.dart';
-import '../../services/api_service.dart';
+import 'package:reva/services/api_service.dart';
+import 'package:reva/providers/user_provider.dart';
+import 'package:reva/authentication/components/mytextfield.dart';
+import '../profile/profile_percentage.dart';
 
-class OrganisationDetailsScreen extends StatefulWidget {
-  final bool showBack;
-  const OrganisationDetailsScreen({Key? key, this.showBack = false}) : super(key: key);
+class EditOrganisationDetailsScreen extends StatefulWidget {
+  const EditOrganisationDetailsScreen({Key? key}) : super(key: key);
 
   @override
-  State<OrganisationDetailsScreen> createState() => _OrganisationDetailsScreenState();
+  State<EditOrganisationDetailsScreen> createState() => _EditOrganisationDetailsScreenState();
 }
 
-class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
+class _EditOrganisationDetailsScreenState extends State<EditOrganisationDetailsScreen> {
   final companyNameController = TextEditingController();
   final incorporationDateController = TextEditingController();
   final gstinController = TextEditingController();
+  bool isRegistered = false;
+  String selectedCompanyType = 'New Delhi';
+  String selectedGstin = '2 years';
+
+  final List<String> companyTypes = [
+    'New Delhi',
+    'Private Ltd',
+    'LLP',
+    'Proprietorship'
+  ];
+  final List<String> gstinOptions = [
+    'Less than 1 year',
+    '1 year',
+    '2 years',
+    '3+ years'
+  ];
 
   @override
   void initState() {
@@ -52,41 +65,40 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
       if ((org['gstNumber'] ?? '').toString().isNotEmpty) {
         gstinController.text = org['gstNumber'];
       }
+      if (org['registered'] != null) {
+        isRegistered = org['registered'] == true;
+      }
+      if ((org['companyType'] ?? '').toString().isNotEmpty) {
+        selectedCompanyType = org['companyType'];
+      }
     }
   }
 
-  bool isRegistered = false;
-
-  String selectedCompanyType = 'New Delhi';
-  String selectedGstin = '2 years';
-
-  final List<String> companyTypes = [
-    'New Delhi',
-    'Private Ltd',
-    'LLP',
-    'Proprietorship'
-  ];
-  final List<String> gstinOptions = [
-    'Less than 1 year',
-    '1 year',
-    '2 years',
-    '3+ years'
-  ];
-
-  // Validation helpers
   bool _isValidCompanyName(String name) => name.trim().isNotEmpty;
   bool _isValidIncorporationDate(String date) {
     final regex = RegExp(r'^(0[1-9]|[12][0-9]|3[01])[\/\-](0[1-9]|1[0-2])[\/\-](19|20)\d{2}$');
     return regex.hasMatch(date.trim());
   }
-
   bool _isValidCompanyType(String type) => companyTypes.contains(type);
 
-  Future<void> _validateAndProceed() async {
+  Future<void> _saveOrganisationDetails() async {
     final name = companyNameController.text;
     final date = incorporationDateController.text;
     final type = selectedCompanyType;
-
+    // Convert incorporation date to ISO format (yyyy-mm-dd) regardless of input separator
+    String dateIso = '';
+    try {
+      String sep = date.contains('/') ? '/' : (date.contains('-') ? '-' : '');
+      final parts = sep.isNotEmpty ? date.split(sep) : [];
+      if (parts.length == 3) {
+        // dd/mm/yyyy or dd-mm-yyyy
+        dateIso = '${parts[2]}-${parts[1].padLeft(2, '0')}-${parts[0].padLeft(2, '0')}';
+      } else {
+        dateIso = date; // fallback
+      }
+    } catch (_) {
+      dateIso = date;
+    }
     String? error;
     if (!_isValidCompanyName(name)) {
       error = "Please enter your company/firm name.";
@@ -97,40 +109,37 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
     } else if (!_isValidCompanyType(type)) {
       error = "Please select a valid company type.";
     }
-
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(error), backgroundColor: Colors.red),
       );
       return;
     }
-
-    // Save to provider
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     userProvider.updateUserData({
       'organization': {
         'name': companyNameController.text,
-        'incorporationDate': incorporationDateController.text,
+        'incorporationDate': dateIso,
         'gstNumber': gstinController.text,
         'registered': isRegistered,
         'companyType': selectedCompanyType,
       }
     });
-    // Send to backend with correct structure
     try {
       final response = await ApiService().put('/profiles/', {
         'organization': {
           'name': companyNameController.text,
-          'incorporationDate': incorporationDateController.text,
+          'incorporationDate': dateIso,
           'gstNumber': gstinController.text,
           'registered': isRegistered,
           'companyType': selectedCompanyType,
         }
       });
       if (response['success'] == true) {
-        Navigator.push(
+        Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(builder: (context) => const EKycScreen()),
+          MaterialPageRoute(builder: (context) => ProfilePercentageScreen()),
+          (route) => false,
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -145,21 +154,18 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
   }
 
   @override
-  void dispose() {
-    companyNameController.dispose();
-    incorporationDateController.dispose();
-    gstinController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
     final padding = width * 0.06;
-
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF22252A),
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('Edit Organisation Details', style: TextStyle(color: Colors.white)),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -168,66 +174,12 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: height * 0.06),
-                if (widget.showBack)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: IconButton(
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                const Center(
-                  child: Text(
-                    'Organisation Details',
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Progress indicator
-                Row(
-                  children: [
-                    Text(
-                      "20%   ",
-                      style: GoogleFonts.dmSans(color: const Color(0xFFD8D8DD), fontSize: 18, fontWeight: FontWeight.w700),
-                    ),
-                    Text(
-                      "Completed..",
-                      style: GoogleFonts.dmSans(
-                        color: const Color(0xFF6F6F6F),
-                        fontWeight: FontWeight.w500,
-                        fontSize: 10,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: SizedBox(
-                    width: width * 0.6,
-                    child: const LinearProgressIndicator(
-                      value: 0.2,
-                      minHeight: 6,
-                      backgroundColor: Colors.white,
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // CustomTextFields
                 CustomTextField(
                   label: 'Company/Firm Name',
                   hint: 'xyw company',
                   controller: companyNameController,
                 ),
                 const SizedBox(height: 16),
-
                 const Text(
                   'Registered Company',
                   style: TextStyle(
@@ -261,7 +213,6 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-
                 GestureDetector(
                   onTap: () async {
                     FocusScope.of(context).unfocus();
@@ -301,7 +252,6 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-
                 _buildBottomSheetField(
                   label: 'Company Type',
                   value: selectedCompanyType,
@@ -311,7 +261,6 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-
                 _buildBottomSheetField(
                   label: 'GSTIN (Optional)',
                   value: selectedGstin,
@@ -321,16 +270,44 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                   },
                 ),
                 const SizedBox(height: 32),
-
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildGradientButton('Skip', width, () {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-                    }),
-                    _buildGradientButton('Next', width, _validateAndProceed),
-                  ],
+                SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton(
+                    onPressed: _saveOrganisationDetails,
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Ink(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFF0262AB),
+                            Color(0xFF01345A)
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'Save',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
+                const SizedBox(height: 24),
               ],
             ),
           ),
@@ -389,37 +366,12 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(value, style: const TextStyle(color: Colors.grey)),
-                const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+                const Icon(Icons.arrow_drop_down, color: Colors.white),
               ],
             ),
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildGradientButton(String label, double width, void Function()? onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        width: (width - (width * 0.12) - 8) / 2,
-        height: 48,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          gradient: const LinearGradient(
-            colors: [
-              Color(0xFF0262AB),
-              Color(0xFF01345A)
-            ],
-          ),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-          ),
-        ),
-      ),
     );
   }
 }

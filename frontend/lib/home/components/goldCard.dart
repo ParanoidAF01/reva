@@ -140,7 +140,7 @@ class GoldCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.check, color: Colors.green, size: 16),
+                      kycStatus == 'KYC approved' ? const Icon(Icons.check, color: Colors.green, size: 16) : const Icon(Icons.close, color: Colors.red, size: 16),
                       const SizedBox(width: 4),
                       Text(
                         kycStatus,
@@ -156,22 +156,21 @@ class GoldCard extends StatelessWidget {
                   ),
                 ),
               // Tags row (below experience/languages)
-              if (tag1.isNotEmpty || tag2.isNotEmpty || tag3.isNotEmpty)
-                Positioned(
-                  left: 15,
-                  top: languages.isNotEmpty ? 169 : 149,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      if (tag1.isNotEmpty) _tagChip(tag1),
-                      if (tag1.isNotEmpty && (tag2.isNotEmpty || tag3.isNotEmpty)) SizedBox(width: tagSpacing),
-                      if (tag2.isNotEmpty) _tagChip(tag2),
-                      if (tag2.isNotEmpty && tag3.isNotEmpty) SizedBox(width: tagSpacing),
-                      if (tag3.isNotEmpty) _tagChip(tag3),
-                    ],
-                  ),
+              Positioned(
+                left: 15,
+                top: languages.isNotEmpty ? 149 : 129,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    _tagChip(tag1, 'Commercial'),
+                    SizedBox(width: tagSpacing),
+                    _tagChip(tag2, 'Plots'),
+                    SizedBox(width: tagSpacing),
+                    _tagChip(tag3, 'Rental'),
+                  ],
                 ),
+              ),
             ],
           ),
         ),
@@ -180,7 +179,7 @@ class GoldCard extends StatelessWidget {
   }
 }
 
-Widget _tagChip(String label) {
+Widget _tagChip(String value, String label) {
   return Container(
     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
     decoration: BoxDecoration(
@@ -188,7 +187,7 @@ Widget _tagChip(String label) {
       borderRadius: BorderRadius.circular(12),
     ),
     child: Text(
-      label,
+      value.isEmpty ? label : value,
       style: const TextStyle(
         color: Colors.white,
         fontSize: 12,

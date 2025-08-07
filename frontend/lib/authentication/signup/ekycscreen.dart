@@ -5,7 +5,20 @@ import 'package:reva/authentication/signup/contactdetailsscreen.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/services/api_service.dart';
 
+import 'package:reva/authentication/login.dart';
+
+// Top-level controller for Aadhaar input (shared by input and button)
+final TextEditingController aadharController = TextEditingController();
+
 class EKycScreen extends StatelessWidget {
+  void _skipToLogin(BuildContext context) {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
   final bool showBack;
   const EKycScreen({Key? key, this.showBack = false}) : super(key: key);
 
@@ -13,6 +26,12 @@ class EKycScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
+
+    // Prefill Aadhaar if present
+    final userData = Provider.of<UserProvider>(context).userData ?? {};
+    if ((userData['aadhaarNumber'] ?? '').toString().isNotEmpty && aadharController.text.isEmpty) {
+      aadharController.text = userData['aadhaarNumber'];
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFF22252A),
@@ -43,15 +62,34 @@ class EKycScreen extends StatelessWidget {
               ),
               SizedBox(height: height * 0.04),
 
+              SizedBox(
+                width: double.infinity,
+                height: 40,
+                child: OutlinedButton(
+                  onPressed: () => _skipToLogin(context),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Color(0xFF0262AB)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  child: const Text(
+                    'Skip',
+                    style: TextStyle(
+                      color: Color(0xFF0262AB),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+
               /// Progress Text
               Row(
                 children: [
                   Text(
                     "40%   ",
-                    style: GoogleFonts.dmSans(
-                        color: const Color(0xFFD8D8DD),
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700),
+                    style: GoogleFonts.dmSans(color: const Color(0xFFD8D8DD), fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   Text(
                     "Completed..",
@@ -72,8 +110,7 @@ class EKycScreen extends StatelessWidget {
                     value: 0.4,
                     minHeight: 6,
                     backgroundColor: Colors.white,
-                    valueColor:
-                    AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
                   ),
                 ),
               ),
@@ -92,20 +129,18 @@ class EKycScreen extends StatelessWidget {
               SizedBox(height: height * 0.01),
 
               /// Aadhaar Input
-              Container(
-                decoration: BoxDecoration(
-                  color: const Color(0xFF2E3138),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const TextField(
+              // Aadhaar input controller (moved to top for access in button)
+              SizedBox(
+                child: TextField(
+                  controller: aadharController,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: '0000 0000 0000',
                     hintStyle: TextStyle(color: Color(0xFF6F6F6F)),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(horizontal: 16),
                   ),
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                 ),
               ),
 
@@ -116,8 +151,7 @@ class EKycScreen extends StatelessWidget {
                 child: Text(
                   'Get OTP',
                   style: TextStyle(
-                    color:Color(0xFFFCFCFC)
-                  ,
+                    color: Color(0xFFFCFCFC),
                     fontWeight: FontWeight.w500,
                     fontSize: 14,
                   ),
@@ -154,7 +188,7 @@ class EKycScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: List.generate(
                   6,
-                      (index) => Container(
+                  (index) => Container(
                     height: height * 0.06,
                     width: width * 0.11,
                     decoration: BoxDecoration(
@@ -169,8 +203,34 @@ class EKycScreen extends StatelessWidget {
 
               /// Verify Button
               InkWell(
-                onTap: (){
-                  _validateAndProceed(context);
+                onTap: () async {
+                  final aadhar = aadharController.text.trim();
+                  if (aadhar.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please enter Aadhaar number'), backgroundColor: Colors.red),
+                    );
+                    return;
+                  }
+                  try {
+                    final response = await ApiService().put('/profiles/', {
+                      'maskedAadharNumber': aadhar,
+                      'kycVerified': true,
+                    });
+                    if (response['success'] == true) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ContactDetailsScreen()),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(response['message'] ?? 'Failed to update KYC'), backgroundColor: Colors.red),
+                      );
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Network error'), backgroundColor: Colors.red),
+                    );
+                  }
                 },
                 child: Container(
                   width: double.infinity,
@@ -201,36 +261,5 @@ class EKycScreen extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _validateAndProceed(BuildContext context) async {
-    // Collect eKYC data (add fields as needed)
-    final Map<String, dynamic> data = {
-      // 'aadhaar': aadhaarController.text,
-      // 'pan': panController.text,
-      // Add other fields here
-    };
-    // Save to provider
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.updateUserData(data);
-    // Send to backend
-    try {
-      final response = await ApiService().put('/profiles/', data);
-      if (response['success'] == true) {
-        Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (context) => ContactDetailsScreen()),
-          (route) => false,
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'] ?? 'Failed to update eKYC'), backgroundColor: Colors.red),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Network error'), backgroundColor: Colors.red),
-      );
-    }
   }
 }

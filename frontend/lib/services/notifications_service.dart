@@ -3,35 +3,74 @@ import 'api_service.dart';
 class NotificationsService {
   final ApiService _apiService = ApiService();
 
+
   // Get my notifications
   Future<Map<String, dynamic>> getMyNotifications() async {
-    return await _apiService.get('/notifications/me');
+    try {
+      return await _apiService.get('/notifications/me');
+    } catch (e) {
+      throw Exception(_filterError(e));
+    }
   }
 
   // Get notification stats
   Future<Map<String, dynamic>> getNotificationStats() async {
-    return await _apiService.get('/notifications/stats');
+    try {
+      return await _apiService.get('/notifications/stats');
+    } catch (e) {
+      throw Exception(_filterError(e));
+    }
   }
 
   // Get notification by ID
-  Future<Map<String, dynamic>> getNotificationById(
-      String notificationId) async {
-    return await _apiService.get('/notifications/$notificationId');
+  Future<Map<String, dynamic>> getNotificationById(String notificationId) async {
+    try {
+      return await _apiService.get('/notifications/$notificationId');
+    } catch (e) {
+      throw Exception(_filterError(e));
+    }
   }
 
   // Mark notification as read
   Future<Map<String, dynamic>> markAsRead(String notificationId) async {
-    return await _apiService.patch('/notifications/$notificationId/read', {});
+    try {
+      return await _apiService.patch('/notifications/$notificationId/read', {});
+    } catch (e) {
+      throw Exception(_filterError(e));
+    }
   }
 
   // Mark all notifications as read
   Future<Map<String, dynamic>> markAllAsRead() async {
-    return await _apiService.patch('/notifications/mark-all-read', {});
+    try {
+      return await _apiService.patch('/notifications/mark-all-read', {});
+    } catch (e) {
+      throw Exception(_filterError(e));
+    }
   }
 
   // Delete notification
   Future<Map<String, dynamic>> deleteNotification(String notificationId) async {
-    return await _apiService.delete('/notifications/$notificationId');
+    try {
+      return await _apiService.delete('/notifications/$notificationId');
+    } catch (e) {
+      throw Exception(_filterError(e));
+    }
+  }
+
+  String _filterError(dynamic e) {
+    final msg = e.toString();
+    if (msg.contains('Failed host lookup')) {
+      return 'Network error: Please check your internet connection.';
+    }
+    if (msg.contains('timeout')) {
+      return 'Request timed out. Please try again.';
+    }
+    if (msg.contains('401')) {
+      return 'Session expired. Please log in again.';
+    }
+    // Add more filters as needed
+    return msg.replaceAll('Exception:', '').trim();
   }
 
   // Delete all notifications
@@ -44,6 +83,7 @@ class NotificationsService {
       Map<String, dynamic> notificationData) async {
     return await _apiService.post('/notifications/create', notificationData);
   }
+  // Get my notifications
 
   // Send system notification (admin only)
   Future<Map<String, dynamic>> sendSystemNotification(

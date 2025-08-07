@@ -12,6 +12,7 @@ import 'package:reva/start_subscription.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:reva/providers/user_provider.dart';
 import '../utils/first_login_helper.dart';
+import '../utils/navigation_helper.dart';
 import 'package:reva/authentication/signup/CompleteProfileScreen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -28,16 +29,12 @@ class _LoginScreenState extends State<LoginScreen> {
       final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
       if (googleUser != null) {
         // TODO: Send googleUser info to backend for auth
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Google sign-in successful!')),
-        );
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const BottomNavigation()));
+        NavigationHelper.showSnackBar('Google sign-in successful!');
+        NavigationHelper.navigateTo(const BottomNavigation());
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Google sign-in failed: $e')),
-      );
+      NavigationHelper.showSnackBar('Google sign-in failed: $e',
+          backgroundColor: Colors.red);
     }
   }
 
@@ -46,19 +43,15 @@ class _LoginScreenState extends State<LoginScreen> {
       final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName
+          AppleIDAuthorizationScopes.fullName,
         ],
       );
       // TODO: Send credential info to backend for auth
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Apple sign-in successful!')),
-      );
-      Navigator.pushReplacement(context,
-          MaterialPageRoute(builder: (context) => const BottomNavigation()));
+      NavigationHelper.showSnackBar('Apple sign-in successful!');
+      NavigationHelper.navigateTo(const BottomNavigation());
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Apple sign-in failed: $e')),
-      );
+      NavigationHelper.showSnackBar('Apple sign-in failed: $e',
+          backgroundColor: Colors.red);
     }
   }
 
@@ -67,18 +60,14 @@ class _LoginScreenState extends State<LoginScreen> {
       final LoginResult result = await FacebookAuth.instance.login();
       if (result.status == LoginStatus.success) {
         // TODO: Send result.accessToken to backend for auth
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Facebook sign-in successful!')),
-        );
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const BottomNavigation()));
+        NavigationHelper.showSnackBar('Facebook sign-in successful!');
+        NavigationHelper.navigateTo(const BottomNavigation());
       } else {
         throw result.message ?? 'Unknown error';
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Facebook sign-in failed: $e')),
-      );
+      NavigationHelper.showSnackBar('Facebook sign-in failed: $e',
+          backgroundColor: Colors.red);
     }
   }
 
@@ -90,17 +79,21 @@ class _LoginScreenState extends State<LoginScreen> {
   // No phone number loading from device
 
   Future<void> _login() async {
+    if (!mounted) return; // Early return if widget is disposed
+
     setState(() {
       isLoading = true;
     });
+
     try {
       final phone = phoneController.text.trim();
       final mpin = mpinControllers.map((c) => c.text).join();
       if (phone.isEmpty || mpin.length != 6) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Please enter your phone number and 6-digit MPIN')),
-        );
+        if (mounted) {
+          NavigationHelper.showSnackBar(
+              'Please enter your phone number and 6-digit MPIN',
+              backgroundColor: Colors.red);
+        }
         setState(() {
           isLoading = false;
         });
@@ -110,58 +103,56 @@ class _LoginScreenState extends State<LoginScreen> {
       final response =
           await AuthService().login(mobileNumber: phone, mpin: mpin);
 
+      // Check if widget is still mounted before proceeding
+      if (!mounted) return;
+
       if (response['success'] == true) {
         // Set hasLoggedInBefore flag
         await FirstLoginHelper.setHasLoggedIn();
 
         // Check OTP and KYC verification status
         final verifications = response['data']?['verifications'];
-        final otpVerified = verifications != null && verifications['otp'] == true;
-        final kycVerified = verifications != null && verifications['kyc'] == true;
+        final otpVerified =
+            verifications != null && verifications['otp'] == true;
+        final kycVerified =
+            verifications != null && verifications['kyc'] == true;
+
+        if (!mounted) return;
+
         if (!otpVerified) {
           // Go to OTP screen (prefill phone)
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => OtpScreen(prefillPhone: phone),
-            ),
-          );
+          NavigationHelper.navigateTo(OtpScreen(prefillPhone: phone));
           return;
         }
 
+        if (!mounted) return;
+
         if (!kycVerified) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => const CompleteProfileScreen(),
-            ),
-          );
+          NavigationHelper.navigateTo(const CompleteProfileScreen());
           return;
         }
 
         // KYC is verified, now check subscription
+        if (!mounted) return;
+
         final userProvider = Provider.of<UserProvider>(context, listen: false);
         await userProvider.loadUserData();
         await userProvider.checkSubscription();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Login successful!')),
-        );
+        if (!mounted) return;
+
+        NavigationHelper.showSnackBar('Login successful!');
         if (userProvider.isSubscribed == true) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const BottomNavigation()),
-          );
+          NavigationHelper.navigateTo(const BottomNavigation());
         } else {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const StartSubscriptionPage()),
-          );
+          NavigationHelper.navigateTo(const StartSubscriptionPage());
         }
       } else {
         throw Exception(response['message'] ?? 'Login failed');
       }
     } catch (e) {
+      if (!mounted) return; // Don't show error if widget is disposed
+
       String errorMsg = 'Login failed';
       if (e.toString().contains('not found')) {
         errorMsg = 'User not found. Please check your phone number.';
@@ -172,13 +163,13 @@ class _LoginScreenState extends State<LoginScreen> {
       } else if (e.toString().isNotEmpty) {
         errorMsg = e.toString();
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(errorMsg)),
-      );
+      NavigationHelper.showSnackBar(errorMsg, backgroundColor: Colors.red);
     } finally {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -320,7 +311,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text("Don’t have an account? ",
+                              Text("Don't have an account? ",
                                   style: GoogleFonts.dmSans(
                                       color: const Color(0xFFD8D8DD),
                                       fontSize: 15)),

@@ -44,6 +44,13 @@ const connectViaQR = asyncHandler(async (req, res) => {
         $push: { connections: currentUserId }
     });
 
+    await ConnectionRequest.deleteMany({
+        $or: [
+            { fromUser: currentUserId, toUser: targetUser._id },
+            { fromUser: targetUser._id, toUser: currentUserId }
+        ]
+    });
+
     return res.status(200).json(
         new ApiResponse(200, {
             message: "Connection established successfully",

@@ -18,7 +18,8 @@ class AuthService {
     try {
       final parts = accessToken.split('.');
       if (parts.length != 3) return null;
-      final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+      final payload =
+          utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
       final payloadMap = jsonDecode(payload);
       return payloadMap['userId']?.toString();
     } catch (e) {
@@ -160,11 +161,16 @@ class AuthService {
 
   // Save user fields in secure storage
   Future<void> _saveUserFields(Map<String, dynamic> user) async {
-    await _storage.write(key: UserStorageFields.id, value: user['id']?.toString() ?? '');
-    await _storage.write(key: UserStorageFields.email, value: user['email'] ?? '');
-    await _storage.write(key: UserStorageFields.mobileNumber, value: user['mobileNumber'] ?? '');
-    await _storage.write(key: UserStorageFields.fullName, value: user['fullName'] ?? '');
-    await _storage.write(key: UserStorageFields.mpin, value: user['mpin'] ?? '');
+    await _storage.write(
+        key: UserStorageFields.id, value: user['id']?.toString() ?? '');
+    await _storage.write(
+        key: UserStorageFields.email, value: user['email'] ?? '');
+    await _storage.write(
+        key: UserStorageFields.mobileNumber, value: user['mobileNumber'] ?? '');
+    await _storage.write(
+        key: UserStorageFields.fullName, value: user['fullName'] ?? '');
+    await _storage.write(
+        key: UserStorageFields.mpin, value: user['mpin'] ?? '');
   }
 
   // Refresh Token
@@ -194,12 +200,54 @@ class AuthService {
 
   // Logout
   Future<Map<String, dynamic>> logout() async {
-    final refreshToken = await _getToken('refreshToken');
-    final response = await _apiService.post('/auth/logout', {
-      'refreshToken': refreshToken,
-    });
-    await _apiService.clearTokens();
-    return response;
+    try {
+      final refreshToken = await _getToken('refreshToken');
+      final response = await _apiService.post('/auth/logout', {
+        'refreshToken': refreshToken,
+      });
+
+      // Clear all tokens
+      await _apiService.clearTokens();
+
+      // Clear all user data from secure storage
+      await _clearAllUserData();
+
+      return response;
+    } catch (e) {
+      // Even if logout API fails, clear local data
+      await _apiService.clearTokens();
+      await _clearAllUserData();
+      throw e;
+    }
+  }
+
+  // Clear all user data from secure storage
+  Future<void> _clearAllUserData() async {
+    try {
+      await _storage.delete(key: UserStorageFields.id);
+      await _storage.delete(key: UserStorageFields.email);
+      await _storage.delete(key: UserStorageFields.mobileNumber);
+      await _storage.delete(key: UserStorageFields.fullName);
+      await _storage.delete(key: UserStorageFields.mpin);
+
+      // Clear any other stored data
+      await _storage.deleteAll();
+    } catch (e) {
+      // Ignore errors when clearing storage
+      print('Error clearing user data: $e');
+    }
+  }
+
+  // Comprehensive logout that clears everything
+  static Future<void> performCompleteLogout() async {
+    final authService = AuthService();
+    try {
+      await authService.logout();
+    } catch (e) {
+      // Ensure we clear everything even if logout API fails
+      await authService._apiService.clearTokens();
+      await authService._clearAllUserData();
+    }
   }
 
   // Check if user is logged in

@@ -10,6 +10,7 @@ import '../start_subscription.dart';
 import '../utils/first_login_helper.dart';
 import 'signup/verifyotp.dart';
 import 'package:reva/authentication/signup/CompleteProfileScreen.dart';
+import '../utils/navigation_helper.dart';
 
 class MpinVerificationScreen extends StatefulWidget {
   const MpinVerificationScreen({super.key});
@@ -108,8 +109,10 @@ class _MpinVerificationScreenState extends State<MpinVerificationScreen> {
 
         // Check OTP and KYC verification status
         final verifications = response['data']?['verifications'];
-        final otpVerified = verifications != null && verifications['otp'] == true;
-        final kycVerified = verifications != null && verifications['kyc'] == true;
+        final otpVerified =
+            verifications != null && verifications['otp'] == true;
+        final kycVerified =
+            verifications != null && verifications['kyc'] == true;
         if (!otpVerified) {
           // Get mobile number from secure storage
           final mobileNumber = await _authService.getToken('userMobileNumber');
@@ -396,14 +399,9 @@ class _MpinVerificationScreenState extends State<MpinVerificationScreen> {
             TextButton(
               onPressed: () async {
                 Navigator.of(dialogContext).pop();
-                await _authService.logout();
+                await AuthService.performCompleteLogout();
                 await FirstLoginHelper.clearHasLoggedIn();
-                if (!mounted) return;
-                // Always go to WelcomeScreen after logout
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-                  (route) => false,
-                );
+                NavigationHelper.navigateToWelcomeScreen();
               },
               child: Text(
                 'Logout',

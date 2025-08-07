@@ -428,7 +428,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         tag1: (userData['tag1'] != null && userData['tag1'].toString().isNotEmpty) ? userData['tag1'] : "Commercial",
                         tag2: (userData['tag2'] != null && userData['tag2'].toString().isNotEmpty) ? userData['tag2'] : "Rental",
                         tag3: (userData['tag3'] != null && userData['tag3'].toString().isNotEmpty) ? userData['tag3'] : "Plots",
-                        kycStatus: (userData['kycStatus'] != null && userData['kycStatus'].toString().isNotEmpty) ? userData['kycStatus'] : "",
+                        kycStatus: (userData['kycVerified'] == true) ? 'verified' : '',
                       )
                     else if (userEvents.length >= 20 && userEvents.length < 60)
                       SilverCard(
@@ -439,7 +439,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         tag1: (userData['tag1'] != null && userData['tag1'].toString().isNotEmpty) ? userData['tag1'] : "Commercial",
                         tag2: (userData['tag2'] != null && userData['tag2'].toString().isNotEmpty) ? userData['tag2'] : "Rental",
                         tag3: (userData['tag3'] != null && userData['tag3'].toString().isNotEmpty) ? userData['tag3'] : "Plots",
-                        kycStatus: (userData['kycStatus'] != null && userData['kycStatus'].toString().isNotEmpty) ? userData['kycStatus'] : "",
+                        kycStatus: (userData['kycVerified'] == true) ? 'verified' : '',
                       )
                     else if (userEvents.length >= 80)
                       GoldCard(
@@ -450,7 +450,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         tag1: (userData['tag1'] != null && userData['tag1'].toString().isNotEmpty) ? userData['tag1'] : "Commercial",
                         tag2: (userData['tag2'] != null && userData['tag2'].toString().isNotEmpty) ? userData['tag2'] : "Rental",
                         tag3: (userData['tag3'] != null && userData['tag3'].toString().isNotEmpty) ? userData['tag3'] : "Plots",
-                        kycStatus: (userData['kycStatus'] != null && userData['kycStatus'].toString().isNotEmpty) ? userData['kycStatus'] : "",
+                        kycStatus: (userData['kycVerified'] == true) ? 'verified' : '',
                       ),
                     SizedBox(height: height * 0.02),
                     SizedBox(

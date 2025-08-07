@@ -89,8 +89,9 @@ export const register = asyncHandler(async (req, res) => {
                 refreshToken
             },
             verifications: {
-                kyc: profile.kycVerified,
-                otp: user.otpVerified
+                kyc: !!profile.kycVerified,
+                otp: !!user.otpVerified,
+                subscription: !!user.subscription
             }
         }
     });
@@ -103,10 +104,6 @@ export const login = asyncHandler(async (req, res) => {
 
     if (!user) {
         throw new ApiError(401, 'Invalid mobile number or MPIN');
-    }
-
-    if (!user.otpVerified) {
-        throw new ApiError(401, 'OTP verification is required');
     }
 
     const isMpinValid = await user.compareMpin(mpin);
@@ -153,8 +150,9 @@ export const login = asyncHandler(async (req, res) => {
                 refreshToken
             },
             verifications: {
-                kyc: profile.kycVerified,
-                otp: user.otpVerified
+                kyc: !!profile.kycVerified,
+                otp: !!user.otpVerified,
+                subscription: !!user.subscription
             }
         }
     });
@@ -197,8 +195,9 @@ export const verifyMpin = asyncHandler(async (req, res) => {
                 mobileNumber: user.mobileNumber
             },
             verifications: {
-                kyc: profile.kycVerified,
-                otp: user.otpVerified
+                kyc: !!profile.kycVerified,
+                otp: !!user.otpVerified,
+                subscription: !!user.subscription
             }
         }
     });

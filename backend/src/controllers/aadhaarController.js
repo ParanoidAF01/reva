@@ -2,7 +2,6 @@ import axios from "axios";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import env from "../utils/consts.js";
-import { mask } from "../utils/helpers.js";
 
 const QUICK_EKYC_API_KEY = env.aadhaar.key;
 const QUICK_EKYC_API_URL = env.aadhaar.url;

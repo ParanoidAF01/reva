@@ -177,7 +177,12 @@ export const verifyMpin = asyncHandler(async (req, res) => {
         success: true,
         message: "MPIN verified successfully",
         data: {
-            isMpinValid: true
+            isMpinValid: true,
+            user: {
+                fullName: user.fullName,
+                email: user.email,
+                mobileNumber: user.mobileNumber
+            }
         }
     });
 });

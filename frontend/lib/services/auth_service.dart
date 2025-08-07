@@ -10,7 +10,8 @@ class AuthService {
     try {
       final parts = accessToken.split('.');
       if (parts.length != 3) return null;
-      final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
+      final payload =
+          utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
       final payloadMap = jsonDecode(payload);
       return payloadMap['userId']?.toString();
     } catch (e) {
@@ -127,9 +128,19 @@ class AuthService {
 
   // Verify MPIN
   Future<Map<String, dynamic>> verifyMpin(String mpin) async {
-    return await _apiService.post('/auth/verify-mpin', {
+    final response = await _apiService.post('/auth/verify-mpin', {
       'mpin': mpin,
     });
+
+    // If verification is successful, we can optionally store user data
+    if (response['success'] == true &&
+        response['data'] != null &&
+        response['data']['user'] != null) {
+      // You can store user data here if needed for the session
+      // For now, we'll just return the response
+    }
+
+    return response;
   }
 
   // Refresh Token
@@ -164,6 +175,9 @@ class AuthService {
       'refreshToken': refreshToken,
     });
     await _apiService.clearTokens();
+    // Also clear local tokens
+    await _deleteToken('accessToken');
+    await _deleteToken('refreshToken');
     return response;
   }
 

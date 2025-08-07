@@ -3,6 +3,7 @@ import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 import 'package:reva/authentication/welcomescreen.dart';
+import 'package:reva/authentication/mpin_verification_screen.dart';
 import 'package:reva/bottomnavigation/bottomnavigation.dart';
 import 'package:reva/services/auth_service.dart';
 import 'package:reva/providers/user_provider.dart';
@@ -33,26 +34,10 @@ class _RootRedirectorState extends State<RootRedirector> {
     final token = await auth.getToken('accessToken');
 
     if (token != null && token.isNotEmpty) {
-      // User is logged in, check subscription
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      await userProvider.loadUserData();
-      await userProvider.checkSubscription();
-
-      if (!mounted) return;
-
-      // Debug print to verify value
-      debugPrint('RootRedirector: isSubscribed = ${userProvider.isSubscribed}');
-
-      if (userProvider.isSubscribed == true) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const BottomNavigation()),
-        );
-      } else {
-        // User is logged in but not subscribed
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const StartSubscriptionPage()),
-        );
-      }
+      // User is logged in, show MPIN verification screen
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const MpinVerificationScreen()),
+      );
     } else {
       // User is not logged in
       Navigator.of(context).pushReplacement(

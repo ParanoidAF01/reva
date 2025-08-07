@@ -6,6 +6,7 @@ import 'package:reva/authentication/signup/ekycscreen.dart';
 import '../components/mytextfield.dart';
 import '../../providers/user_provider.dart';
 import '../../services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class OrganisationDetailsScreen extends StatefulWidget {
   final bool showBack;
@@ -34,41 +35,93 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-    if (userData['organization'] != null && userData['organization'] is Map) {
-      final org = userData['organization'];
-      if ((org['name'] ?? '').toString().isNotEmpty) {
-        companyNameController.text = org['name'];
-      }
-      if ((org['companyType'] ?? '').toString().isNotEmpty && companyTypes.contains(org['companyType'])) {
-        selectedCompanyType = org['companyType'];
-      } else {
-        selectedCompanyType = companyTypes.first;
-      }
-      if ((org['incorporationDate'] ?? '').toString().isNotEmpty) {
-        final dateRaw = org['incorporationDate'];
-        String? formattedDate;
-        if (dateRaw is String && dateRaw.isNotEmpty) {
-          DateTime? dt;
-          try {
-            dt = DateTime.tryParse(dateRaw);
-          } catch (_) {}
-          if (dt != null) {
-            formattedDate = '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
-          } else if (dateRaw.contains('-')) {
-            final parts = dateRaw.split('-');
-            if (parts.length == 3) {
-              formattedDate = '${parts[2].padLeft(2, '0')}/${parts[1].padLeft(2, '0')}/${parts[0]}';
-            }
-          }
-          formattedDate ??= dateRaw;
-          incorporationDateController.text = formattedDate;
+    _loadPrefilledData();
+    companyNameController.addListener(_saveFormData);
+    incorporationDateController.addListener(_saveFormData);
+    gstinController.addListener(_saveFormData);
+  }
+
+  Future<void> _loadPrefilledData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final companyName = prefs.getString('signup_companyName');
+    final incorporationDate = prefs.getString('signup_incorporationDate');
+    final companyType = prefs.getString('signup_companyType');
+    final gstin = prefs.getString('signup_gstin');
+
+    if (companyName != null && companyName.isNotEmpty) {
+      companyNameController.text = companyName;
+    } else {
+      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if (userData['organization'] != null && userData['organization'] is Map) {
+        final org = userData['organization'];
+        if ((org['name'] ?? '').toString().isNotEmpty) {
+          companyNameController.text = org['name'];
         }
       }
-      if ((org['gstNumber'] ?? '').toString().isNotEmpty) {
-        gstinController.text = org['gstNumber'];
+    }
+    if (incorporationDate != null && incorporationDate.isNotEmpty) {
+      incorporationDateController.text = incorporationDate;
+    } else {
+      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if (userData['organization'] != null && userData['organization'] is Map) {
+        final org = userData['organization'];
+        if ((org['incorporationDate'] ?? '').toString().isNotEmpty) {
+          final dateRaw = org['incorporationDate'];
+          String? formattedDate;
+          if (dateRaw is String && dateRaw.isNotEmpty) {
+            DateTime? dt;
+            try {
+              dt = DateTime.tryParse(dateRaw);
+            } catch (_) {}
+            if (dt != null) {
+              formattedDate = '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+            } else if (dateRaw.contains('-')) {
+              final parts = dateRaw.split('-');
+              if (parts.length == 3) {
+                formattedDate = '${parts[2].padLeft(2, '0')}/${parts[1].padLeft(2, '0')}/${parts[0]}';
+              }
+            }
+            formattedDate ??= dateRaw;
+            incorporationDateController.text = formattedDate;
+          }
+        }
       }
     }
+    if (companyType != null && companyType.isNotEmpty && companyTypes.contains(companyType)) {
+      setState(() {
+        selectedCompanyType = companyType;
+      });
+    } else {
+      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if (userData['organization'] != null && userData['organization'] is Map) {
+        final org = userData['organization'];
+        if ((org['companyType'] ?? '').toString().isNotEmpty && companyTypes.contains(org['companyType'])) {
+          setState(() {
+            selectedCompanyType = org['companyType'];
+          });
+        }
+      }
+    }
+    if (gstin != null && gstin.isNotEmpty) {
+      gstinController.text = gstin;
+    } else {
+      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if (userData['organization'] != null && userData['organization'] is Map) {
+        final org = userData['organization'];
+        if ((org['gstNumber'] ?? '').toString().isNotEmpty) {
+          gstinController.text = org['gstNumber'];
+        }
+      }
+    }
+    setState(() {});
+  }
+
+  Future<void> _saveFormData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('signup_companyName', companyNameController.text);
+    await prefs.setString('signup_incorporationDate', incorporationDateController.text);
+    await prefs.setString('signup_companyType', selectedCompanyType);
+    await prefs.setString('signup_gstin', gstinController.text);
   }
 
   // Validation helpers
@@ -114,6 +167,8 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
         'companyType': selectedCompanyType,
       }
     });
+    // Save to shared_preferences for persistence
+    await _saveFormData();
     // Send to backend with correct structure
     try {
       final response = await ApiService().put('/profiles/', {

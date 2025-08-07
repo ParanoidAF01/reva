@@ -12,6 +12,7 @@ import 'package:reva/start_subscription.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:reva/providers/user_provider.dart';
 import '../utils/first_login_helper.dart';
+import 'package:reva/authentication/signup/CompleteProfileScreen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -112,7 +113,33 @@ class _LoginScreenState extends State<LoginScreen> {
       if (response['success'] == true) {
         // Set hasLoggedInBefore flag
         await FirstLoginHelper.setHasLoggedIn();
-        // Load user data after successful login
+
+        // Check OTP and KYC verification status
+        final verifications = response['data']?['verifications'];
+        final otpVerified = verifications != null && verifications['otp'] == true;
+        final kycVerified = verifications != null && verifications['kyc'] == true;
+        if (!otpVerified) {
+          // Go to OTP screen (prefill phone)
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => OtpScreen(prefillPhone: phone),
+            ),
+          );
+          return;
+        }
+
+        if (!kycVerified) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const CompleteProfileScreen(),
+            ),
+          );
+          return;
+        }
+
+        // KYC is verified, now check subscription
         final userProvider = Provider.of<UserProvider>(context, listen: false);
         await userProvider.loadUserData();
         await userProvider.checkSubscription();
@@ -120,7 +147,6 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login successful!')),
         );
-        // Redirect based on subscription status
         if (userProvider.isSubscribed == true) {
           Navigator.pushReplacement(
             context,

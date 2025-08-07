@@ -1,9 +1,7 @@
 import 'package:reva/editprofile/EditCompleteProfileScreen.dart';
-import 'package:reva/profile/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:reva/profile/edit_profile_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/editprofile/EditOrganisationDetailsScreen.dart';

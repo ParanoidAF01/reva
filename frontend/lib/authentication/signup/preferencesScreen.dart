@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:reva/authentication/signup/specializationandrecongination.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferencesScreen extends StatefulWidget {
   final bool showBack;
@@ -61,22 +62,54 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
   @override
   void initState() {
     super.initState();
+    _loadPrefilledData();
+  }
+
+  Future<void> _loadPrefilledData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final opLoc = prefs.getString('signup_operatingLocation');
+    final intr = prefs.getString('signup_interest');
+    final propType = prefs.getString('signup_propertyType');
+    final netPref = prefs.getString('signup_networkingPreference');
+    final tgtClient = prefs.getString('signup_targetClient');
+
     final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-    if ((userData['operatingLocation'] ?? '').toString().isNotEmpty && operatingLoactions.contains(userData['operatingLocation'])) {
-      operatingLocation = userData['operatingLocation'];
-    }
-    if ((userData['interest'] ?? '').toString().isNotEmpty && interests.contains(userData['interest'])) {
-      interest = userData['interest'];
-    }
-    if ((userData['propertyType'] ?? '').toString().isNotEmpty && propertyTypes.contains(userData['propertyType'])) {
-      propertyType = userData['propertyType'];
-    }
-    if ((userData['networkingPreference'] ?? '').toString().isNotEmpty && networkingPreferences.contains(userData['networkingPreference'])) {
-      networkingPreference = userData['networkingPreference'];
-    }
-    if ((userData['targetClient'] ?? '').toString().isNotEmpty && targetClients.contains(userData['targetClient'])) {
-      targetClient = userData['targetClient'];
-    }
+    setState(() {
+      if (opLoc != null && opLoc.isNotEmpty && operatingLoactions.contains(opLoc)) {
+        operatingLocation = opLoc;
+      } else if ((userData['operatingLocation'] ?? '').toString().isNotEmpty && operatingLoactions.contains(userData['operatingLocation'])) {
+        operatingLocation = userData['operatingLocation'];
+      }
+      if (intr != null && intr.isNotEmpty && interests.contains(intr)) {
+        interest = intr;
+      } else if ((userData['interest'] ?? '').toString().isNotEmpty && interests.contains(userData['interest'])) {
+        interest = userData['interest'];
+      }
+      if (propType != null && propType.isNotEmpty && propertyTypes.contains(propType)) {
+        propertyType = propType;
+      } else if ((userData['propertyType'] ?? '').toString().isNotEmpty && propertyTypes.contains(userData['propertyType'])) {
+        propertyType = userData['propertyType'];
+      }
+      if (netPref != null && netPref.isNotEmpty && networkingPreferences.contains(netPref)) {
+        networkingPreference = netPref;
+      } else if ((userData['networkingPreference'] ?? '').toString().isNotEmpty && networkingPreferences.contains(userData['networkingPreference'])) {
+        networkingPreference = userData['networkingPreference'];
+      }
+      if (tgtClient != null && tgtClient.isNotEmpty && targetClients.contains(tgtClient)) {
+        targetClient = tgtClient;
+      } else if ((userData['targetClient'] ?? '').toString().isNotEmpty && targetClients.contains(userData['targetClient'])) {
+        targetClient = userData['targetClient'];
+      }
+    });
+  }
+
+  Future<void> _saveFormData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('signup_operatingLocation', operatingLocation);
+    await prefs.setString('signup_interest', interest);
+    await prefs.setString('signup_propertyType', propertyType);
+    await prefs.setString('signup_networkingPreference', networkingPreference);
+    await prefs.setString('signup_targetClient', targetClient);
   }
 
   @override
@@ -308,9 +341,10 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                 children: options.map((option) {
                   return ListTile(
                     title: Text(option, style: const TextStyle(color: Colors.white)),
-                    onTap: () {
+                    onTap: () async {
                       Navigator.pop(context);
                       onSelected(option);
+                      await _saveFormData();
                     },
                   );
                 }).toList(),

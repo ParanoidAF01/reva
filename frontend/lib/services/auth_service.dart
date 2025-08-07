@@ -1,6 +1,14 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 import 'api_service.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+class UserStorageFields {
+  static const String id = 'userId';
+  static const String email = 'userEmail';
+  static const String mobileNumber = 'userMobileNumber';
+  static const String fullName = 'userFullName';
+  static const String mpin = 'userMpin';
+}
 
 class AuthService {
   // Get current user ID from access token
@@ -69,6 +77,12 @@ class AuthService {
       }
     }
 
+    // Save user fields in secure storage
+    if (response['data'] != null && response['data']['user'] != null) {
+      final user = response['data']['user'];
+      await _saveUserFields(user);
+    }
+
     return response;
   }
 
@@ -91,6 +105,12 @@ class AuthService {
       if (tokens['refreshToken'] != null) {
         await _saveToken('refreshToken', tokens['refreshToken']);
       }
+    }
+
+    // Save user fields in secure storage
+    if (response['data'] != null && response['data']['user'] != null) {
+      final user = response['data']['user'];
+      await _saveUserFields(user);
     }
 
     return response;
@@ -127,9 +147,24 @@ class AuthService {
 
   // Verify MPIN
   Future<Map<String, dynamic>> verifyMpin(String mpin) async {
-    return await _apiService.post('/auth/verify-mpin', {
+    final response = await _apiService.post('/auth/verify-mpin', {
       'mpin': mpin,
     });
+    // Save user fields in secure storage
+    if (response['data'] != null && response['data']['user'] != null) {
+      final user = response['data']['user'];
+      await _saveUserFields(user);
+    }
+    return response;
+  }
+
+  // Save user fields in secure storage
+  Future<void> _saveUserFields(Map<String, dynamic> user) async {
+    await _storage.write(key: UserStorageFields.id, value: user['id']?.toString() ?? '');
+    await _storage.write(key: UserStorageFields.email, value: user['email'] ?? '');
+    await _storage.write(key: UserStorageFields.mobileNumber, value: user['mobileNumber'] ?? '');
+    await _storage.write(key: UserStorageFields.fullName, value: user['fullName'] ?? '');
+    await _storage.write(key: UserStorageFields.mpin, value: user['mpin'] ?? '');
   }
 
   // Refresh Token

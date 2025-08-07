@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:reva/services/api_service.dart';
 import 'package:reva/providers/user_provider.dart';
-import '../profile/profile_percentage.dart';
 
 class EditPreferencesScreen extends StatefulWidget {
   const EditPreferencesScreen({Key? key}) : super(key: key);

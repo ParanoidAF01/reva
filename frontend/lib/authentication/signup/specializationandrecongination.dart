@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:reva/authentication/login.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/services/api_service.dart';
-
 import '../components/mytextfield.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SpecializationAndRecognition extends StatefulWidget {
   final bool showBack;
@@ -25,19 +25,50 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
   @override
   void initState() {
     super.initState();
+    _loadPrefilledData();
+    reraNUmber.addListener(_saveFormData);
+    networkingMember.addListener(_saveFormData);
+    realEstateWebsite.addListener(_saveFormData);
+    associatedBuilders.addListener(_saveFormData);
+  }
+
+  Future<void> _loadPrefilledData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final rera = prefs.getString('signup_reraNumber');
+    final networking = prefs.getString('signup_networkingMember');
+    final website = prefs.getString('signup_realEstateWebsite');
+    final builders = prefs.getString('signup_associatedBuilders');
+
     final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-    if ((userData['reraNumber'] ?? '').toString().isNotEmpty) {
+    if (rera != null && rera.isNotEmpty) {
+      reraNUmber.text = rera;
+    } else if ((userData['reraNumber'] ?? '').toString().isNotEmpty) {
       reraNUmber.text = userData['reraNumber'];
     }
-    if ((userData['networkingMember'] ?? '').toString().isNotEmpty) {
+    if (networking != null && networking.isNotEmpty) {
+      networkingMember.text = networking;
+    } else if ((userData['networkingMember'] ?? '').toString().isNotEmpty) {
       networkingMember.text = userData['networkingMember'];
     }
-    if ((userData['realEstateWebsite'] ?? '').toString().isNotEmpty) {
+    if (website != null && website.isNotEmpty) {
+      realEstateWebsite.text = website;
+    } else if ((userData['realEstateWebsite'] ?? '').toString().isNotEmpty) {
       realEstateWebsite.text = userData['realEstateWebsite'];
     }
-    if ((userData['associatedBuilders'] ?? '').toString().isNotEmpty) {
+    if (builders != null && builders.isNotEmpty) {
+      associatedBuilders.text = builders;
+    } else if ((userData['associatedBuilders'] ?? '').toString().isNotEmpty) {
       associatedBuilders.text = userData['associatedBuilders'];
     }
+    setState(() {});
+  }
+
+  Future<void> _saveFormData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('signup_reraNumber', reraNUmber.text);
+    await prefs.setString('signup_networkingMember', networkingMember.text);
+    await prefs.setString('signup_realEstateWebsite', realEstateWebsite.text);
+    await prefs.setString('signup_associatedBuilders', associatedBuilders.text);
   }
 
   @override
@@ -218,6 +249,8 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
     userProvider.updateUserData({
       'specialization': specialization
     });
+    // Save to shared_preferences for persistence
+    await _saveFormData();
     // Send to backend with correct structure
     try {
       final response = await ApiService().put('/profiles/', {

@@ -67,7 +67,7 @@ class _SignUpState extends State<SignUp> {
       if (response['success'] == true && accessToken != null) {
         // Set hasLoggedInBefore flag
         await FirstLoginHelper.setHasLoggedIn();
-        // Load user data after successful signup
+        // Load user data after successful signup and notify provider
         final userProvider = Provider.of<UserProvider>(context, listen: false);
         await userProvider.loadUserData();
 

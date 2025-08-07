@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:reva/authentication/welcomescreen.dart';
 import '../services/auth_service.dart';
 import '../providers/user_provider.dart';
 import '../bottomnavigation/bottomnavigation.dart';
 import '../start_subscription.dart';
 import '../utils/first_login_helper.dart';
+import 'signup/verifyotp.dart';
+import 'package:reva/authentication/signup/CompleteProfileScreen.dart';
 
 class MpinVerificationScreen extends StatefulWidget {
   const MpinVerificationScreen({super.key});
@@ -103,8 +106,36 @@ class _MpinVerificationScreenState extends State<MpinVerificationScreen> {
           });
         }
 
-        // MPIN verified successfully, check subscription and navigate
+        // Check OTP and KYC verification status
+        final verifications = response['data']?['verifications'];
+        final otpVerified = verifications != null && verifications['otp'] == true;
+        final kycVerified = verifications != null && verifications['kyc'] == true;
+        if (!otpVerified) {
+          // Get mobile number from secure storage
+          final mobileNumber = await _authService.getToken('userMobileNumber');
+          if (!mounted) return;
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => VerifyOtp(prefillPhone: mobileNumber),
+            ),
+          );
+          return;
+        }
+
+        // OTP is verified, now check KYC
+        if (!kycVerified) {
+          if (!mounted) return;
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (_) => const CompleteProfileScreen(),
+            ),
+          );
+          return;
+        }
+
+        // KYC is verified, now check subscription
         final userProvider = Provider.of<UserProvider>(context, listen: false);
+        await userProvider.loadUserData();
         await userProvider.checkSubscription();
 
         if (!mounted) return;
@@ -368,8 +399,11 @@ class _MpinVerificationScreenState extends State<MpinVerificationScreen> {
                 await _authService.logout();
                 await FirstLoginHelper.clearHasLoggedIn();
                 if (!mounted) return;
-                // Use a more reliable navigation approach
-                _navigateToWelcome();
+                // Always go to WelcomeScreen after logout
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (_) => const WelcomeScreen()),
+                  (route) => false,
+                );
               },
               child: Text(
                 'Logout',

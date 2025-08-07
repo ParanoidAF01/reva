@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:reva/services/api_service.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/authentication/components/mytextfield.dart';
-import '../profile/profile_percentage.dart';
 
 class EditSpecializationAndRecognition extends StatefulWidget {
   const EditSpecializationAndRecognition({Key? key}) : super(key: key);

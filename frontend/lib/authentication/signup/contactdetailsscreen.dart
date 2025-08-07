@@ -1,11 +1,12 @@
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:reva/authentication/signup/preferencesScreen.dart';
 import 'package:provider/provider.dart';
 import 'package:reva/providers/user_provider.dart';
+import 'package:reva/authentication/signup/preferencesScreen.dart';
 import 'package:reva/services/api_service.dart';
-
 import '../components/mytextfield.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ContactDetailsScreen extends StatefulWidget {
   final bool showBack;
@@ -25,25 +26,78 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-    if ((userData['user']?['mobileNumber'] ?? userData['mobileNumber'] ?? '').toString().isNotEmpty) {
-      primaryMobileNumber.text = userData['user']?['mobileNumber'] ?? userData['mobileNumber'];
-    }
-    if ((userData['user']?['email'] ?? userData['email'] ?? '').toString().isNotEmpty) {
-      primaryEmailId.text = userData['user']?['email'] ?? userData['email'];
-    }
-    if ((userData['alternateNumber'] ?? '').toString().isNotEmpty) {
-      alternateMobileNumbers.text = userData['alternateNumber'];
-    }
-    if (userData['socialMediaLinks'] != null && userData['socialMediaLinks'] is Map) {
-      final links = userData['socialMediaLinks'];
-      if ((links['website'] ?? '').toString().isNotEmpty) {
-        websitePortfolio.text = links['website'];
+    _loadPrefilledData();
+    primaryMobileNumber.addListener(_saveFormData);
+    primaryEmailId.addListener(_saveFormData);
+    websitePortfolio.addListener(_saveFormData);
+    socialMediaLinks.addListener(_saveFormData);
+    alternateMobileNumbers.addListener(_saveFormData);
+  }
+
+  Future<void> _loadPrefilledData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final mobile = prefs.getString('signup_primaryMobileNumber');
+    final email = prefs.getString('signup_primaryEmailId');
+    final website = prefs.getString('signup_websitePortfolio');
+    final social = prefs.getString('signup_socialMediaLinks');
+    final alternate = prefs.getString('signup_alternateMobileNumbers');
+
+    if (mobile != null && mobile.isNotEmpty) {
+      primaryMobileNumber.text = mobile;
+    } else {
+      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if ((userData['user']?['mobileNumber'] ?? userData['mobileNumber'] ?? '').toString().isNotEmpty) {
+        primaryMobileNumber.text = userData['user']?['mobileNumber'] ?? userData['mobileNumber'];
       }
-      if ((links['instagram'] ?? '').toString().isNotEmpty) {
-        socialMediaLinks.text = links['instagram'];
+    }
+    if (email != null && email.isNotEmpty) {
+      primaryEmailId.text = email;
+    } else {
+      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if ((userData['user']?['email'] ?? userData['email'] ?? '').toString().isNotEmpty) {
+        primaryEmailId.text = userData['user']?['email'] ?? userData['email'];
       }
     }
+    if (alternate != null && alternate.isNotEmpty) {
+      alternateMobileNumbers.text = alternate;
+    } else {
+      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if ((userData['alternateNumber'] ?? '').toString().isNotEmpty) {
+        alternateMobileNumbers.text = userData['alternateNumber'];
+      }
+    }
+    if (website != null && website.isNotEmpty) {
+      websitePortfolio.text = website;
+    } else {
+      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if (userData['socialMediaLinks'] != null && userData['socialMediaLinks'] is Map) {
+        final links = userData['socialMediaLinks'];
+        if ((links['website'] ?? '').toString().isNotEmpty) {
+          websitePortfolio.text = links['website'];
+        }
+      }
+    }
+    if (social != null && social.isNotEmpty) {
+      socialMediaLinks.text = social;
+    } else {
+      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if (userData['socialMediaLinks'] != null && userData['socialMediaLinks'] is Map) {
+        final links = userData['socialMediaLinks'];
+        if ((links['instagram'] ?? '').toString().isNotEmpty) {
+          socialMediaLinks.text = links['instagram'];
+        }
+      }
+    }
+    setState(() {});
+  }
+
+  Future<void> _saveFormData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('signup_primaryMobileNumber', primaryMobileNumber.text);
+    await prefs.setString('signup_primaryEmailId', primaryEmailId.text);
+    await prefs.setString('signup_websitePortfolio', websitePortfolio.text);
+    await prefs.setString('signup_socialMediaLinks', socialMediaLinks.text);
+    await prefs.setString('signup_alternateMobileNumbers', alternateMobileNumbers.text);
   }
 
   // Validation helpers
@@ -71,6 +125,8 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
         // Add other social fields as needed
       },
     });
+    // Save to shared_preferences for persistence
+    await _saveFormData();
     // Send to backend with correct structure
     try {
       final response = await ApiService().put('/profiles/', {

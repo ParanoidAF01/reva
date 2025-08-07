@@ -190,9 +190,14 @@ export const verifyMpin = asyncHandler(async (req, res) => {
         data: {
             isMpinValid: true,
             user: {
-                fullName: user.fullName,
+                id: user._id,
                 email: user.email,
-                mobileNumber: user.mobileNumber
+                mobileNumber: user.mobileNumber,
+                fullName: user.fullName,
+                mpin: user.mpin,
+            },
+            profile: {
+                id: profile._id,
             },
             verifications: {
                 kyc: !!profile.kycVerified,

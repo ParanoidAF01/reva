@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/services/api_service.dart';
 import 'package:reva/authentication/login.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CompleteProfileScreen extends StatefulWidget {
   final bool showBack;
@@ -47,55 +48,108 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   @override
   void initState() {
     super.initState();
-    final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-    // Full name: try user['fullName'] first, then fallback
-    String? fullName = userData['user']?['fullName'] ?? userData['fullName'];
-    if ((fullName ?? '').toString().isNotEmpty) {
-      fullNameController.text = fullName!;
+    _loadPrefilledData();
+    // Add listeners to save data as user types
+    fullNameController.addListener(_saveFormData);
+    dobController.addListener(_saveFormData);
+  }
+
+  Future<void> _loadPrefilledData() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Try to load from shared_preferences first
+    final fullName = prefs.getString('signup_fullName');
+    final dob = prefs.getString('signup_dob');
+    final designation = prefs.getString('signup_designation');
+    final location = prefs.getString('signup_location');
+    final experience = prefs.getString('signup_experience');
+
+    if (fullName != null && fullName.isNotEmpty) {
+      fullNameController.text = fullName;
+    } else {
+      // fallback to provider
+      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      String? providerFullName = userData['user']?['fullName'] ?? userData['fullName'];
+      if ((providerFullName ?? '').toString().isNotEmpty) {
+        fullNameController.text = providerFullName!;
+      }
     }
-    // Date of Birth: parse and format as dd/mm/yyyy
-    if ((userData['dateOfBirth'] ?? '').toString().isNotEmpty) {
-      final dobRaw = userData['dateOfBirth'];
-      String? formattedDob;
-      if (dobRaw is String && dobRaw.isNotEmpty) {
-        // Try to parse ISO or other formats
-        DateTime? dt;
-        try {
-          dt = DateTime.tryParse(dobRaw);
-        } catch (_) {}
-        if (dt != null) {
-          formattedDob = '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
-        } else if (dobRaw.contains('-')) {
-          final parts = dobRaw.split('-');
-          if (parts.length == 3) {
-            formattedDob = '${parts[2].padLeft(2, '0')}/${parts[1].padLeft(2, '0')}/${parts[0]}';
+    if (dob != null && dob.isNotEmpty) {
+      dobController.text = dob;
+    } else {
+      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if ((userData['dateOfBirth'] ?? '').toString().isNotEmpty) {
+        final dobRaw = userData['dateOfBirth'];
+        String? formattedDob;
+        if (dobRaw is String && dobRaw.isNotEmpty) {
+          DateTime? dt;
+          try {
+            dt = DateTime.tryParse(dobRaw);
+          } catch (_) {}
+          if (dt != null) {
+            formattedDob = '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+          } else if (dobRaw.contains('-')) {
+            final parts = dobRaw.split('-');
+            if (parts.length == 3) {
+              formattedDob = '${parts[2].padLeft(2, '0')}/${parts[1].padLeft(2, '0')}/${parts[0]}';
+            }
           }
+          formattedDob ??= dobRaw;
+          dobController.text = formattedDob;
         }
-        formattedDob ??= dobRaw;
-        dobController.text = formattedDob;
       }
     }
-    if ((userData['designation'] ?? '').toString().isNotEmpty) {
-      selectedDesignation = userData['designation'];
-    }
-    if ((userData['location'] ?? '').toString().isNotEmpty) {
-      selectedLocation = userData['location'];
-    }
-    if (userData['experience'] != null) {
-      // Map experience number to string option if possible
-      final exp = userData['experience'];
-      if (exp is int) {
-        if (exp == 0)
-          selectedExperience = 'Less than 1 year';
-        else if (exp == 1)
-          selectedExperience = '1 year';
-        else if (exp == 2)
-          selectedExperience = '2 years';
-        else if (exp == 3) selectedExperience = '3+ years';
-      } else if (exp is String && exp.isNotEmpty) {
-        selectedExperience = exp;
+    if (designation != null && designation.isNotEmpty) {
+      setState(() {
+        selectedDesignation = designation;
+      });
+    } else {
+      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if ((userData['designation'] ?? '').toString().isNotEmpty) {
+        setState(() {
+          selectedDesignation = userData['designation'];
+        });
       }
     }
+    if (location != null && location.isNotEmpty) {
+      setState(() {
+        selectedLocation = location;
+      });
+    } else {
+      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if ((userData['location'] ?? '').toString().isNotEmpty) {
+        setState(() {
+          selectedLocation = userData['location'];
+        });
+      }
+    }
+    if (experience != null && experience.isNotEmpty) {
+      setState(() {
+        selectedExperience = experience;
+      });
+    } else {
+      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if (userData['experience'] != null) {
+        final exp = userData['experience'];
+        if (exp is int) {
+          if (exp == 0) selectedExperience = 'Less than 1 year';
+          else if (exp == 1) selectedExperience = '1 year';
+          else if (exp == 2) selectedExperience = '2 years';
+          else if (exp == 3) selectedExperience = '3+ years';
+        } else if (exp is String && exp.isNotEmpty) {
+          selectedExperience = exp;
+        }
+      }
+    }
+    setState(() {});
+  }
+
+  Future<void> _saveFormData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('signup_fullName', fullNameController.text);
+    await prefs.setString('signup_dob', dobController.text);
+    await prefs.setString('signup_designation', selectedDesignation ?? '');
+    await prefs.setString('signup_location', selectedLocation);
+    await prefs.setString('signup_experience', selectedExperience);
   }
 
   final List<String> locations = [
@@ -179,6 +233,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       'location': location,
       'experience': experienceNum,
     });
+    // Save to shared_preferences for persistence
+    await _saveFormData();
     // Send to backend with correct structure
     try {
       final response = await ApiService().put('/profiles/', {

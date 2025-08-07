@@ -5,6 +5,7 @@ import 'package:reva/authentication/welcomescreen.dart';
 import 'package:reva/services/auth_service.dart';
 import 'package:reva/services/subscription_service.dart';
 import 'package:reva/bottomnavigation/bottomnavigation.dart';
+import 'utils/navigation_helper.dart';
 
 class StartSubscriptionPage extends StatefulWidget {
   const StartSubscriptionPage({super.key});
@@ -53,15 +54,11 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
                 onPressed: isLoggedIn
                     ? () async {
                         try {
-                          await AuthService().logout();
+                          await AuthService.performCompleteLogout();
                         } catch (e) {
                           debugPrint('Logout error: $e');
                         }
-                        Navigator.of(context).pushAndRemoveUntil(
-                          MaterialPageRoute(
-                              builder: (_) => const WelcomeScreen()),
-                          (route) => false,
-                        );
+                        NavigationHelper.navigateToWelcomeScreen();
                       }
                     : null,
               );

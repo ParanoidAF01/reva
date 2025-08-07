@@ -8,6 +8,12 @@ import 'providers/user_provider.dart';
 import 'contacts/contacts.dart';
 import 'request/requestscreen.dart';
 
+// Global navigator key for accessing navigation from anywhere
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+// Global scaffold messenger key for showing SnackBars from anywhere
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
+
 void main() {
   runApp(const MyApp());
 }
@@ -23,6 +29,9 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'REVA',
+        navigatorKey: navigatorKey, // Add the global navigator key
+        scaffoldMessengerKey:
+            scaffoldMessengerKey, // Add the global scaffold messenger key
         debugShowCheckedModeBanner: false,
         home: const RootRedirector(),
         routes: {

@@ -10,12 +10,14 @@ import 'package:reva/authentication/welcomescreen.dart';
 import 'package:reva/start_subscription.dart';
 import 'edit_profile_screen.dart';
 import '../providers/user_provider.dart';
+import '../utils/navigation_helper.dart';
 
 class _ProfileStatCard extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  const _ProfileStatCard({required this.icon, required this.label, required this.value});
+  const _ProfileStatCard(
+      {required this.icon, required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +33,14 @@ class _ProfileStatCard extends StatelessWidget {
         children: [
           Icon(icon, color: Colors.white, size: 22),
           const SizedBox(height: 8),
-          Text(value, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+          Text(value,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16)),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(color: Colors.white70, fontSize: 13)),
+          Text(label,
+              style: const TextStyle(color: Colors.white70, fontSize: 13)),
         ],
       ),
     );
@@ -92,14 +99,24 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Subscribe to RouteObserver
-    final routeObserver = ModalRoute.of(context)?.navigator?.widget.observers.whereType<RouteObserver<PageRoute>>().firstOrNull;
+    final routeObserver = ModalRoute.of(context)
+        ?.navigator
+        ?.widget
+        .observers
+        .whereType<RouteObserver<PageRoute>>()
+        .firstOrNull;
     routeObserver?.subscribe(this, ModalRoute.of(context)! as PageRoute);
   }
 
   @override
   void dispose() {
     // Unsubscribe from RouteObserver
-    final routeObserver = ModalRoute.of(context)?.navigator?.widget.observers.whereType<RouteObserver<PageRoute>>().firstOrNull;
+    final routeObserver = ModalRoute.of(context)
+        ?.navigator
+        ?.widget
+        .observers
+        .whereType<RouteObserver<PageRoute>>()
+        .firstOrNull;
     routeObserver?.unsubscribe(this);
     super.dispose();
   }
@@ -172,11 +189,17 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
     final userData = userProvider.userData ?? {};
     final String userName = userProvider.userName;
     final String userLocation = userData['location'] ?? "";
-    final String userExperience = userData['experience'] != null && userData['experience'].toString().isNotEmpty ? "${userData['experience'].toString()} yrs+" : "";
+    final String userExperience = userData['experience'] != null &&
+            userData['experience'].toString().isNotEmpty
+        ? "${userData['experience'].toString()} yrs+"
+        : "";
     final String userLanguages = userData['language'] ?? "";
-    final String profileImage = userData['profilePicture'] ?? userData['profileImage'] ?? 'assets/dummyprofile.png';
+    final String profileImage = userData['profilePicture'] ??
+        userData['profileImage'] ??
+        'assets/dummyprofile.png';
     final String email = userData['user']?['email'] ?? userData['email'] ?? '';
-    final String phone = userData['user']?['mobileNumber'] ?? userData['mobileNumber'] ?? '';
+    final String phone =
+        userData['user']?['mobileNumber'] ?? userData['mobileNumber'] ?? '';
     final String tag1 = userData['tag1'] ?? "";
     final String tag2 = userData['tag2'] ?? "";
     final String tag3 = userData['tag3'] ?? "";
@@ -220,8 +243,10 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ListTile(
-                        leading: const Icon(Icons.account_balance_wallet, color: Colors.white),
-                        title: const Text('Wallet', style: TextStyle(color: Colors.white)),
+                        leading: const Icon(Icons.account_balance_wallet,
+                            color: Colors.white),
+                        title: const Text('Wallet',
+                            style: TextStyle(color: Colors.white)),
                         onTap: () {
                           Navigator.of(context).pop();
                           Navigator.of(context).pushNamed('/wallet');
@@ -229,43 +254,50 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                       ),
                       ListTile(
                         leading: const Icon(Icons.person, color: Colors.white),
-                        title: const Text('Get Subscription', style: TextStyle(color: Colors.white)),
+                        title: const Text('Get Subscription',
+                            style: TextStyle(color: Colors.white)),
                         onTap: () {
                           Navigator.of(context).pop();
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const StartSubscriptionPage()),
+                            MaterialPageRoute(
+                                builder: (_) => const StartSubscriptionPage()),
                           );
                         },
                       ),
                       ListTile(
-                        leading: const Icon(Icons.help_center, color: Colors.white),
-                        title: const Text('Help Center', style: TextStyle(color: Colors.white)),
+                        leading:
+                            const Icon(Icons.help_center, color: Colors.white),
+                        title: const Text('Help Center',
+                            style: TextStyle(color: Colors.white)),
                         onTap: () {
                           Navigator.of(context).pop();
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const HelpCenterScreen()),
+                            MaterialPageRoute(
+                                builder: (_) => const HelpCenterScreen()),
                           );
                         },
                       ),
                       ListTile(
                         leading: const Icon(Icons.edit, color: Colors.white),
-                        title: const Text('Edit Profile', style: TextStyle(color: Colors.white)),
+                        title: const Text('Edit Profile',
+                            style: TextStyle(color: Colors.white)),
                         onTap: () {
                           Navigator.of(context).pop();
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => ProfilePercentageScreen()),
+                            MaterialPageRoute(
+                                builder: (_) => ProfilePercentageScreen()),
                           );
                         },
                       ),
                       ListTile(
                         leading: const Icon(Icons.logout, color: Colors.white),
-                        title: const Text('Sign Out', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        title: const Text('Sign Out',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold)),
                         onTap: () async {
-                          await AuthService().logout();
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-                            (route) => false,
-                          );
+                          await AuthService.performCompleteLogout();
+                          NavigationHelper.navigateToWelcomeScreen();
                         },
                       ),
                     ],
@@ -296,12 +328,17 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+                          MaterialPageRoute(
+                              builder: (_) => const EditProfileScreen()),
                         );
                       },
                       child: CircleAvatar(
                         radius: width * 0.16,
-                        backgroundImage: (profileImage.toString().isNotEmpty && !profileImage.toString().contains('assets/')) ? NetworkImage(profileImage) : AssetImage('assets/dummyprofile.png') as ImageProvider,
+                        backgroundImage: (profileImage.toString().isNotEmpty &&
+                                !profileImage.toString().contains('assets/'))
+                            ? NetworkImage(profileImage)
+                            : AssetImage('assets/dummyprofile.png')
+                                as ImageProvider,
                       ),
                     ),
                     Positioned(
@@ -340,20 +377,25 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                     if (userExperience.isNotEmpty)
                       Text(
                         userExperience,
-                        style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14),
+                        style: GoogleFonts.dmSans(
+                            color: Colors.white70, fontSize: 14),
                       ),
                     if (userExperience.isNotEmpty && userLanguages.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Text(
                           '•',
-                          style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.bold),
+                          style: GoogleFonts.dmSans(
+                              color: Colors.white70,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
                     if (userLanguages.isNotEmpty)
                       Text(
                         userLanguages,
-                        style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14),
+                        style: GoogleFonts.dmSans(
+                            color: Colors.white70, fontSize: 14),
                       ),
                   ],
                 ),
@@ -418,7 +460,8 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                         ),
                         child: Column(
                           children: [
-                            Icon(Icons.celebration, color: Colors.white, size: 28),
+                            Icon(Icons.celebration,
+                                color: Colors.white, size: 28),
                             SizedBox(height: 6),
                             Text(
                               eventsAttended.toString(),
@@ -453,7 +496,9 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                         children: [
                           Icon(Icons.phone, color: Colors.white70, size: 18),
                           SizedBox(width: 8),
-                          Text(phone, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
+                          Text(phone,
+                              style: GoogleFonts.dmSans(
+                                  color: Colors.white, fontSize: 15)),
                         ],
                       ),
                       SizedBox(height: 8),
@@ -462,7 +507,9 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                         children: [
                           Icon(Icons.email, color: Colors.white70, size: 18),
                           SizedBox(width: 8),
-                          Text(email, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
+                          Text(email,
+                              style: GoogleFonts.dmSans(
+                                  color: Colors.white, fontSize: 15)),
                         ],
                       ),
                     ],
@@ -496,7 +543,8 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                     _SocialIconButton(
                       icon: Icons.camera_alt,
                       onTap: () async {
-                        final url = Uri.parse('intent://camera#Intent;scheme=package;package=com.android.camera;end');
+                        final url = Uri.parse(
+                            'intent://camera#Intent;scheme=package;package=com.android.camera;end');
                         if (await canLaunch(url.toString())) {
                           await launch(url.toString());
                         }

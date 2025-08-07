@@ -64,7 +64,12 @@ export const submitAadhaarOtp = async (req, res, next) => {
         const maskedAadhar = response.data.aadhaar_number ? mask(response.data.aadhaar_number.toString()) : null;
 
         if (response.data.status_code === 200 && response.data.status === "success") {
-            const profile = await Profile.findById(id);
+            const profile = await Profile.findOne({ user: id });
+
+            if (!profile) {
+                throw new ApiError(404, "Profile not found for this user");
+            }
+
             profile.kycVerified = true;
             profile.maskedAadharNumber = maskedAadhar;
             await profile.save();

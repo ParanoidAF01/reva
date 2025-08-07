@@ -5,7 +5,6 @@ import 'package:reva/authentication/signup/signup.dart';
 
 import '../components/mytextfield.dart';
 
-
 import 'package:reva/services/auth_service.dart';
 
 class NewMPIN extends StatefulWidget {
@@ -19,7 +18,7 @@ class NewMPIN extends StatefulWidget {
 class _NewMPINState extends State<NewMPIN> {
   bool isPasswordVisible = false;
   bool isRememberMe = false;
-  bool isConfirmPasswordVisible=false;
+  bool isConfirmPasswordVisible = false;
   TextEditingController mpinController = TextEditingController();
   TextEditingController confirmmpinController = TextEditingController();
 
@@ -47,7 +46,7 @@ class _NewMPINState extends State<NewMPIN> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('MPIN changed successfully!'), backgroundColor: Colors.green),
       );
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> const LoginScreen()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(res['message'] ?? 'Failed to change MPIN'), backgroundColor: Colors.red),
@@ -74,11 +73,16 @@ class _NewMPINState extends State<NewMPIN> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: height * 0.1),
-                        Center(child: Text("Forgot MPIN",style: GoogleFonts.dmSans(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 36,
-                        ),),),
+                        Center(
+                          child: Text(
+                            "Forgot MPIN",
+                            style: GoogleFonts.dmSans(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 36,
+                            ),
+                          ),
+                        ),
                         SizedBox(height: height * 0.03),
                         const SizedBox(height: 12),
                         CustomTextField(
@@ -93,7 +97,9 @@ class _NewMPINState extends State<NewMPIN> {
                             });
                           },
                         ),
-                        const SizedBox(height:12,),
+                        const SizedBox(
+                          height: 12,
+                        ),
                         CustomTextField(
                           label: 'Confirm MPIN',
                           hint: '666 666',
@@ -123,7 +129,10 @@ class _NewMPINState extends State<NewMPIN> {
                             child: Ink(
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
-                                  colors: [Color(0xFF0262AB), Color(0xFF01345A)],
+                                  colors: [
+                                    Color(0xFF0262AB),
+                                    Color(0xFF01345A)
+                                  ],
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                 ),
@@ -156,7 +165,7 @@ class _NewMPINState extends State<NewMPIN> {
                               ),
                               InkWell(
                                 onTap: () {
-                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>  const SignUp()));
+                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const SignUp()));
                                 },
                                 child: const Text(
                                   "Sign UP",
@@ -182,4 +191,3 @@ class _NewMPINState extends State<NewMPIN> {
     );
   }
 }
-

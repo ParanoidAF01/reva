@@ -89,7 +89,7 @@ class _OtpScreenState extends State<OtpScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const NewMPIN(),
+          builder: (context) => NewMPIN(mobileNumber: phoneController.text),
         ),
       );
     } else {

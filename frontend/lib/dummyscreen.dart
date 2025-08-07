@@ -47,7 +47,7 @@ class DummyScreen extends StatelessWidget {
             Navigator.push(context, MaterialPageRoute(builder: (context)=> const OtpScreen()));
           }, child: const Text("Otp Screen")),
           ElevatedButton(onPressed: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=> const NewMPIN()));
+            Navigator.push(context, MaterialPageRoute(builder: (context)=> const NewMPIN(mobileNumber: '')));
           }, child: const Text("new mpin screen")),
           ElevatedButton(onPressed: (){
             Navigator.push(context, MaterialPageRoute(builder: (context)=> const ProfileStatusScreen()));

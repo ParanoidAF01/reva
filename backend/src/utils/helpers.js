@@ -16,3 +16,7 @@ export const parseTimeString = (timeString) => {
 export const generateOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 };
+
+export const mask = (value) => {
+    return "X".repeat(value.length - 4) + value.slice(-4);
+};

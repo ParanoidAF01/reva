@@ -28,14 +28,24 @@ class _RootRedirectorState extends State<RootRedirector> {
 
     final auth = AuthService();
     final token = await auth.getToken('accessToken');
+    final userId = await auth.getToken('userId');
+    final userEmail = await auth.getToken('userEmail');
+    final userMobile = await auth.getToken('userMobileNumber');
+    final userFullName = await auth.getToken('userFullName');
 
-    if (token != null && token.isNotEmpty) {
-      // Token exists, go to MPIN screen
+    // Check if all required user data and token exist
+    final hasUserData = userId != null && userId.isNotEmpty &&
+        userEmail != null && userEmail.isNotEmpty &&
+        userMobile != null && userMobile.isNotEmpty &&
+        userFullName != null && userFullName.isNotEmpty;
+
+    if (token != null && token.isNotEmpty && hasUserData) {
+      // Token and user data exist, go to MPIN screen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const MpinVerificationScreen()),
       );
     } else {
-      // No token, go to WelcomeScreen
+      // Token or user data missing, go to WelcomeScreen
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const WelcomeScreen()),
       );

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:reva/services/service_manager.dart';
 
 class ContactTile extends StatelessWidget {
   final String name;
   final String image;
   final String mobileNumber;
   final String userId;
+  final VoidCallback? onRemove;
 
   const ContactTile({
     super.key,
@@ -13,6 +13,7 @@ class ContactTile extends StatelessWidget {
     required this.image,
     required this.mobileNumber,
     required this.userId,
+    this.onRemove,
   });
 
   @override
@@ -87,13 +88,13 @@ class ContactTile extends StatelessWidget {
             ),
           ),
 
-          // Custom Gradient Button
+          // Remove Button
           Container(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [
-                  Color(0xFF0262AB),
-                  Color(0xFF01345A)
+                  Color(0xFFAB0202),
+                  Color(0xFF5A0101)
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -101,43 +102,12 @@ class ContactTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             child: InkWell(
-              onTap: () async {
-                await ServiceManager.instance.connections.sendConnectionRequest(userId);
-                if (context.mounted) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => Scaffold(
-                        backgroundColor: const Color(0xFF22252A),
-                        body: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.check_circle, color: Colors.green, size: 80),
-                              const SizedBox(height: 24),
-                              const Text('Connection request sent!', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF0262AB),
-                                  shape: const StadiumBorder(),
-                                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 32),
-                                ),
-                                child: const Text('Close', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }
-              },
+              onTap: onRemove,
               borderRadius: BorderRadius.circular(6),
               child: const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 18, vertical: 10),
                 child: Text(
-                  'Connect',
+                  'Remove',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,

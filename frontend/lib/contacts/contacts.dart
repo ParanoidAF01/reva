@@ -246,6 +246,11 @@ class _ContactsBodyState extends State<_ContactsBody> {
                           image: imagePath,
                           mobileNumber: contact['mobileNumber'] ?? '',
                           userId: contact['_id'] ?? '',
+                          onRemove: () async {
+                            await ServiceManager.instance.connections.removeConnection(contact['_id']);
+                            // Refresh contacts after removal
+                            _fetchContacts();
+                          },
                         );
                       }).toList(),
                     ),

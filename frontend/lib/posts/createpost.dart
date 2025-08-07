@@ -15,7 +15,8 @@ class SharePostScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
     var height = MediaQuery.of(context).size.height;
-    final TextEditingController postController = TextEditingController();
+    // Move stateful variables here so they persist for the screen lifetime
+    final postController = TextEditingController();
     XFile? pickedFile;
     String? pickedType;
     int usedPosts = 0;
@@ -29,6 +30,9 @@ class SharePostScreen extends StatelessWidget {
         }
         final posts = (snapshot.data as Map<String, dynamic>)['data']?['posts'] ?? [];
         usedPosts = posts.length;
+        // Define stateful variables outside StatefulBuilder, but use ValueNotifier for pickedFile and pickedType
+        final pickedFileNotifier = ValueNotifier<XFile?>(null);
+        final pickedTypeNotifier = ValueNotifier<String?>(null);
         return StatefulBuilder(
           builder: (context, setState) => Scaffold(
             backgroundColor: const Color(0xFF22252A),
@@ -106,9 +110,11 @@ class SharePostScreen extends StatelessWidget {
                                         : () async {
                                             final text = postController.text.trim();
                                             String? mediaUrl;
+                                            final pickedFile = pickedFileNotifier.value;
+                                            final pickedType = pickedTypeNotifier.value;
                                             if (pickedFile != null) {
                                               if (pickedType == 'photo') {
-                                                mediaUrl = await CloudinaryService.uploadImage(File(pickedFile!.path));
+                                                mediaUrl = await CloudinaryService.uploadImage(File(pickedFile.path));
                                                 if (mediaUrl == null) {
                                                   ScaffoldMessenger.of(context).showSnackBar(
                                                     const SnackBar(content: Text('Failed to upload image to Cloudinary')),
@@ -117,7 +123,7 @@ class SharePostScreen extends StatelessWidget {
                                                 }
                                               } else if (pickedType == 'video') {
                                                 // Implement Cloudinary video upload if needed
-                                                mediaUrl = await CloudinaryService.uploadImage(File(pickedFile!.path));
+                                                mediaUrl = await CloudinaryService.uploadImage(File(pickedFile.path));
                                                 if (mediaUrl == null) {
                                                   ScaffoldMessenger.of(context).showSnackBar(
                                                     const SnackBar(content: Text('Failed to upload video to Cloudinary')),
@@ -133,15 +139,9 @@ class SharePostScreen extends StatelessWidget {
                                                 final postData = {
                                                   'content': text.isNotEmpty ? text : ' ',
                                                   'images': (pickedType == 'photo' && mediaUrl != null && mediaUrl.startsWith('https://res.cloudinary.com'))
-                                                      ? [
-                                                          mediaUrl
-                                                        ]
-                                                      : [],
+                                                      ? [mediaUrl] : [],
                                                   'videos': (pickedType == 'video' && mediaUrl != null && mediaUrl.startsWith('https://res.cloudinary.com'))
-                                                      ? [
-                                                          mediaUrl
-                                                        ]
-                                                      : [],
+                                                      ? [mediaUrl] : [],
                                                 };
                                                 print('DEBUG: postData to send: $postData');
                                                 final response = await ServiceManager.instance.posts.createPost(postData);
@@ -182,20 +182,26 @@ class SharePostScreen extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            if (pickedFile != null)
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                                child: pickedType == 'photo'
-                                    ? Image.file(
-                                        File(pickedFile!.path),
-                                        height: 120,
+                            ValueListenableBuilder<XFile?>(
+                              valueListenable: pickedFileNotifier,
+                              builder: (context, pickedFile, _) {
+                                return pickedFile != null
+                                    ? Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                                        child: (pickedTypeNotifier.value == 'photo')
+                                            ? Image.file(
+                                                File(pickedFile.path),
+                                                height: 120,
+                                              )
+                                            : Container(
+                                                height: 120,
+                                                color: Colors.black26,
+                                                child: const Center(child: Text('Video selected', style: TextStyle(color: Colors.white))),
+                                              ),
                                       )
-                                    : Container(
-                                        height: 120,
-                                        color: Colors.black26,
-                                        child: const Center(child: Text('Video selected', style: TextStyle(color: Colors.white))),
-                                      ),
-                              ),
+                                    : const SizedBox.shrink();
+                              },
+                            ),
                             const Spacer(),
                             // Bottom Container
                             Container(
@@ -216,10 +222,8 @@ class SharePostScreen extends StatelessWidget {
                                       final ImagePicker picker = ImagePicker();
                                       final XFile? file = await picker.pickImage(source: ImageSource.gallery);
                                       if (file != null) {
-                                        setState(() {
-                                          pickedFile = file;
-                                          pickedType = 'photo';
-                                        });
+                                        pickedFileNotifier.value = file;
+                                        pickedTypeNotifier.value = 'photo';
                                       }
                                     },
                                     child: _buildOption(Iconsax.gallery, "Add a photo", highlight: true),
@@ -229,51 +233,39 @@ class SharePostScreen extends StatelessWidget {
                                       final ImagePicker picker = ImagePicker();
                                       final XFile? file = await picker.pickVideo(source: ImageSource.gallery);
                                       if (file != null) {
-                                        setState(() {
-                                          pickedFile = file;
-                                          pickedType = 'video';
-                                        });
+                                        pickedFileNotifier.value = file;
+                                        pickedTypeNotifier.value = 'video';
                                       }
                                     },
                                     child: _buildOption(Iconsax.video, "Take a video", highlight: true),
                                   ),
                                   InkWell(
                                     onTap: () {
-                                      setState(() {
-                                        postController.text = "🎉 I'm celebrating a special occasion! Details: ";
-                                      });
+                                      postController.text = "🎉 I'm celebrating a special occasion! Details: ";
                                     },
                                     child: _buildOption(Iconsax.award, "Celebrate an occasion", highlight: false),
                                   ),
                                   InkWell(
                                     onTap: () {
-                                      setState(() {
-                                        postController.text = "📄 Sharing a document: [Document Name/Details]";
-                                      });
+                                      postController.text = "📄 Sharing a document: [Document Name/Details]";
                                     },
                                     child: _buildOption(Iconsax.document, "Add a document", highlight: false),
                                   ),
                                   InkWell(
                                     onTap: () {
-                                      setState(() {
-                                        postController.text = "💼 We're hiring! Position: [Role], Details: ";
-                                      });
+                                      postController.text = "💼 We're hiring! Position: [Role], Details: ";
                                     },
                                     child: _buildOption(Iconsax.briefcase, "Share that you’re hiring", highlight: false),
                                   ),
                                   InkWell(
                                     onTap: () {
-                                      setState(() {
-                                        postController.text = "🔍 Looking for an expert in: [Field/Skill]";
-                                      });
+                                      postController.text = "🔍 Looking for an expert in: [Field/Skill]";
                                     },
                                     child: _buildOption(Iconsax.people, "Find an expert", highlight: false),
                                   ),
                                   InkWell(
                                     onTap: () {
-                                      setState(() {
-                                        postController.text = "📊 Poll: [Your question here]\n1. Option 1\n2. Option 2";
-                                      });
+                                      postController.text = "📊 Poll: [Your question here]\n1. Option 1\n2. Option 2";
                                     },
                                     child: _buildOption(Iconsax.chart, "Create a poll", highlight: false),
                                   ),

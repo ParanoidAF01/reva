@@ -268,7 +268,7 @@ class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateM
                                                 : (_profileData?['user']?['tags'] is List && (_profileData?['user']?['tags'] as List).length > 2)
                                                     ? (_profileData?['user']?['tags'] as List)[2].toString()
                                                     : 'Rental',
-                                            kycStatus: (_profileData?['kycStatus'] ?? _profileData?['user']?['kycStatus'] ?? '').toString(),
+                                            kycStatus: (_profileData?['kycVerified'] == true || _profileData?['user']?['kycVerified'] == true) ? 'verified' : '',
                                           ),
                                     SizedBox(height: height * 0.01),
                                     const Text('Golden league unlocked', style: TextStyle(color: Colors.white70, fontSize: 15)),

@@ -91,18 +91,16 @@ const profileSchema = new mongoose.Schema({
                 default: null
             },
             networkingMembers: {
-                type: [mongoose.Schema.Types.ObjectId],
-                ref: "User",
-                default: []
+                type: String,
+                default: null
             },
             realEstateWebsite: {
                 type: String,
                 default: null
             },
             associatedBuilders: {
-                type: [mongoose.Schema.Types.ObjectId],
-                ref: "User",
-                default: []
+                type: String,
+                default: null
             },
         },
         default: {}

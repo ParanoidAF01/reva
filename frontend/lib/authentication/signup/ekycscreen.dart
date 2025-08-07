@@ -284,7 +284,8 @@ class _EKycScreenState extends State<EKycScreen> {
                       _resendSeconds > 0
                           ? Text(
                               'Resend OTP in $_resendSeconds s',
-                              style: const TextStyle(color: Color(0xFF6F6F6F), fontWeight: FontWeight.w600, fontSize: 12),
+                              style: const TextStyle(
+                                  color: Color(0xFF6F6F6F), fontWeight: FontWeight.w600, fontSize: 12),
                             )
                           : GestureDetector(
                               onTap: _isLoading
@@ -381,7 +382,9 @@ class _EKycScreenState extends State<EKycScreen> {
                         backgroundColor: const Color(0xFF0262AB),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       ),
-                      child: _isLoading ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Text('Verify and Continue', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
+                      child: _isLoading
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          : const Text('Verify and Continue', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.white)),
                     ),
                   ),
                 ],

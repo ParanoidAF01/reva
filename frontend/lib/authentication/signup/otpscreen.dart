@@ -299,7 +299,10 @@ class _OtpScreenState extends State<OtpScreen> {
                 contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 counterText: '',
               ),
-              style: const TextStyle(color: Colors.white, letterSpacing: 32, fontSize: 24),
+              style: const TextStyle(
+                  color: Colors.white,
+                  letterSpacing: 32,
+                  fontSize: 24),
               textAlign: TextAlign.center,
             ),
           ),

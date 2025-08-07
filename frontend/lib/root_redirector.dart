@@ -3,6 +3,7 @@ import 'package:lottie/lottie.dart';
 
 import 'package:reva/authentication/welcomescreen.dart';
 import 'package:reva/services/auth_service.dart';
+import 'package:reva/services/profile_service.dart';
 import 'authentication/mpin_verification_screen.dart';
 
 class RootRedirector extends StatefulWidget {
@@ -39,13 +40,32 @@ class _RootRedirectorState extends State<RootRedirector> {
         userMobile != null && userMobile.isNotEmpty &&
         userFullName != null && userFullName.isNotEmpty;
 
-    if (token != null && token.isNotEmpty && hasUserData) {
-      // Token and user data exist, go to MPIN screen
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MpinVerificationScreen()),
-      );
-    } else {
-      // Token or user data missing, go to WelcomeScreen
+    try {
+      if (token != null && token.isNotEmpty && hasUserData) {
+        // Try to fetch user profile to verify token and user existence
+        final profileService = ProfileService();
+        final profileResponse = await profileService.getMyProfile();
+        if (profileResponse['success'] == true && profileResponse['data'] != null) {
+          // User exists, go to MPIN screen
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const MpinVerificationScreen()),
+          );
+          return;
+        }
+      }
+    } catch (e) {
+      // If error is 401 or user no longer exists, clear tokens and redirect
+      await auth.deleteToken('accessToken');
+      await auth.deleteToken('refreshToken');
+      await auth.deleteToken('userId');
+      await auth.deleteToken('userEmail');
+      await auth.deleteToken('userMobileNumber');
+      await auth.deleteToken('userFullName');
+      await auth.deleteToken('userMpin');
+    }
+
+    // In all other cases, go to WelcomeScreen
+    if (mounted) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const WelcomeScreen()),
       );

@@ -18,8 +18,6 @@ class _EditOrganisationDetailsScreenState extends State<EditOrganisationDetailsS
   final gstinController = TextEditingController();
   bool isRegistered = false;
   String selectedCompanyType = 'Private Limited';
-  String selectedGstin = '2 years';
-
   final List<String> companyTypes = [
     'Private Limited',
     'Public Limited',
@@ -27,12 +25,7 @@ class _EditOrganisationDetailsScreenState extends State<EditOrganisationDetailsS
     'Partnership',
     'Other',
   ];
-  final List<String> gstinOptions = [
-    'Less than 1 year',
-    '1 year',
-    '2 years',
-    '3+ years'
-  ];
+  // GSTIN is now a free-form text field, so options are removed
 
   @override
   void initState() {
@@ -266,13 +259,10 @@ class _EditOrganisationDetailsScreenState extends State<EditOrganisationDetailsS
                   },
                 ),
                 const SizedBox(height: 16),
-                _buildBottomSheetField(
+                CustomTextField(
                   label: 'GSTIN (Optional)',
-                  value: selectedGstin,
-                  options: gstinOptions,
-                  onSelected: (val) {
-                    setState(() => selectedGstin = val);
-                  },
+                  hint: 'Enter GSTIN (if any)',
+                  controller: gstinController,
                 ),
                 const SizedBox(height: 32),
                 SizedBox(

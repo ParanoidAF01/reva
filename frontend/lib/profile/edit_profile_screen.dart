@@ -15,6 +15,7 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
+  late TextEditingController nameController;
   late TextEditingController locationController;
   late TextEditingController experienceController;
   late TextEditingController languageController;
@@ -25,6 +26,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   void initState() {
     super.initState();
     final userData = Provider.of<UserProvider>(context, listen: false).userData;
+    nameController = TextEditingController(text: userData?['user']?['fullName'] ?? userData?['fullName'] ?? '');
     locationController = TextEditingController(text: userData?['location'] ?? '');
     String expText = '';
     if (userData?['experience'] != null) {
@@ -36,6 +38,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   void dispose() {
+    nameController.dispose();
     locationController.dispose();
     experienceController.dispose();
     languageController.dispose();
@@ -72,6 +75,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         'language': languageController.text.trim(),
         if (avatarUrl != null) 'profilePicture': avatarUrl,
       };
+      if (nameController.text.trim().isNotEmpty) {
+        payload['fullName'] = nameController.text.trim();
+      }
       if (experienceController.text.trim().isNotEmpty) {
         final expVal = int.tryParse(experienceController.text.trim());
         if (expVal != null) {
@@ -140,6 +146,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
+                  _editField('Name', nameController),
                   _editField('Location', locationController),
                   _editField('Experience', experienceController),
                   _editField('Language', languageController),

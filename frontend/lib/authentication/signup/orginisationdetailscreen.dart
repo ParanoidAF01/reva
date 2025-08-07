@@ -28,13 +28,7 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
     'Other',
   ];
   String selectedCompanyType = 'Private Limited';
-  String selectedGstin = '2 years';
-  final List<String> gstinOptions = [
-    'Less than 1 year',
-    '1 year',
-    '2 years',
-    '3+ years'
-  ];
+  // GSTIN is now a free-form text field, so options are removed
   bool isRegistered = false;
 
   @override
@@ -316,13 +310,10 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                _buildBottomSheetField(
+                CustomTextField(
                   label: 'GSTIN (Optional)',
-                  value: selectedGstin,
-                  options: gstinOptions,
-                  onSelected: (val) {
-                    setState(() => selectedGstin = val);
-                  },
+                  hint: 'Enter GSTIN (if any)',
+                  controller: gstinController,
                 ),
                 const SizedBox(height: 32),
 

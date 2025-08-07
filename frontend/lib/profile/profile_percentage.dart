@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:reva/profile/edit_profile_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:reva/providers/user_provider.dart';
 import 'package:reva/editprofile/EditOrganisationDetailsScreen.dart';
 import 'package:reva/editprofile/EditEKycScreen.dart';
 import 'package:reva/editprofile/EditContactDetailsScreen.dart';
@@ -132,7 +134,12 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with 
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
+          onPressed: () async {
+            // Update global user state before going back
+            try {
+              final userProvider = Provider.of<UserProvider>(context, listen: false);
+              await userProvider.loadUserData();
+            } catch (_) {}
             Navigator.of(context).pop();
           },
         ),
@@ -267,7 +274,24 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with 
                         ),
                         Row(
                           children: [
-                          
+                            Expanded(
+                              child: buildSectionCard(
+                                'E-KYC',
+                                Icons.event,
+                                sectionStatus['E-KYC']!,
+                                () async {
+                                  await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => EditEKycScreen(),
+                                    ),
+                                  );
+                                  setState(() {
+                                    _profileFuture = _fetchProfile();
+                                  });
+                                },
+                              ),
+                            ),
                             Expanded(
                               child: buildSectionCard(
                                 'Contact Details',

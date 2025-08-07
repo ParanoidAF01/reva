@@ -4,13 +4,33 @@ import 'package:provider/provider.dart';
 import 'package:reva/authentication/signup/contactdetailsscreen.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/services/api_service.dart';
+import 'package:reva/services/aadhaar_service.dart';
 
 import 'package:reva/authentication/login.dart';
 
 // Top-level controller for Aadhaar input (shared by input and button)
 final TextEditingController aadharController = TextEditingController();
+final TextEditingController otpController = TextEditingController();
 
-class EKycScreen extends StatelessWidget {
+class EKycScreen extends StatefulWidget {
+  final bool showBack;
+  const EKycScreen({Key? key, this.showBack = false}) : super(key: key);
+
+  @override
+  State<EKycScreen> createState() => _EKycScreenState();
+}
+
+class _EKycScreenState extends State<EKycScreen> {
+  String? _requestId;
+  bool _isLoading = false;
+  bool _otpSent = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize controllers if needed
+  }
+
   void _skipToLogin(BuildContext context) {
     Navigator.pushAndRemoveUntil(
       context,
@@ -19,9 +39,6 @@ class EKycScreen extends StatelessWidget {
     );
   }
 
-  final bool showBack;
-  const EKycScreen({Key? key, this.showBack = false}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -29,7 +46,8 @@ class EKycScreen extends StatelessWidget {
 
     // Prefill Aadhaar if present
     final userData = Provider.of<UserProvider>(context).userData ?? {};
-    if ((userData['aadhaarNumber'] ?? '').toString().isNotEmpty && aadharController.text.isEmpty) {
+    if ((userData['aadhaarNumber'] ?? '').toString().isNotEmpty &&
+        aadharController.text.isEmpty) {
       aadharController.text = userData['aadhaarNumber'];
     }
 
@@ -42,7 +60,7 @@ class EKycScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SizedBox(height: height * 0.07),
-              if (showBack)
+              if (widget.showBack)
                 Align(
                   alignment: Alignment.centerLeft,
                   child: IconButton(
@@ -89,7 +107,10 @@ class EKycScreen extends StatelessWidget {
                 children: [
                   Text(
                     "40%   ",
-                    style: GoogleFonts.dmSans(color: const Color(0xFFD8D8DD), fontSize: 18, fontWeight: FontWeight.w700),
+                    style: GoogleFonts.dmSans(
+                        color: const Color(0xFFD8D8DD),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700),
                   ),
                   Text(
                     "Completed..",
@@ -110,7 +131,8 @@ class EKycScreen extends StatelessWidget {
                     value: 0.4,
                     minHeight: 6,
                     backgroundColor: Colors.white,
-                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
                   ),
                 ),
               ),
@@ -146,14 +168,95 @@ class EKycScreen extends StatelessWidget {
 
               SizedBox(height: height * 0.02),
 
-              /// Get OTP
-              const Center(
-                child: Text(
-                  'Get OTP',
-                  style: TextStyle(
-                    color: Color(0xFFFCFCFC),
-                    fontWeight: FontWeight.w500,
-                    fontSize: 14,
+              /// Get OTP Button
+              InkWell(
+                onTap: () async {
+                  final aadhar = aadharController.text.trim();
+                  if (aadhar.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Please enter Aadhaar number'),
+                          backgroundColor: Colors.red),
+                    );
+                    return;
+                  }
+
+                  setState(() {
+                    _isLoading = true;
+                  });
+
+                  try {
+                    final aadhaarService = AadhaarService();
+                    final response = await aadhaarService.generateOtp(aadhar);
+
+                    // Debug: Print the response structure
+                    print('Aadhaar OTP Response: $response');
+
+                    if (response['success'] == true) {
+                      setState(() {
+                        // Extract request_id from the correct location
+                        _requestId =
+                            response['data']?['request_id']?.toString();
+                        _otpSent = true;
+                      });
+
+                      // Debug: Print the request_id
+                      print('Request ID: $_requestId');
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('OTP sent successfully'),
+                            backgroundColor: Colors.green),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                            content: Text(
+                                response['message'] ?? 'Failed to send OTP'),
+                            backgroundColor: Colors.red),
+                      );
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          content: Text('Error: $e'),
+                          backgroundColor: Colors.red),
+                    );
+                  } finally {
+                    setState(() {
+                      _isLoading = false;
+                    });
+                  }
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    gradient: const LinearGradient(
+                      colors: [
+                        Color(0xFF0262AB),
+                        Color(0xFF01345A),
+                      ],
+                    ),
+                  ),
+                  child: Center(
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Get OTP',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
+                          ),
                   ),
                 ),
               ),
@@ -161,42 +264,94 @@ class EKycScreen extends StatelessWidget {
               SizedBox(height: height * 0.03),
 
               /// OTP Label and Resend
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     'Enter OTP',
                     style: TextStyle(
                       color: Color(0xFFD8D8DD),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Text(
-                    'resend',
-                    style: TextStyle(
-                      color: Color(0xFF6F6F6F),
-                      fontWeight: FontWeight.w500,
+                  if (_otpSent)
+                    InkWell(
+                      onTap: () async {
+                        final aadhar = aadharController.text.trim();
+                        if (aadhar.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Please enter Aadhaar number'),
+                                backgroundColor: Colors.red),
+                          );
+                          return;
+                        }
+
+                        setState(() {
+                          _isLoading = true;
+                        });
+
+                        try {
+                          final aadhaarService = AadhaarService();
+                          final response =
+                              await aadhaarService.generateOtp(aadhar);
+
+                          if (response['success'] == true) {
+                            setState(() {
+                              _requestId =
+                                  response['data']?['request_id']?.toString();
+                            });
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('OTP resent successfully'),
+                                  backgroundColor: Colors.green),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                  content: Text(response['message'] ??
+                                      'Failed to resend OTP'),
+                                  backgroundColor: Colors.red),
+                            );
+                          }
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('Error: $e'),
+                                backgroundColor: Colors.red),
+                          );
+                        } finally {
+                          setState(() {
+                            _isLoading = false;
+                          });
+                        }
+                      },
+                      child: const Text(
+                        'resend',
+                        style: TextStyle(
+                          color: Color(0xFF0262AB),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ),
-                  ),
                 ],
               ),
 
               SizedBox(height: height * 0.015),
 
-              /// OTP Boxes
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(
-                  6,
-                  (index) => Container(
-                    height: height * 0.06,
-                    width: width * 0.11,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF2E3138),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
+              /// OTP Input
+              TextField(
+                controller: otpController,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                decoration: const InputDecoration(
+                  hintText: 'Enter 6-digit OTP',
+                  hintStyle: TextStyle(color: Color(0xFF6F6F6F)),
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                  counterText: '',
                 ),
+                style: const TextStyle(color: Colors.white, fontSize: 18),
               ),
 
               SizedBox(height: height * 0.05),
@@ -205,31 +360,77 @@ class EKycScreen extends StatelessWidget {
               InkWell(
                 onTap: () async {
                   final aadhar = aadharController.text.trim();
+                  final otp = otpController.text.trim();
+
                   if (aadhar.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please enter Aadhaar number'), backgroundColor: Colors.red),
+                      const SnackBar(
+                          content: Text('Please enter Aadhaar number'),
+                          backgroundColor: Colors.red),
                     );
                     return;
                   }
+
+                  if (otp.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Please enter OTP'),
+                          backgroundColor: Colors.red),
+                    );
+                    return;
+                  }
+
+                  // Debug: Print current state
+                  print('Current Request ID: $_requestId');
+                  print('OTP Sent: $_otpSent');
+
+                  if (_requestId == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Please generate OTP first'),
+                          backgroundColor: Colors.red),
+                    );
+                    return;
+                  }
+
+                  setState(() {
+                    _isLoading = true;
+                  });
+
                   try {
-                    final response = await ApiService().put('/profiles/', {
-                      'maskedAadharNumber': aadhar,
-                      'kycVerified': true,
-                    });
-                    if (response['success'] == true) {
+                    final aadhaarService = AadhaarService();
+                    final response =
+                        await aadhaarService.submitOtp(_requestId!, otp);
+
+                    // Debug: Print the submit response
+                    print('Submit OTP Response: $response');
+
+                    if (response['success'] == true &&
+                        response['data']?['status'] == 'success') {
+                      // Backend handles profile update, just navigate to next screen
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const ContactDetailsScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const ContactDetailsScreen()),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(response['message'] ?? 'Failed to update KYC'), backgroundColor: Colors.red),
+                        SnackBar(
+                            content: Text(response['message'] ??
+                                'OTP verification failed'),
+                            backgroundColor: Colors.red),
                       );
                     }
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Network error'), backgroundColor: Colors.red),
+                      SnackBar(
+                          content: Text('Error: $e'),
+                          backgroundColor: Colors.red),
                     );
+                  } finally {
+                    setState(() {
+                      _isLoading = false;
+                    });
                   }
                 },
                 child: Container(
@@ -244,15 +445,24 @@ class EKycScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  child: const Center(
-                    child: Text(
-                      'Verify and Continue',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                    ),
+                  child: Center(
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            'Verify and Continue',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
                   ),
                 ),
               ),

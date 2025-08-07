@@ -15,10 +15,6 @@ const profileSchema = new mongoose.Schema({
     dateOfBirth: {
         type: Date,
     },
-    gender: {
-        type: String,
-        enum: ["Male", "Female", "Other"]
-    },
     designation: {
         type: String,
         enum: ["Builder", "Loan Provider", "Interior Designer", "Material Supplier", "Legal Advisor", "Vastu Consultant", "Home Buyer", "Property Investor", "Construction Manager", "Real Estate Agent", "Technical Consultant", "Other"],
@@ -132,7 +128,7 @@ const profileSchema = new mongoose.Schema({
     },
     kycVerified: {
         type: Boolean,
-        default: null
+        default: false
     }
 }, {
     timestamps: true,

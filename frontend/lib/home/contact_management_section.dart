@@ -45,8 +45,10 @@ class ContactManagementSection extends StatelessWidget {
         Text('Contact Management', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 22, color: Colors.white)),
         const SizedBox(height: 2),
         Text('All your Contacts in one place', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14)),
-        const SizedBox(height: 18),
-        GridView.builder(
+        // No gap below subtitle for tighter layout
+        Padding(
+          padding: const EdgeInsets.only(top: 0), // minimal non-negative gap
+          child: GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: contacts.length,
@@ -129,6 +131,7 @@ class ContactManagementSection extends StatelessWidget {
               },
             );
           },
+          ),
         ),
         const SizedBox(height: 24),
         AchievementCard(data: achievement),

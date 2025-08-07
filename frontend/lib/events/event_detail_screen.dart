@@ -349,6 +349,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                                                   MaterialPageRoute(
                                                                     builder: (_) => EventUserProfileScreen(
                                                                       userInfo: {
+                                                                        'id': attendee.id,
                                                                         'fullName': attendee.fullName,
                                                                         'email': attendee.email,
                                                                         'phone': '***********',

@@ -1,6 +1,6 @@
-import 'package:reva/profile/event_user_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:reva/profile/event_user_profile_screen.dart';
 import 'package:reva/services/api_service.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:reva/services/events_service.dart';
@@ -14,36 +14,12 @@ class EventDetailScreen extends StatefulWidget {
 }
 
 class _EventDetailScreenState extends State<EventDetailScreen> {
-  // Store connection status for each attendee
   Map<String, bool> attendeeConnectionStatus = {};
-
-  // Fetch connection status for all attendees
-  Future<void> fetchAttendeeConnections(List attendees) async {
-    final apiService = ApiService();
-    Map<String, bool> statusMap = {};
-    for (var attendee in attendees) {
-      try {
-        // Replace with your actual endpoint and logic
-        final res = await apiService.get('/connections/check?userId=' + attendee.id.toString());
-        statusMap[attendee.id.toString()] = res['data']?['connected'] == true;
-      } catch (_) {
-        statusMap[attendee.id.toString()] = false;
-      }
-    }
-    setState(() {
-      attendeeConnectionStatus = statusMap;
-    });
-  }
-
   EventModel? event;
   bool isLoading = true;
   String? error;
-  bool isBooked = false; // Track booking status
-  // Variables for scanned user info (should be set after QR scan)
-  String scannedUserName = 'Your Name';
-  String scannedUserRole = 'buyer/seller/investor';
-  String scannedUserLocation = 'Your City';
-  String scannedUserImage = 'assets/dummyprofile.png';
+  bool isBooked = false;
+  late Razorpay _razorpay;
 
   @override
   void initState() {
@@ -51,7 +27,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handlePaymentExternalWallet);
     fetchEventDetail();
   }
 
@@ -70,608 +46,89 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       final apiService = ApiService();
       final response = await apiService.get('/events');
       final List<dynamic> eventsData = response['data']['events'] ?? [];
-
-      debugPrint('Available events: ${eventsData.map((e) => e['title']).toList()}');
-      debugPrint('Looking for event: ${widget.eventId}');
-
-      // Try to find by _id first
-      final found = eventsData.firstWhere(
-        (e) {
-          final eventId = (e['_id'] ?? '').toString();
-          final searchId = widget.eventId.toString();
-          debugPrint('Comparing: "$eventId" with "$searchId"');
-          return eventId == searchId;
-        },
-        orElse: () => null,
-      );
-
-      // If not found by _id, fallback to title
-      var eventData = found;
-      if (eventData == null) {
-        eventData = eventsData.firstWhere(
-          (e) {
-            final eventTitle = (e['title'] ?? '').toString().toLowerCase().trim();
-            final searchTitle = widget.eventId.toLowerCase().trim();
-            debugPrint('Comparing: "$eventTitle" with "$searchTitle"');
-            return eventTitle == searchTitle;
-          },
-          orElse: () => null,
-        );
+      var foundData = eventsData.firstWhere((e) => (e['_id'] ?? '').toString() == widget.eventId.toString(), orElse: () => null);
+      if (foundData == null) {
+        foundData = eventsData.firstWhere((e) => (e['title'] ?? '').toString().toLowerCase().trim() == widget.eventId.toLowerCase().trim(), orElse: () => null);
       }
-
-      if (eventData != null) {
-        event = EventModel.fromJson(eventData);
-        debugPrint('Found event: ${event?.title}');
-
-        // Check if user has already booked this event
+      if (foundData != null) {
+        event = EventModel.fromJson(foundData);
         final eventsService = EventsService();
         final myEventsResponse = await eventsService.getMyEvents();
         final List<dynamic> myEvents = myEventsResponse['data']['events'] ?? [];
-        final booked = myEvents.any((e) {
-          // Compare by event id or title
-          if (e['id'] != null && event?.id != null) {
-            return e['id'].toString() == event!.id.toString();
-          }
-          // fallback to title if id not present
-          return (e['title'] ?? '').toString().toLowerCase().trim() == (event?.title ?? '').toLowerCase().trim();
-        });
+        final booked = myEvents.any((e) =>
+            (e['id'] != null && event != null && e['id'].toString() == event!.id.toString()) ||
+            (e['title'] ?? '').toString().toLowerCase().trim() == (event?.title ?? '').toLowerCase().trim());
         setState(() {
           isBooked = booked;
         });
-
-        // Fetch attendee connection status
-        if (event?.attendees != null && event!.attendees.isNotEmpty) {
+        if (event!.attendees.isNotEmpty) {
           await fetchAttendeeConnections(event!.attendees);
         }
       } else {
-        error = 'Event not found: ${widget.eventId}';
-        debugPrint('Event not found in list');
+        setState(() {
+          error = 'Event not found: ${widget.eventId}';
+        });
       }
     } catch (e) {
-      error = e.toString();
-      debugPrint('Error fetching event: $e');
+      setState(() {
+        error = e.toString();
+      });
     }
     setState(() {
       isLoading = false;
     });
   }
 
-  late Razorpay _razorpay;
-
-  @override
-  Widget build(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final height = mediaQuery.size.height;
-    final width = mediaQuery.size.width;
-    return Scaffold(
-        backgroundColor: const Color(0xFF22252A),
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF22252A),
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          title: Text('Event', style: GoogleFonts.dmSans(fontWeight: FontWeight.bold, color: Colors.white)),
-          centerTitle: true,
-        ),
-        body: isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : error != null
-                ? Center(child: Text(error ?? 'Error', style: const TextStyle(color: Colors.red)))
-                : event == null
-                    ? const Center(child: Text('No event found', style: TextStyle(color: Colors.white)))
-                    : SingleChildScrollView(
-                        child: Builder(
-                          builder: (context) {
-                            // Calculate seats left before widget tree
-                            int seatsLeft = 0;
-                            if (event != null && event!.seatsLeft > 0) {
-                              seatsLeft = event!.seatsLeft - (event!.attendees.length);
-                            }
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Event Image
-                                if ((event?.imageUrl ?? '').isNotEmpty)
-                                  ClipRRect(
-                                    borderRadius: const BorderRadius.only(
-                                      bottomLeft: Radius.circular(32),
-                                      bottomRight: Radius.circular(32),
-                                    ),
-                                    child: Image.network(
-                                      event!.imageUrl,
-                                      width: double.infinity,
-                                      height: 220,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                // Card with event info
-                                Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-                                  padding: const EdgeInsets.all(24),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF2E3339),
-                                    borderRadius: BorderRadius.circular(32),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(event!.title, style: GoogleFonts.dmSans(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-                                                Text('(${event!.location.isNotEmpty ? event!.location : "-"})', style: GoogleFonts.dmSans(fontSize: 16, color: Colors.white70)),
-                                              ],
-                                            ),
-                                          ),
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.end,
-                                            children: [
-                                              Text(
-                                                event!.startDate.isNotEmpty ? _formatDay(event!.startDate) : '-',
-                                                style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
-                                              ),
-                                              Text(
-                                                event!.month.isNotEmpty ? event!.month : '-',
-                                                style: GoogleFonts.dmSans(fontSize: 16, color: Colors.white70),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 16),
-                                      Text(event!.description.isNotEmpty ? event!.description : '-', style: GoogleFonts.dmSans(fontSize: 15, color: Colors.white70)),
-                                      const SizedBox(height: 16),
-                                      SizedBox(
-                                        width: double.infinity,
-                                        child: ElevatedButton(
-                                          onPressed: isBooked ? null : _openCheckout,
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: isBooked ? Colors.grey : const Color(0xFF0262AB),
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                            padding: const EdgeInsets.symmetric(vertical: 14),
-                                          ),
-                                          child: Text(
-                                            isBooked ? 'Already Booked' : 'Book this Event',
-                                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 18),
-                                // Seats left warning (real-time)
-                                if (seatsLeft > 0)
-                                  Container(
-                                    margin: const EdgeInsets.symmetric(horizontal: 16),
-                                    padding: const EdgeInsets.symmetric(vertical: 10),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: Colors.yellow, width: 1.2),
-                                      borderRadius: BorderRadius.circular(12),
-                                      color: Colors.transparent,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
-                                      children: [
-                                        Text('Hurry! Only $seatsLeft seats left', style: GoogleFonts.dmSans(color: Colors.yellow, fontWeight: FontWeight.w600, fontSize: 16)),
-                                      ],
-                                    ),
-                                  ),
-                                const SizedBox(height: 18),
-                                // Event Info Row
-                                Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                                  child: Row(
-                                    children: [
-                                      Expanded(child: _infoCard('Location', event?.location != null && event!.location.isNotEmpty ? event!.location : '-')),
-                                      const SizedBox(width: 8),
-                                      Expanded(child: _infoCard('Entry Fee', event?.price != null && event!.price.isNotEmpty ? event!.price : '-')),
-                                      const SizedBox(width: 8),
-                                      Expanded(child: _dateCard(event)),
-                                      const SizedBox(width: 8),
-                                      Expanded(child: _infoCard('Time', event?.startTime != null && event!.startTime.isNotEmpty ? _extractTime(event!.startTime) : '-')),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                // People coming
-                                Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                                  padding: const EdgeInsets.all(20),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFF2E3339),
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Expanded(
-                                            child: Text('People coming at this event', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
-                                          ),
-                                          Text('${(event?.attendees ?? []).length} attendees', style: GoogleFonts.dmSans(color: const Color(0xFF3B9FED), fontWeight: FontWeight.w500, fontSize: 14)),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 16),
-                                      if ((event?.attendees ?? []).isNotEmpty)
-                                        Column(
-                                          children: [
-                                            SizedBox(
-                                              height: 180,
-                                              child: ListView.builder(
-                                                scrollDirection: Axis.horizontal,
-                                                itemCount: (event?.attendees ?? []).length,
-                                                itemBuilder: (context, index) {
-                                                  final attendee = (event?.attendees ?? [])[index];
-                                                  return Padding(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                                                    child: Container(
-                                                      height: 120, // Reduced PNG background height
-                                                      decoration: BoxDecoration(
-                                                        image: DecorationImage(
-                                                          image: AssetImage('assets/peopleyoumayknowtile_background.png'),
-                                                          fit: BoxFit.cover,
-                                                        ),
-                                                        borderRadius: BorderRadius.circular(16),
-                                                      ),
-                                                      child: Column(
-                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                        children: [
-                                                          const SizedBox(height: 6),
-                                                          CircleAvatar(
-                                                            radius: 18,
-                                                            backgroundImage: AssetImage('assets/dummyprofile.png'),
-                                                          ),
-                                                          const SizedBox(height: 6),
-                                                          SizedBox(
-                                                            width: 80, // Fixed width for all attendee names
-                                                            child: Text(
-                                                              attendee.fullName,
-                                                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.white),
-                                                              textAlign: TextAlign.center,
-                                                              maxLines: 1,
-                                                              overflow: TextOverflow.ellipsis,
-                                                            ),
-                                                          ),
-                                                          const SizedBox(height: 2),
-                                                          Text('Attendee', style: TextStyle(color: Colors.white70, fontSize: 9)),
-                                                          const SizedBox(height: 1),
-                                                          Text('Registered', style: TextStyle(color: Colors.white38, fontSize: 8)),
-                                                          const SizedBox(height: 6),
-                                                          SizedBox(
-                                                            width: 80,
-                                                            child: ElevatedButton(
-                                                              onPressed: () {
-                                                                Navigator.of(context).push(
-                                                                  MaterialPageRoute(
-                                                                    builder: (_) => EventUserProfileScreen(
-                                                                      userInfo: {
-                                                                        'id': attendee.id,
-                                                                        'fullName': attendee.fullName,
-                                                                        'email': attendee.email,
-                                                                        'phone': '***********',
-                                                                        'role': 'Attendee',
-                                                                      },
-                                                                    ),
-                                                                  ),
-                                                                );
-                                                              },
-                                                              style: ElevatedButton.styleFrom(
-                                                                backgroundColor: Color(0xFF0262AB),
-                                                                shape: StadiumBorder(),
-                                                                padding: EdgeInsets.symmetric(vertical: 6),
-                                                              ),
-                                                              child: Text('Connect', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
-                                                            ),
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        )
-                                      else
-                                        Container(
-                                          width: double.infinity,
-                                          padding: const EdgeInsets.all(20),
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFF1E2126),
-                                            borderRadius: BorderRadius.circular(12),
-                                            border: Border.all(
-                                              color: Colors.white10,
-                                              width: 1,
-                                            ),
-                                          ),
-                                          child: Column(
-                                            children: [
-                                              Icon(
-                                                Icons.people_outline,
-                                                color: Colors.white54,
-                                                size: 32,
-                                              ),
-                                              const SizedBox(height: 8),
-                                              Text(
-                                                'No attendees yet',
-                                                style: GoogleFonts.dmSans(
-                                                  color: Colors.white70,
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                'Be the first to register!',
-                                                style: GoogleFonts.dmSans(
-                                                  color: Colors.white54,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 32),
-                                const SizedBox(height: 60),
-                              ],
-                            );
-                          },
-                        ),
-                      ));
-  }
-
-  Widget _infoCard(String title, String value) {
-    return Container(
-      height: 70,
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2E3339),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white10, width: 1),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 12)),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _dateCard(EventModel? event) {
-    String day = '-';
-    String month = '-';
-    if (event != null && event.startDate.isNotEmpty) {
-      final date = DateTime.tryParse(event.startDate);
-      if (date != null) {
-        day = date.day.toString().padLeft(2, '0');
-        month = _monthName(date.month);
+  Future<void> fetchAttendeeConnections(List attendees) async {
+    final apiService = ApiService();
+    Map<String, bool> statusMap = {};
+    for (var attendee in attendees) {
+      try {
+        final res = await apiService.get('/connections/check?userId=' + attendee.id.toString());
+        statusMap[attendee.id.toString()] = res['data']?['connected'] == true;
+      } catch (_) {
+        statusMap[attendee.id.toString()] = false;
       }
     }
-    return Container(
-      height: 70,
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-      decoration: BoxDecoration(
-        color: const Color(0xFF2E3339),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white10, width: 1),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Date', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 12)),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Text(
-                day,
-                style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                month,
-                style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  String _monthName(int month) {
-    const months = [
-      '',
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec'
-    ];
-    return months[month];
-  }
-
-  Widget _personCard(String name, String role, String location, String imageUrl, String buttonText) {
-    return Container(
-      width: 180,
-      height: 270,
-      margin: const EdgeInsets.only(right: 18),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-      decoration: BoxDecoration(
-        color: const Color(0xFF23262B),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.10),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(40),
-                child: Image.asset(
-                  imageUrl,
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              // Lock icon for private profile (optional, add logic if needed)
-              // Positioned(
-              //   right: 0,
-              //   top: 0,
-              //   child: Icon(Icons.lock, color: Colors.white70, size: 18),
-              // ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            name.isNotEmpty ? name : 'Unknown',
-            style: GoogleFonts.dmSans(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            role,
-            style: GoogleFonts.dmSans(
-              color: Colors.white70,
-              fontSize: 13,
-            ),
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Expanded(
-                child: Container(),
-              ),
-              Text(
-                location,
-                style: GoogleFonts.dmSans(
-                  color: Colors.white38,
-                  fontSize: 12,
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                textAlign: TextAlign.right,
-              ),
-            ],
-          ),
-          const Spacer(),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: buttonText == 'Message' ? Colors.white : const Color(0xFF0262AB),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(22),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
-                minimumSize: const Size(0, 38),
-              ),
-              child: Text(
-                buttonText,
-                style: GoogleFonts.dmSans(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 15,
-                  color: buttonText == 'Message' ? const Color(0xFF0262AB) : Colors.white,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    setState(() {
+      attendeeConnectionStatus = statusMap;
+    });
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
     try {
-      debugPrint('Hitting endpoint: POST /events/${event!.id}/register');
       final eventsService = EventsService();
       await eventsService.registerForEvent(event!.id);
-      // Refresh event details after payment
       await fetchEventDetail();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Payment initialization failed: ' + e.toString()),
-        backgroundColor: Colors.red,
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error during registration: $e'), backgroundColor: Colors.red),
+      );
     }
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('Payment failed: ${response.message ?? 'Unknown error'}'),
-      backgroundColor: Colors.red,
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Payment failed: ${response.message ?? 'Unknown error'}'), backgroundColor: Colors.red),
+    );
   }
 
-  void _handleExternalWallet(ExternalWalletResponse response) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('External wallet selected: ${response.walletName}'),
-    ));
+  void _handlePaymentExternalWallet(ExternalWalletResponse response) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('External Wallet Selected: ${response.walletName}')),
+    );
   }
 
   void _openCheckout() {
     var options = {
-      'key': 'rzp_test_QyOoTjd4T2z2Nj',
-      'amount': int.parse(event?.price ?? '0') * 100, // Convert to paise
-      'name': event?.title ?? 'Event',
+      'key': 'rzp_test_QyOoTjd4rz',
+      'amount': (int.tryParse(event?.price ?? '0') ?? 0) * 100,
+      'name': event?.title ?? '',
       'description': event?.description ?? '',
       'prefill': {
         'contact': '',
         'email': ''
-      }
+      },
     };
     try {
       _razorpay.open(options);
@@ -680,39 +137,381 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     }
   }
 
-  String _formatDay(String dateStr) {
+  String _formatDateDay(String dateStr) {
     try {
       final date = DateTime.tryParse(dateStr);
-      if (date != null) {
-        return date.day.toString();
-      }
+      if (date != null) return date.day.toString().padLeft(2, '0');
     } catch (_) {}
     return '-';
   }
 
-  String _formatDate(String dateStr) {
+  String _formatDateMonth(String dateStr) {
     try {
       final date = DateTime.tryParse(dateStr);
       if (date != null) {
-        return '${date.day} ${event!.month}';
+        const months = [
+          '',
+          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ];
+        return months[date.month];
       }
     } catch (_) {}
-    return dateStr;
+    return '-';
   }
 
   String _extractTime(String dateStr) {
-    // Handles ISO format: yyyy-MM-ddTHH:mm:ss.sssZ
     try {
       final date = DateTime.tryParse(dateStr);
       if (date != null) {
-        final hour = date.hour.toString().padLeft(2, '0');
-        final minute = date.minute.toString().padLeft(2, '0');
-        return '$hour:$minute';
+        return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
       }
     } catch (_) {}
     return '-';
   }
+
+  @override
+  Widget build(BuildContext context) {
+    final seatsLeft = event != null ? (event!.seatsLeft - event!.attendees.length) : 0;
+
+    if (isLoading) {
+      return Scaffold(
+        backgroundColor: const Color(0xFF222222),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (error != null) {
+      return Scaffold(
+        backgroundColor: const Color(0xFF222222),
+        body: Center(child: Text(error!, style: const TextStyle(color: Colors.red))),
+      );
+    }
+
+    if (event == null) {
+      return Scaffold(
+        backgroundColor: const Color(0xFF222222),
+        body: const Center(child: Text('Event not found', style: TextStyle(color: Colors.white))),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: const Color(0xFF222222),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF222222),
+        elevation: 0,
+        leading: IconButton(icon: const Icon(Icons.arrow_back_ios, color: Colors.white), onPressed: () => Navigator.of(context).pop()),
+        title: Text(event!.title, style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // TOP COVER IMAGE
+            if (event!.imageUrl.isNotEmpty)
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
+                child: Image.network(event!.imageUrl, width: double.infinity, height: 220, fit: BoxFit.cover),
+              ),
+            // White card floating section - styled like your image.jpg
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2E3339),
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.13),
+                    blurRadius: 18,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title Row: title/location (left), day/month (right)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(event!.title,
+                              style: GoogleFonts.dmSans(
+                                fontSize: 22, color: Colors.white,
+                                fontWeight: FontWeight.bold)),
+                            Text('(${event!.location.isNotEmpty ? event!.location : "-"})',
+                              style: GoogleFonts.dmSans(fontSize: 14, color: Colors.white70)),
+                          ],
+                        )
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            event!.startDate.isNotEmpty ? _formatDateDay(event!.startDate) : '-',
+                            style: GoogleFonts.dmSans(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white),
+                          ),
+                          Text(
+                            event!.startDate.isNotEmpty ? _formatDateMonth(event!.startDate) : '-',
+                            style: GoogleFonts.dmSans(fontSize: 16, color: Colors.white70),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  // Description
+                  Text(event!.description.isNotEmpty ? event!.description : '-',
+                      style: GoogleFonts.dmSans(fontSize: 15, color: Colors.white70)),
+                  const SizedBox(height: 16),
+                  // Book button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: isBooked ? null : _openCheckout,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: isBooked ? Colors.grey : const Color(0xFF0262AB),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: Text(
+                        isBooked ? 'Already Booked' : 'Book this Event',
+                        style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
+                      ),
+                    ),
+                  ),
+                  if (seatsLeft > 0)
+                    Container(
+                      margin: const EdgeInsets.only(top: 18),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.yellow, width: 1.2),
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.transparent,
+                      ),
+                      child: Center(
+                        child: Text('Hurry! Only $seatsLeft seats left',
+                            style: GoogleFonts.dmSans(
+                                color: Colors.yellow,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16)),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            // FOUR INFO CARDS ROW
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 18),
+              child: Row(
+                children: [
+                  Expanded(child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal:4),
+                    child: _infoCard('Location', event!.location),
+                  )),
+                  Expanded(child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal:4),
+                    child: _infoCard('Entry Fee', event!.price),
+                  )),
+                  Expanded(child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal:4),
+                    child: _dateCard(event!),
+                  )),
+                  Expanded(child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal:4),
+                    child: _infoCard('Time', _extractTime(event!.startTime)),
+                  )),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            // "People coming at this event" Section
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color(0xFF2E3339),
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('People coming at this event',
+                        style: GoogleFonts.dmSans(
+                          color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
+                      Text('${event!.attendees.length} attendees',
+                        style: GoogleFonts.dmSans(
+                          color: const Color(0xFF3B9FED), fontWeight: FontWeight.w500, fontSize: 14)),
+                    ],
+                  ),
+                  const SizedBox(height: 18),
+                  event!.attendees.isNotEmpty
+                    ? SizedBox(
+                        height: 180,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: event!.attendees.length,
+                          itemBuilder: (context, index) {
+                            final attendee = event!.attendees[index];
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              child: Container(
+                                width: 120,
+                                decoration: BoxDecoration(
+                                  image: const DecorationImage(
+                                    image: AssetImage('assets/peopleyoumayknowtile_background.png'),
+                                    fit: BoxFit.cover,
+                                  ),
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const SizedBox(height: 10),
+                                    CircleAvatar(
+                                      radius: 24,
+                                      backgroundImage: const AssetImage('assets/dummyprofile.png'),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(attendee.fullName, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                    const SizedBox(height: 3),
+                                    const Text('Attendee', style: TextStyle(color: Colors.white70, fontSize: 10)),
+                                    const Text('Registered', style: TextStyle(color: Colors.white38, fontSize: 9)),
+                                    const SizedBox(height: 7),
+                                    SizedBox(
+                                      width: 80,
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (_) => EventUserProfileScreen(
+                                                userInfo: {
+                                                  'id': attendee.id,
+                                                  'fullName': attendee.fullName,
+                                                  'email': attendee.email,
+                                                  'phone': '***********',
+                                                  'role': 'Attendee',
+                                                },
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: const Color(0xFF0262AB),
+                                          shape: const StadiumBorder(),
+                                          padding: const EdgeInsets.symmetric(vertical: 6),
+                                        ),
+                                        child: const Text('Connect', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11)),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                    : Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF1E2126),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.white10, width: 1),
+                        ),
+                        child: Column(
+                          children: [
+                            Icon(Icons.people_outline, color: Colors.white54, size: 32),
+                            const SizedBox(height: 8),
+                            Text('No attendees yet', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
+                            const SizedBox(height: 4),
+                            Text('Be the first to register!', style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32)
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _infoCard(String title, String value) {
+    return Container(
+      height: 70,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2E3339),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white24, width: 1),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 11)),
+          const SizedBox(height: 4),
+          Text(value, style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14), maxLines: 2, overflow: TextOverflow.ellipsis),
+        ],
+      ),
+    );
+  }
+
+  Widget _dateCard(EventModel event) {
+    final day = _formatDateDay(event.startDate);
+    final month = _formatDateMonth(event.startDate);
+    return Container(
+      height: 70,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+      decoration: BoxDecoration(
+        color: const Color(0xFF2E3339),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white24, width: 1),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Date', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 11)),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              Text(day,
+                style: GoogleFonts.dmSans(
+                  color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                maxLines: 1, overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(month,
+                  style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13),
+                  maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
 }
+
+// -- Models for event/attendees --
 
 class EventModel {
   final String id;
@@ -742,51 +541,25 @@ class EventModel {
   factory EventModel.fromJson(Map<String, dynamic> json) {
     List<AttendeeModel> attendees = [];
     if (json['attendees'] != null && json['attendees'] is List) {
-      attendees = (json['attendees'] as List).where((attendee) => attendee != null).map((attendee) => AttendeeModel.fromJson(attendee)).toList();
+      attendees = (json['attendees'] as List)
+          .where((e) => e != null)
+          .map((e) => AttendeeModel.fromJson(e))
+          .toList();
     }
-
     return EventModel(
-      id: (json['_id'] ?? '') as String,
-      title: (json['title'] ?? '') as String,
-      location: (json['location'] ?? '') as String,
-      startDate: (json['startDate'] ?? '')?.toString() ?? '',
-      startTime: (json['startTime'] ?? '')?.toString() ?? '',
-      price: (json['entryFee'] ?? '')?.toString() ?? '',
-      seatsLeft: json['maxAttendees'] ?? 0,
-      description: (json['description'] ?? '') as String,
-      imageUrl: (json['image'] ?? '') as String,
+      id: (json['_id'] ?? '').toString(),
+      title: (json['title'] ?? '').toString(),
+      location: (json['location'] ?? '').toString(),
+      startDate: (json['startDate'] ?? '').toString(),
+      startTime: (json['startTime'] ?? '').toString(),
+      price: (json['entryFee'] ?? '0').toString(),
+      seatsLeft: json['maxAttendees'] is String
+          ? int.tryParse(json['maxAttendees']) ?? 0
+          : json['maxAttendees'] ?? 0,
+      description: (json['description'] ?? '').toString(),
+      imageUrl: (json['image'] ?? '').toString(),
       attendees: attendees,
     );
-  }
-
-  // Check if current user is already registered
-  bool isUserRegistered(String userId) {
-    return attendees.any((attendee) => attendee.id == userId);
-  }
-
-  String get month {
-    // Try to parse the startDate and extract the month name
-    try {
-      final parsedDate = DateTime.tryParse(startDate);
-      if (parsedDate != null) {
-        const monthNames = [
-          'January',
-          'February',
-          'March',
-          'April',
-          'May',
-          'June',
-          'July',
-          'August',
-          'September',
-          'October',
-          'November',
-          'December'
-        ];
-        return monthNames[parsedDate.month - 1];
-      }
-    } catch (_) {}
-    return '';
   }
 }
 
@@ -803,9 +576,9 @@ class AttendeeModel {
 
   factory AttendeeModel.fromJson(Map<String, dynamic> json) {
     return AttendeeModel(
-      id: (json['_id'] ?? '') as String,
-      fullName: (json['fullName'] ?? 'Unknown') as String,
-      email: (json['email'] ?? '') as String,
+      id: (json['_id'] ?? '').toString(),
+      fullName: (json['fullName'] ?? 'Unknown').toString(),
+      email: (json['email'] ?? '').toString(),
     );
   }
 }

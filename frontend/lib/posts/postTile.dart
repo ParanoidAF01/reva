@@ -28,9 +28,7 @@ class PostTile extends StatelessWidget {
                   // Add more usernames as needed
                 ];
                 // Truncate names to 14 characters max, append ...
-                final truncatedNames = likedUsers.map((name) =>
-                    name.length > 14 ? name.substring(0, 14) + '...' : name
-                ).toList();
+                final truncatedNames = likedUsers.map((name) => name.length > 14 ? name.substring(0, 14) + '...' : name).toList();
 
                 String likeText;
                 if (truncatedNames.isEmpty) {
@@ -40,8 +38,7 @@ class PostTile extends StatelessWidget {
                 } else if (truncatedNames.length == 2) {
                   likeText = '${truncatedNames[0]} and ${truncatedNames[1]} like this';
                 } else {
-                  likeText = truncatedNames.sublist(0, truncatedNames.length - 1).join(', ') +
-                      ' and ${truncatedNames.last} like this';
+                  likeText = truncatedNames.sublist(0, truncatedNames.length - 1).join(', ') + ' and ${truncatedNames.last} like this';
                 }
                 return Text(
                   likeText,
@@ -51,7 +48,10 @@ class PostTile extends StatelessWidget {
                 );
               },
             ),
-            const Divider(color: Color(0xFFCED5DC), thickness: 2,),
+            const Divider(
+              color: Color(0xFFCED5DC),
+              thickness: 2,
+            ),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -84,7 +84,10 @@ class PostTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                Image.asset("assets/silverpostbadge.png", height: 60,)
+                Image.asset(
+                  "assets/silverpostbadge.png",
+                  height: 60,
+                )
               ],
             ),
             const SizedBox(height: 12),
@@ -124,7 +127,9 @@ class PostTile extends StatelessWidget {
                 Text("11 comments", style: TextStyle(color: Colors.white60, fontSize: 12)),
               ],
             ),
-            const SizedBox(height: 8,),
+            const SizedBox(
+              height: 8,
+            ),
             const Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [

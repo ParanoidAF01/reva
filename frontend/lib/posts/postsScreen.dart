@@ -50,7 +50,9 @@ class _PostsScreenState extends State<PostsScreen> {
       if (response['success'] == true && response['data'] != null) {
         final profiles = response['data']['profiles'] ?? [];
         setState(() {
-          _profilesMap = {for (var p in profiles) p['user']: p};
+          _profilesMap = {
+            for (var p in profiles) p['user']: p
+          };
         });
       }
     } catch (e) {
@@ -310,8 +312,7 @@ class _PostsScreenState extends State<PostsScreen> {
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                      if(likesText.isNotEmpty) 
-                                        const Divider(color: Color(0xFFCED5DC), thickness: 2),
+                                      if (likesText.isNotEmpty) const Divider(color: Color(0xFFCED5DC), thickness: 2),
 
                                       Row(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -319,18 +320,12 @@ class _PostsScreenState extends State<PostsScreen> {
                                           CircleAvatar(
                                             radius: 18,
                                             backgroundColor: Colors.white,
-                                            backgroundImage:
-                                               (author['profile'] != null && author['profile']['profilePicture'] != null && author['profile']['profilePicture'].toString().isNotEmpty) ?
-                                                NetworkImage(author['profile']['profilePicture']) :
-                                              (author['profilePicture'] != null && author['profilePicture'].toString().isNotEmpty)
-                                                  ? NetworkImage(author['profilePicture'])
-                                                  : null,
-                                            child: ((author['profile'] == null ||
-                                                        author['profile']['profilePicture'] == null ||
-                                                        author['profile']['profilePicture'].toString().isEmpty) &&
-                                                    (author['profilePicture'] == null || author['profilePicture'].toString().isEmpty))
-                                                ? const Icon(Icons.person, color: Colors.black)
-                                                : null,
+                                            backgroundImage: (author['profile'] != null && author['profile']['profilePicture'] != null && author['profile']['profilePicture'].toString().isNotEmpty)
+                                                ? NetworkImage(author['profile']['profilePicture'])
+                                                : (author['profilePicture'] != null && author['profilePicture'].toString().isNotEmpty)
+                                                    ? NetworkImage(author['profilePicture'])
+                                                    : null,
+                                            child: ((author['profile'] == null || author['profile']['profilePicture'] == null || author['profile']['profilePicture'].toString().isEmpty) && (author['profilePicture'] == null || author['profilePicture'].toString().isEmpty)) ? const Icon(Icons.person, color: Colors.black) : null,
                                           ),
                                           SizedBox(width: width * 0.03),
                                           Expanded(
@@ -338,11 +333,8 @@ class _PostsScreenState extends State<PostsScreen> {
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  (author['fullName'] ?? 'Unknown').toString().length > 15
-                                                      ? (author['fullName'] ?? 'Unknown').toString().substring(0, 15) + '...'
-                                                      : (author['fullName'] ?? 'Unknown').toString(),
-                                                  style: const TextStyle(
-                                                      color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+                                                  (author['fullName'] ?? 'Unknown').toString().length > 15 ? (author['fullName'] ?? 'Unknown').toString().substring(0, 15) + '...' : (author['fullName'] ?? 'Unknown').toString(),
+                                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                                                   maxLines: 1,
                                                   overflow: TextOverflow.ellipsis,
                                                 ),
@@ -395,9 +387,7 @@ class _PostsScreenState extends State<PostsScreen> {
                                       const SizedBox(height: 10),
 
                                       // Images section
-                                      if (post['images'] != null &&
-                                          post['images'] is List &&
-                                          (post['images'] as List).isNotEmpty)
+                                      if (post['images'] != null && post['images'] is List && (post['images'] as List).isNotEmpty)
                                         (post['images'] as List).length == 1
                                             ? Center(
                                                 child: ClipRRect(
@@ -431,9 +421,7 @@ class _PostsScreenState extends State<PostsScreen> {
                                               ),
 
                                       // Videos placeholder
-                                      if (post['videos'] != null &&
-                                          post['videos'] is List &&
-                                          (post['videos'] as List).isNotEmpty)
+                                      if (post['videos'] != null && post['videos'] is List && (post['videos'] as List).isNotEmpty)
                                         SizedBox(
                                           height: 200,
                                           child: ListView.separated(
@@ -448,8 +436,7 @@ class _PostsScreenState extends State<PostsScreen> {
                                                   borderRadius: BorderRadius.circular(8),
                                                 ),
                                                 child: const Center(
-                                                  child: Text('Video',
-                                                      style: TextStyle(color: Colors.white)),
+                                                  child: Text('Video', style: TextStyle(color: Colors.white)),
                                                 ),
                                               );
                                             },
@@ -470,10 +457,7 @@ class _PostsScreenState extends State<PostsScreen> {
                                             },
                                             child: Text(
                                               "${comments.length} comments",
-                                              style: const TextStyle(
-                                                  color: Colors.white60,
-                                                  fontSize: 12,
-                                                  decoration: TextDecoration.underline),
+                                              style: const TextStyle(color: Colors.white60, fontSize: 12, decoration: TextDecoration.underline),
                                             ),
                                           ),
                                         ],
@@ -485,28 +469,15 @@ class _PostsScreenState extends State<PostsScreen> {
                                           padding: const EdgeInsets.only(top: 8.0),
                                           child: Column(
                                             children: [
-                                              if (parsedComments.isEmpty)
-                                                const Text('No comments yet.',
-                                                    style: TextStyle(color: Colors.white54)),
+                                              if (parsedComments.isEmpty) const Text('No comments yet.', style: TextStyle(color: Colors.white54)),
                                               ...parsedComments.map<Widget>((comment) {
                                                 final user = comment['user'] ?? {};
-                                                final userId = user['_id']?.toString() ??
-                                                    user['user']?.toString() ??
-                                                    '';
+                                                final userId = user['_id']?.toString() ?? user['user']?.toString() ?? '';
                                                 final name = user['fullName'] ?? 'Unknown';
                                                 String? profilePic;
-                                                if (_profilesMap.containsKey(userId) &&
-                                                    _profilesMap[userId]['profilePicture'] !=
-                                                        null &&
-                                                    _profilesMap[userId]['profilePicture']
-                                                        .toString()
-                                                        .isNotEmpty) {
+                                                if (_profilesMap.containsKey(userId) && _profilesMap[userId]['profilePicture'] != null && _profilesMap[userId]['profilePicture'].toString().isNotEmpty) {
                                                   profilePic = _profilesMap[userId]['profilePicture'];
-                                                } else if (user['profile'] != null &&
-                                                    user['profile']['profilePicture'] != null &&
-                                                    user['profile']['profilePicture']
-                                                        .toString()
-                                                        .isNotEmpty) {
+                                                } else if (user['profile'] != null && user['profile']['profilePicture'] != null && user['profile']['profilePicture'].toString().isNotEmpty) {
                                                   profilePic = user['profile']['profilePicture'];
                                                 } else {
                                                   profilePic = null;
@@ -520,31 +491,21 @@ class _PostsScreenState extends State<PostsScreen> {
                                                     CircleAvatar(
                                                       radius: 18,
                                                       backgroundColor: Colors.white,
-                                                      backgroundImage: profilePic != null
-                                                          ? NetworkImage(profilePic)
-                                                          : null,
-                                                      child: profilePic == null
-                                                          ? const Icon(Icons.person,
-                                                              color: Colors.black)
-                                                          : null,
+                                                      backgroundImage: profilePic != null ? NetworkImage(profilePic) : null,
+                                                      child: profilePic == null ? const Icon(Icons.person, color: Colors.black) : null,
                                                     ),
                                                     const SizedBox(width: 10),
                                                     Expanded(
                                                       child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment.start,
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
                                                         children: [
                                                           Text(
                                                             _truncateName(name),
-                                                            style: const TextStyle(
-                                                                color: Colors.white,
-                                                                fontWeight: FontWeight.bold),
+                                                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                                                             maxLines: 1,
                                                             overflow: TextOverflow.ellipsis,
                                                           ),
-                                                          Text(comment['content'] ?? '',
-                                                              style: const TextStyle(
-                                                                  color: Colors.white70)),
+                                                          Text(comment['content'] ?? '', style: const TextStyle(color: Colors.white70)),
                                                         ],
                                                       ),
                                                     ),
@@ -560,9 +521,7 @@ class _PostsScreenState extends State<PostsScreen> {
                                                         });
                                                       },
                                                       child: Icon(
-                                                        liked
-                                                            ? Icons.thumb_up_alt
-                                                            : Icons.thumb_up_alt_outlined,
+                                                        liked ? Icons.thumb_up_alt : Icons.thumb_up_alt_outlined,
                                                         color: liked ? Colors.white : Colors.white70,
                                                         size: 20,
                                                       ),
@@ -576,29 +535,24 @@ class _PostsScreenState extends State<PostsScreen> {
 
                                       // Add comment input and post button
                                       Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0, horizontal: 4.0),
+                                        padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 4.0),
                                         child: Row(
                                           children: [
                                             Expanded(
                                               child: TextField(
                                                 decoration: InputDecoration(
                                                   hintText: 'Add a comment...',
-                                                  hintStyle:
-                                                      const TextStyle(color: Colors.white54),
+                                                  hintStyle: const TextStyle(color: Colors.white54),
                                                   filled: true,
                                                   fillColor: const Color(0xFF2B2F34),
                                                   border: OutlineInputBorder(
                                                     borderRadius: BorderRadius.circular(8),
                                                     borderSide: BorderSide.none,
                                                   ),
-                                                  contentPadding: const EdgeInsets.symmetric(
-                                                      horizontal: 12, vertical: 8),
+                                                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                                 ),
-                                                style:
-                                                    const TextStyle(color: Colors.white),
-                                                controller:
-                                                    _commentControllers[postId] ??= TextEditingController(),
+                                                style: const TextStyle(color: Colors.white),
+                                                controller: _commentControllers[postId] ??= TextEditingController(),
                                               ),
                                             ),
                                             const SizedBox(width: 8),
@@ -610,12 +564,11 @@ class _PostsScreenState extends State<PostsScreen> {
                                                 ),
                                               ),
                                               onPressed: () async {
-                                                final text =
-                                                    _commentControllers[postId]?.text.trim() ?? '';
+                                                final text = _commentControllers[postId]?.text.trim() ?? '';
                                                 if (text.isEmpty) return;
-                                                final response = await ServiceManager
-                                                    .instance.posts
-                                                    .addComment(postId, {'content': text});
+                                                final response = await ServiceManager.instance.posts.addComment(postId, {
+                                                  'content': text
+                                                });
                                                 if (response['success'] == true) {
                                                   setState(() {
                                                     post['comments'] = response['data']['comments'];
@@ -623,14 +576,11 @@ class _PostsScreenState extends State<PostsScreen> {
                                                   });
                                                 } else {
                                                   ScaffoldMessenger.of(context).showSnackBar(
-                                                    SnackBar(
-                                                        content:
-                                                            Text(response['message'] ?? 'Failed to add comment')),
+                                                    SnackBar(content: Text(response['message'] ?? 'Failed to add comment')),
                                                   );
                                                 }
                                               },
-                                              child: const Text('Post',
-                                                  style: TextStyle(color: Colors.white)),
+                                              child: const Text('Post', style: TextStyle(color: Colors.white)),
                                             ),
                                           ],
                                         ),
@@ -646,19 +596,16 @@ class _PostsScreenState extends State<PostsScreen> {
                                         children: [
                                           GestureDetector(
                                             onTap: () async {
-                                              final response = await ServiceManager.instance.posts
-                                                  .toggleLike(post['_id'].toString());
+                                              final response = await ServiceManager.instance.posts.toggleLike(post['_id'].toString());
                                               if (response['success'] == true) {
                                                 setState(() {
-                                                  List<dynamic> likes =
-                                                      response['data']['likes'] ?? [];
+                                                  List<dynamic> likes = response['data']['likes'] ?? [];
                                                   post['likes'] = likes;
                                                 });
                                               } else {
                                                 ScaffoldMessenger.of(context).showSnackBar(
                                                   SnackBar(
-                                                    content: Text(response['message'] ??
-                                                        'Failed to like post'),
+                                                    content: Text(response['message'] ?? 'Failed to like post'),
                                                   ),
                                                 );
                                               }
@@ -666,21 +613,14 @@ class _PostsScreenState extends State<PostsScreen> {
                                             child: Column(
                                               children: [
                                                 Icon(
-                                                  (post['likes'] ?? []).any(
-                                                          (like) => like['_id'] == _currentUserId)
-                                                      ? Icons.thumb_up_alt
-                                                      : Icons.thumb_up_alt_outlined,
+                                                  (post['likes'] ?? []).any((like) => like['_id'] == _currentUserId) ? Icons.thumb_up_alt : Icons.thumb_up_alt_outlined,
                                                   size: 20,
-                                                  color: (post['likes'] ?? []).any(
-                                                          (like) => like['_id'] == _currentUserId)
-                                                      ? Colors.white
-                                                      : Colors.white70,
+                                                  color: (post['likes'] ?? []).any((like) => like['_id'] == _currentUserId) ? Colors.white : Colors.white70,
                                                 ),
                                                 const SizedBox(height: 4),
                                                 Text(
                                                   'Like (${post['likes'] != null ? post['likes'].length : 0})',
-                                                  style: const TextStyle(
-                                                      color: Colors.white70, fontSize: 12),
+                                                  style: const TextStyle(color: Colors.white70, fontSize: 12),
                                                 ),
                                               ],
                                             ),
@@ -688,18 +628,14 @@ class _PostsScreenState extends State<PostsScreen> {
                                           GestureDetector(
                                             onTap: () {
                                               setState(() {
-                                                _showCommentsMap[postId] =
-                                                    !(_showCommentsMap[postId] ?? false);
+                                                _showCommentsMap[postId] = !(_showCommentsMap[postId] ?? false);
                                               });
                                             },
                                             child: Column(
                                               children: const [
-                                                Icon(Icons.mode_comment_outlined,
-                                                    size: 20, color: Colors.white70),
+                                                Icon(Icons.mode_comment_outlined, size: 20, color: Colors.white70),
                                                 SizedBox(height: 4),
-                                                Text('Comment',
-                                                    style: TextStyle(
-                                                        color: Colors.white70, fontSize: 12)),
+                                                Text('Comment', style: TextStyle(color: Colors.white70, fontSize: 12)),
                                               ],
                                             ),
                                           ),
@@ -709,19 +645,13 @@ class _PostsScreenState extends State<PostsScreen> {
                                             },
                                             child: Column(
                                               children: const [
-                                                Icon(Icons.share_outlined,
-                                                    size: 20, color: Colors.white70),
+                                                Icon(Icons.share_outlined, size: 20, color: Colors.white70),
                                                 SizedBox(height: 4),
-                                                Text('Share',
-                                                    style: TextStyle(
-                                                        color: Colors.white70, fontSize: 12)),
+                                                Text('Share', style: TextStyle(color: Colors.white70, fontSize: 12)),
                                               ],
                                             ),
                                           ),
-                                          if ((post['author']?['_id'] == _currentUserId) ||
-                                              (_myProfile != null &&
-                                                  post['author']?['_id'] ==
-                                                      _myProfile?['user']?['_id']))
+                                          if ((post['author']?['_id'] == _currentUserId) || (_myProfile != null && post['author']?['_id'] == _myProfile?['user']?['_id']))
                                             GestureDetector(
                                               onTap: () async {
                                                 final confirm = await showDialog<bool>(
@@ -731,26 +661,18 @@ class _PostsScreenState extends State<PostsScreen> {
                                                     shape: RoundedRectangleBorder(
                                                       borderRadius: BorderRadius.circular(16),
                                                     ),
-                                                    title: Text('Delete Post',
-                                                        style: GoogleFonts.dmSans(
-                                                            color: Colors.white,
-                                                            fontWeight: FontWeight.bold)),
-                                                    content: Text(
-                                                        'Are you sure you want to delete this post?',
-                                                        style:
-                                                            GoogleFonts.dmSans(color: Colors.white70)),
+                                                    title: Text('Delete Post', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),
+                                                    content: Text('Are you sure you want to delete this post?', style: GoogleFonts.dmSans(color: Colors.white70)),
                                                     actions: [
                                                       TextButton(
-                                                        onPressed: () =>
-                                                            Navigator.of(context).pop(false),
+                                                        onPressed: () => Navigator.of(context).pop(false),
                                                         style: TextButton.styleFrom(
                                                           foregroundColor: Colors.white70,
                                                         ),
                                                         child: const Text('Cancel'),
                                                       ),
                                                       TextButton(
-                                                        onPressed: () =>
-                                                            Navigator.of(context).pop(true),
+                                                        onPressed: () => Navigator.of(context).pop(true),
                                                         style: TextButton.styleFrom(
                                                           foregroundColor: Colors.redAccent,
                                                         ),
@@ -760,9 +682,7 @@ class _PostsScreenState extends State<PostsScreen> {
                                                   ),
                                                 );
                                                 if (confirm == true) {
-                                                  final response = await ServiceManager.instance
-                                                      .posts
-                                                      .deletePost(post['_id'].toString());
+                                                  final response = await ServiceManager.instance.posts.deletePost(post['_id'].toString());
                                                   if (response['success'] == true) {
                                                     setState(() {
                                                       _posts.removeAt(idx);
@@ -777,9 +697,7 @@ class _PostsScreenState extends State<PostsScreen> {
                                                   } else {
                                                     ScaffoldMessenger.of(context).showSnackBar(
                                                       SnackBar(
-                                                        content: Text(
-                                                            response['message'] ??
-                                                                'Failed to delete post'),
+                                                        content: Text(response['message'] ?? 'Failed to delete post'),
                                                         backgroundColor: Colors.redAccent,
                                                         behavior: SnackBarBehavior.floating,
                                                       ),
@@ -795,15 +713,10 @@ class _PostsScreenState extends State<PostsScreen> {
                                                       borderRadius: BorderRadius.circular(8),
                                                     ),
                                                     padding: const EdgeInsets.all(6),
-                                                    child: const Icon(Icons.delete_outline,
-                                                        size: 20, color: Colors.redAccent),
+                                                    child: const Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
                                                   ),
                                                   const SizedBox(height: 4),
-                                                  Text('Delete',
-                                                      style: GoogleFonts.dmSans(
-                                                          color: Colors.redAccent,
-                                                          fontSize: 12,
-                                                          fontWeight: FontWeight.w500)),
+                                                  Text('Delete', style: GoogleFonts.dmSans(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.w500)),
                                                 ],
                                               ),
                                             ),

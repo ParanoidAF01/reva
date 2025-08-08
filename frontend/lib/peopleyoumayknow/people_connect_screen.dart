@@ -6,7 +6,12 @@ class PeopleConnectScreen extends StatefulWidget {
   final String userId;
   final String initialName;
   final String initialImage;
-  const PeopleConnectScreen({super.key, required this.userId, required this.initialName, required this.initialImage});
+  const PeopleConnectScreen({
+    super.key,
+    required this.userId,
+    required this.initialName,
+    required this.initialImage,
+  });
 
   @override
   State<PeopleConnectScreen> createState() => _PeopleConnectScreenState();
@@ -55,8 +60,8 @@ class _PeopleConnectScreenState extends State<PeopleConnectScreen> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
-    // Use initial values from tile, fallback to API if available
-    // Always use initialName and initialImage as fallback, even if API returns empty, asterisks, or null
+
+    // Use fields from API or fallback to widget.initialName and initialImage when needed
     String userName = getField('fullName');
     if (userName == '***********' || userName.isEmpty || userName == 'null') {
       userName = (userInfo?['name'] ?? userInfo?['userName'] ?? '').toString();
@@ -67,7 +72,10 @@ class _PeopleConnectScreenState extends State<PeopleConnectScreen> {
     if (userInfo != null) {
       profileImage = (userInfo?['profilePicture'] ?? userInfo?['image'] ?? userInfo?['profile'] ?? '').toString();
     }
-    if (profileImage.isEmpty || profileImage == '***********' || profileImage == 'null') profileImage = widget.initialImage.isNotEmpty ? widget.initialImage : 'assets/dummyprofile.png';
+    if (profileImage.isEmpty || profileImage == '***********' || profileImage == 'null') {
+      profileImage = widget.initialImage.isNotEmpty ? widget.initialImage : 'assets/dummyprofile.png';
+    }
+
     final String userLocation = getField('location');
     final String userExperience = getField('experience');
     final String userLanguages = getField('languages');
@@ -95,269 +103,278 @@ class _PeopleConnectScreenState extends State<PeopleConnectScreen> {
                           fit: BoxFit.cover,
                         ),
                       ),
-                      Column(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(top: height * 0.02, left: 16, right: 16),
-                            child: Row(
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24),
-                                  onPressed: () => Navigator.of(context).pop(),
+                      // Container with fixed height equals screen height
+                      Container(
+                        height: height,
+                        child: SingleChildScrollView(
+                          physics: const BouncingScrollPhysics(),
+                          padding: EdgeInsets.only(top: height * 0.02, left: 16, right: 16, bottom: 20),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 24),
+                                    onPressed: () => Navigator.of(context).pop(),
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    "Profile",
+                                    style: GoogleFonts.dmSans(
+                                      fontSize: 26,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  const SizedBox(width: 24),
+                                ],
+                              ),
+                              SizedBox(height: height * 0.03),
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  CircleAvatar(
+                                    radius: width * 0.16,
+                                    backgroundImage: (profileImage.startsWith('http') || profileImage.startsWith('https')) ? NetworkImage(profileImage) : AssetImage(profileImage) as ImageProvider,
+                                  ),
+                                  Positioned(
+                                    bottom: -30,
+                                    right: -30,
+                                    child: Image.asset(
+                                      medalAsset,
+                                      width: width * 0.30,
+                                      height: width * 0.30,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: height * 0.01),
+                              Text(
+                                userName.length > 15 ? '${userName.substring(0, 15)}...' : userName,
+                                style: GoogleFonts.dmSans(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 24,
                                 ),
-                                const Spacer(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (userLocation != '***********' && userLocation.isNotEmpty)
                                 Text(
-                                  "Profile",
+                                  userLocation,
                                   style: GoogleFonts.dmSans(
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
+                                    color: Colors.white.withOpacity(0.8),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 20,
                                   ),
                                 ),
-                                const Spacer(),
-                                SizedBox(width: 24),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: height * 0.03),
-                          Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              CircleAvatar(
-                                radius: width * 0.16,
-                                backgroundImage: (profileImage.startsWith('http') || profileImage.startsWith('https')) ? NetworkImage(profileImage) : AssetImage(profileImage) as ImageProvider,
-                              ),
-                              Positioned(
-                                bottom: -30,
-                                right: -30,
-                                child: Image.asset(
-                                  medalAsset,
-                                  width: width * 0.30,
-                                  height: width * 0.30,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: height * 0.01),
-                          Text(
-                            userName.length > 15
-                                ? userName.substring(0, 15) + '...'
-                                : userName,
-                            style: GoogleFonts.dmSans(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          if (userLocation != '***********' && userLocation.isNotEmpty)
-                            Text(
-                              userLocation,
-                              style: GoogleFonts.dmSans(
-                                color: Colors.white.withOpacity(0.8),
-                                fontWeight: FontWeight.w600,
-                                fontSize: 20,
-                              ),
-                            ),
-                          SizedBox(height: height * 0.01),
-                          Padding(
-                            padding: EdgeInsets.symmetric(vertical: 8.0),
-                            child: SizedBox(
-                              width: 180,
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  await ServiceManager.instance.connections.sendConnectionRequest(widget.userId);
-                                  // After sending, show a simple confirmation screen
-                                  if (mounted) {
-                                    Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                        builder: (context) => Scaffold(
-                                          backgroundColor: const Color(0xFF22252A),
-                                          body: Center(
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                const Icon(Icons.check_circle, color: Colors.green, size: 80),
-                                                const SizedBox(height: 24),
-                                                Text('Connection request sent!', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-                                                const SizedBox(height: 16),
-                                                ElevatedButton(
-                                                  onPressed: () => Navigator.of(context).pop(),
-                                                  style: ElevatedButton.styleFrom(
-                                                    backgroundColor: const Color(0xFF0262AB),
-                                                    shape: const StadiumBorder(),
-                                                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 32),
-                                                  ),
-                                                  child: const Text('Close', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                              SizedBox(height: height * 0.01),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: SizedBox(
+                                  width: 180,
+                                  child: ElevatedButton(
+                                    onPressed: () async {
+                                      await ServiceManager.instance.connections.sendConnectionRequest(widget.userId);
+                                      if (mounted) {
+                                        Navigator.of(context).pushReplacement(
+                                          MaterialPageRoute(
+                                            builder: (context) => Scaffold(
+                                              backgroundColor: const Color(0xFF22252A),
+                                              body: Center(
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    const Icon(Icons.check_circle, color: Colors.green, size: 80),
+                                                    const SizedBox(height: 24),
+                                                    Text(
+                                                      'Connection request sent!',
+                                                      style: GoogleFonts.dmSans(
+                                                        color: Colors.white,
+                                                        fontSize: 22,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(height: 16),
+                                                    ElevatedButton(
+                                                      onPressed: () => Navigator.of(context).pop(),
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor: const Color(0xFF0262AB),
+                                                        shape: const StadiumBorder(),
+                                                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 32),
+                                                      ),
+                                                      child: const Text(
+                                                        'Close',
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight: FontWeight.bold,
+                                                          fontSize: 16,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ],
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF0262AB),
-                                  shape: const StadiumBorder(),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
-                                ),
-                                child: const Text('Connect', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                              ),
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (userExperience.isNotEmpty)
-                                Text(
-                                  userExperience,
-                                  style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14),
-                                ),
-                              if (userExperience.isNotEmpty && userLanguages.isNotEmpty)
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                  child: Container(
-                                    width: 6,
-                                    height: 6,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white38,
-                                      shape: BoxShape.circle,
+                                        );
+                                      }
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF0262AB),
+                                      shape: const StadiumBorder(),
+                                      padding: const EdgeInsets.symmetric(vertical: 12),
+                                    ),
+                                    child: const Text(
+                                      'Connect',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                                     ),
                                   ),
                                 ),
-                              if (userLanguages.isNotEmpty)
-                                Text(
-                                  userLanguages,
-                                  style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14),
-                                ),
-                            ],
-                          ),
-                          SizedBox(height: height * 0.01),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (tag1.isNotEmpty) _tagChip(tag1),
-                              if (tag2.isNotEmpty) ...[
-                                SizedBox(width: 8),
-                                _tagChip(tag2),
-                              ],
-                              if (tag3.isNotEmpty) ...[
-                                SizedBox(width: 8),
-                                _tagChip(tag3),
-                              ],
-                            ],
-                          ),
-                          SizedBox(height: height * 0.03),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Container(
-                                  margin: EdgeInsets.symmetric(horizontal: 12),
-                                  padding: EdgeInsets.symmetric(vertical: 18),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.18),
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Icon(Icons.people, color: Colors.white, size: 28),
-                                      SizedBox(height: 6),
-                                      Text(
-                                        totalConnections.toString(),
-                                        style: GoogleFonts.dmSans(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 22,
-                                        ),
-                                      ),
-                                      SizedBox(height: 2),
-                                      Text(
-                                        'Total Connections',
-                                        style: GoogleFonts.dmSans(
-                                          color: Colors.white.withOpacity(0.7),
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
                               ),
-                              Expanded(
-                                child: Container(
-                                  margin: EdgeInsets.symmetric(horizontal: 12),
-                                  padding: EdgeInsets.symmetric(vertical: 18),
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.18),
-                                    borderRadius: BorderRadius.circular(18),
-                                  ),
-                                  child: Column(
-                                    children: [
-                                      Icon(Icons.celebration, color: Colors.white, size: 28),
-                                      SizedBox(height: 6),
-                                      Text(
-                                        eventsAttended.toString(),
-                                        style: GoogleFonts.dmSans(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 22,
-                                        ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (userExperience.isNotEmpty) Text(userExperience, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14)),
+                                  if (userExperience.isNotEmpty && userLanguages.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                      child: Container(
+                                        width: 6,
+                                        height: 6,
+                                        decoration: const BoxDecoration(color: Colors.white38, shape: BoxShape.circle),
                                       ),
-                                      SizedBox(height: 2),
-                                      Text(
-                                        'Events Attended',
-                                        style: GoogleFonts.dmSans(
-                                          color: Colors.white.withOpacity(0.7),
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                                    ),
+                                  if (userLanguages.isNotEmpty) Text(userLanguages, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14)),
+                                ],
                               ),
-                            ],
-                          ),
-                          SizedBox(height: height * 0.06),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: width * 0.12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                              SizedBox(height: height * 0.01),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (tag1.isNotEmpty) _tagChip(tag1),
+                                  if (tag2.isNotEmpty) ...[
+                                    const SizedBox(width: 8),
+                                    _tagChip(tag2),
+                                  ],
+                                  if (tag3.isNotEmpty) ...[
+                                    const SizedBox(width: 8),
+                                    _tagChip(tag3),
+                                  ],
+                                ],
+                              ),
+                              SizedBox(height: height * 0.03),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(horizontal: 12),
+                                      padding: const EdgeInsets.symmetric(vertical: 18),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.18),
+                                        borderRadius: BorderRadius.circular(18),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          const Icon(Icons.people, color: Colors.white, size: 28),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            totalConnections.toString(),
+                                            style: GoogleFonts.dmSans(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 22,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            'Total Connections',
+                                            style: GoogleFonts.dmSans(
+                                              color: Colors.white.withOpacity(0.7),
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.symmetric(horizontal: 12),
+                                      padding: const EdgeInsets.symmetric(vertical: 18),
+                                      decoration: BoxDecoration(
+                                        color: Colors.black.withOpacity(0.18),
+                                        borderRadius: BorderRadius.circular(18),
+                                      ),
+                                      child: Column(
+                                        children: [
+                                          const Icon(Icons.celebration, color: Colors.white, size: 28),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            eventsAttended.toString(),
+                                            style: GoogleFonts.dmSans(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 22,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            'Events Attended',
+                                            style: GoogleFonts.dmSans(
+                                              color: Colors.white.withOpacity(0.7),
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: height * 0.06),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: width * 0.12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
-                                    Icon(Icons.phone, color: Colors.white70, size: 18),
-                                    SizedBox(width: 8),
-                                    Text(phone, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(Icons.phone, color: Colors.white70, size: 18),
+                                        const SizedBox(width: 8),
+                                        Text(phone, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        const Icon(Icons.email, color: Colors.white70, size: 18),
+                                        const SizedBox(width: 8),
+                                        Text(email, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
+                                      ],
+                                    ),
                                   ],
                                 ),
-                                SizedBox(height: 8),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.email, color: Colors.white70, size: 18),
-                                    SizedBox(width: 8),
-                                    Text(email, style: GoogleFonts.dmSans(color: Colors.white, fontSize: 15)),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: height * 0.04),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _socialIconButton(assetPath: 'assets/whatsapp.png', onTap: () {}),
-                              SizedBox(width: 18),
-                              _socialIconButton(icon: Icons.facebook, onTap: () {}),
-                              SizedBox(width: 18),
-                              _socialIconButton(icon: Icons.camera_alt, onTap: () {}),
+                              ),
+                              SizedBox(height: height * 0.04),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _socialIconButton(assetPath: 'assets/whatsapp.png', onTap: () {}),
+                                  const SizedBox(width: 18),
+                                  _socialIconButton(icon: Icons.facebook, onTap: () {}),
+                                  const SizedBox(width: 18),
+                                  _socialIconButton(icon: Icons.camera_alt, onTap: () {}),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
                             ],
                           ),
-                        ],
+                        ),
                       ),
                     ],
                   ),

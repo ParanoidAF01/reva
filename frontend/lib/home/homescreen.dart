@@ -869,7 +869,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         max: achievementMax,
                         current: achievementCurrent,
                         label: 'Achievement',
-                        subtitle: 'unlock a gift on you 100th attend event',
+                        subtitle: 'unlock a gift on you 100th connections',
+                        connectionsLeft: nfcConnectionsLeft,
                       ),
                       nfcCard: NfcCardData(
                         title: 'NFC Card',

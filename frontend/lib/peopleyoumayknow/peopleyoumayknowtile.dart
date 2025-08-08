@@ -22,7 +22,7 @@ class PeopleYouMayKnowCard extends StatelessWidget {
     return Center(
       child: SizedBox(
         width: width * 0.38,
-        height: width * 0.56,
+        height: width * 0.68, // Increased height to prevent overflow
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
           decoration: BoxDecoration(

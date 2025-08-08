@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
-import 'package:reva/authentication/welcomescreen.dart';
 import 'package:reva/services/auth_service.dart';
 import 'package:reva/services/subscription_service.dart';
 import 'package:reva/bottomnavigation/bottomnavigation.dart';

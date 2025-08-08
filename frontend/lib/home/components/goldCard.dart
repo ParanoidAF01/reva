@@ -7,7 +7,6 @@ class GoldCard extends StatelessWidget {
   final String language;
   final String tag1;
   final String tag2;
-  final String tag3;
   final String kycStatus;
   final double tagSpacing;
   final double kycGap;
@@ -19,7 +18,6 @@ class GoldCard extends StatelessWidget {
     required this.language,
     required this.tag1,
     required this.tag2,
-    required this.tag3,
     String? kycStatus,
     this.tagSpacing = 2.0,
     this.kycGap = 30.0,
@@ -74,6 +72,8 @@ class GoldCard extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                       height: 1.40,
                     ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ),
               ),
@@ -160,7 +160,7 @@ class GoldCard extends StatelessWidget {
                   ),
                 ),
               // Tags row (below experience/languages)
-              if (tag1.isNotEmpty || tag2.isNotEmpty || tag3.isNotEmpty)
+              if (tag1.isNotEmpty || tag2.isNotEmpty)
                 Positioned(
                   left: 15,
                   top: language.isNotEmpty ? 155 : 140,
@@ -169,10 +169,8 @@ class GoldCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       if (tag1.isNotEmpty) _tagChip(tag1),
-                      if (tag1.isNotEmpty && (tag2.isNotEmpty || tag3.isNotEmpty)) SizedBox(width: tagSpacing),
+                      if (tag1.isNotEmpty && tag2.isNotEmpty) SizedBox(width: tagSpacing),
                       if (tag2.isNotEmpty) _tagChip(tag2),
-                      if (tag2.isNotEmpty && tag3.isNotEmpty) SizedBox(width: tagSpacing),
-                      if (tag3.isNotEmpty) _tagChip(tag3),
                     ],
                   ),
                 ),

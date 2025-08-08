@@ -352,12 +352,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: Colors.white,
                               ),
                             ),
-                            Text(
-                              "$userName,",
-                              style: GoogleFonts.dmSans(
-                                fontWeight: FontWeight.w700,
-                                fontSize: width * 0.07,
-                                color: Colors.white,
+                            SizedBox(
+                              width: width * 0.45, // Adjust as needed for layout
+                              child: Text(
+                                "$userName,",
+                                style: GoogleFonts.dmSans(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: width * 0.07,
+                                  color: Colors.white,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
                             ),
                           ],
@@ -445,77 +450,59 @@ class _HomeScreenState extends State<HomeScreen> {
                     if (isLoadingEvents)
                       const Center(child: CircularProgressIndicator())
                     else if (userEvents.length < 20)
-                      BronzeCard(
-                        name: userName,
-                        location: userLocation,
-                        experience: userExperience,
-                        language: (userData['language'] != null &&
-                                userData['language'].toString().isNotEmpty)
-                            ? userData['language']
-                            : '',
-                        tag1: (userData['tag1'] != null &&
-                                userData['tag1'].toString().isNotEmpty)
-                            ? userData['tag1']
-                            : "Commercial",
-                        tag2: (userData['tag2'] != null &&
-                                userData['tag2'].toString().isNotEmpty)
-                            ? userData['tag2']
-                            : "Rental",
-                        tag3: (userData['tag3'] != null &&
-                                userData['tag3'].toString().isNotEmpty)
-                            ? userData['tag3']
-                            : "Plots",
-                        kycStatus:
-                            (userData['kycVerified'] == true) ? 'verified' : '',
-                      )
+            BronzeCard(
+            name: userName,
+            location: userLocation,
+            experience: userExperience,
+            language: (userData['language'] != null &&
+                userData['language'].toString().isNotEmpty)
+              ? userData['language']
+              : '',
+            tag1: (userData['preferences'] != null && userData['preferences']['propertyType'] != null && userData['preferences']['propertyType'].toString().isNotEmpty)
+              ? userData['preferences']['propertyType']
+              : '',
+            tag2: (userData['preferences'] != null && userData['preferences']['interests'] is List && (userData['preferences']['interests'] as List).isNotEmpty)
+              ? (userData['preferences']['interests'] as List)[0].toString()
+              : '',
+            kycStatus:
+              (userData['kycVerified'] == true) ? 'verified' : '',
+            )
                     else if (userEvents.length >= 20 && userEvents.length < 60)
-                      SilverCard(
-                        name: userName,
-                        location: userLocation,
-                        experience: userExperience,
-                        language: (userData['language'] != null &&
-                                userData['language'].toString().isNotEmpty)
-                            ? userData['language']
-                            : '',
-                        tag1: (userData['tag1'] != null &&
-                                userData['tag1'].toString().isNotEmpty)
-                            ? userData['tag1']
-                            : "Commercial",
-                        tag2: (userData['tag2'] != null &&
-                                userData['tag2'].toString().isNotEmpty)
-                            ? userData['tag2']
-                            : "Rental",
-                        tag3: (userData['tag3'] != null &&
-                                userData['tag3'].toString().isNotEmpty)
-                            ? userData['tag3']
-                            : "Plots",
-                        kycStatus:
-                            (userData['kycVerified'] == true) ? 'verified' : '',
-                      )
+            SilverCard(
+            name: userName,
+            location: userLocation,
+            experience: userExperience,
+            language: (userData['language'] != null &&
+                userData['language'].toString().isNotEmpty)
+              ? userData['language']
+              : '',
+            tag1: (userData['preferences'] != null && userData['preferences']['propertyType'] != null && userData['preferences']['propertyType'].toString().isNotEmpty)
+              ? userData['preferences']['propertyType']
+              : '',
+            tag2: (userData['preferences'] != null && userData['preferences']['interests'] is List && (userData['preferences']['interests'] as List).isNotEmpty)
+              ? (userData['preferences']['interests'] as List)[0].toString()
+              : '',
+            kycStatus:
+              (userData['kycVerified'] == true) ? 'verified' : '',
+            )
                     else if (userEvents.length >= 80)
-                      GoldCard(
-                        name: userName,
-                        location: userLocation,
-                        experience: userExperience,
-                        language: (userData['language'] != null &&
-                                userData['language'].toString().isNotEmpty)
-                            ? userData['language']
-                            : '',
-                        tag1: (userData['tag1'] != null &&
-                                userData['tag1'].toString().isNotEmpty)
-                            ? userData['tag1']
-                            : "Commercial",
-                        tag2: (userData['tag2'] != null &&
-                                userData['tag2'].toString().isNotEmpty)
-                            ? userData['tag2']
-                            : "Rental",
-                        tag3: (userData['tag3'] != null &&
-                                userData['tag3'].toString().isNotEmpty)
-                            ? userData['tag3']
-                            : "Plots",
-                        kycStatus:
-                            (userData['kycVerified'] == true) ? 'verified' : '',
-                      ),
+            GoldCard(
+            name: userName,
+            location: userLocation,
+            experience: userExperience,
+            language: (userData['language'] != null &&
+                userData['language'].toString().isNotEmpty)
+              ? userData['language']
+              : '',
+            tag1: (userData['preferences'] != null && userData['preferences']['propertyType'] != null && userData['preferences']['propertyType'].toString().isNotEmpty)
+              ? userData['preferences']['propertyType']
+              : '',
+            tag2: (userData['preferences'] != null && userData['preferences']['interests'] is List && (userData['preferences']['interests'] as List).isNotEmpty)
+              ? (userData['preferences']['interests'] as List)[0].toString()
+              : '',
+            kycStatus:
+              (userData['kycVerified'] == true) ? 'verified' : '',
+            ),
                     SizedBox(height: height * 0.02),
                     SizedBox(
                       width: double.infinity,

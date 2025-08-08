@@ -248,28 +248,19 @@ class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateM
                                     SizedBox(height: height * 0.02),
                                     _profileLoading
                                         ? const CircularProgressIndicator()
-                                        : GoldCard(
-                                            name: (_profileData?['fullName'] ?? _profileData?['user']?['fullName'] ?? '-').toString(),
-                                            location: (_profileData?['location'] ?? _profileData?['user']?['location'] ?? '-').toString(),
-                                            experience: (_profileData?['experience'] ?? _profileData?['user']?['experience'] ?? '-').toString(),
-                                            language: (_profileData?['language'] ?? _profileData?['user']?['language'] ?? '-').toString(),
-                                            tag1: (_profileData?['tags'] is List && (_profileData?['tags'] as List).isNotEmpty)
-                                                ? (_profileData?['tags'] as List)[0].toString()
-                                                : (_profileData?['user']?['tags'] is List && (_profileData?['user']?['tags'] as List).isNotEmpty)
-                                                    ? (_profileData?['user']?['tags'] as List)[0].toString()
-                                                    : 'Commercial',
-                                            tag2: (_profileData?['tags'] is List && (_profileData?['tags'] as List).length > 1)
-                                                ? (_profileData?['tags'] as List)[1].toString()
-                                                : (_profileData?['user']?['tags'] is List && (_profileData?['user']?['tags'] as List).length > 1)
-                                                    ? (_profileData?['user']?['tags'] as List)[1].toString()
-                                                    : 'Plots',
-                                            tag3: (_profileData?['tags'] is List && (_profileData?['tags'] as List).length > 2)
-                                                ? (_profileData?['tags'] as List)[2].toString()
-                                                : (_profileData?['user']?['tags'] is List && (_profileData?['user']?['tags'] as List).length > 2)
-                                                    ? (_profileData?['user']?['tags'] as List)[2].toString()
-                                                    : 'Rental',
-                                            kycStatus: (_profileData?['kycVerified'] == true || _profileData?['user']?['kycVerified'] == true) ? 'verified' : '',
-                                          ),
+                    : GoldCard(
+                      name: (_profileData?['fullName'] ?? _profileData?['user']?['fullName'] ?? '-').toString(),
+                      location: (_profileData?['location'] ?? _profileData?['user']?['location'] ?? '-').toString(),
+                      experience: (_profileData?['experience'] ?? _profileData?['user']?['experience'] ?? '-').toString(),
+                      language: (_profileData?['language'] ?? _profileData?['user']?['language'] ?? '-').toString(),
+                      tag1: (_profileData != null && _profileData!['preferences'] != null && _profileData!['preferences']['propertyType'] != null && _profileData!['preferences']['propertyType'].toString().isNotEmpty)
+                        ? _profileData!['preferences']['propertyType'].toString()
+                        : '',
+                      tag2: (_profileData != null && _profileData!['preferences'] != null && _profileData!['preferences']['interests'] is List && (_profileData!['preferences']['interests'] as List).isNotEmpty)
+                        ? (_profileData!['preferences']['interests'] as List)[0].toString()
+                        : '',
+                      kycStatus: (_profileData?['kycVerified'] == true || _profileData?['user']?['kycVerified'] == true) ? 'verified' : '',
+                      ),
                                     SizedBox(height: height * 0.01),
                                     const Text('Golden league unlocked', style: TextStyle(color: Colors.white70, fontSize: 15)),
                                     SizedBox(height: height * 0.02),

@@ -156,69 +156,36 @@ class RequestTile extends StatelessWidget {
             ),
           ),
 
-          // Accept Button (only for incoming)
-          if (!isOutgoing)
-            Container(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFF0262AB),
-                    Color(0xFF01345A)
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(6),
+          // Scan QR Button for both incoming and outgoing requests
+          Container(
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFF0262AB),
+                  Color(0xFF01345A)
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-              child: InkWell(
-                onTap: () => _handleAccept(context),
-                borderRadius: BorderRadius.circular(6),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Text(
-                    'Accept',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: InkWell(
+              onTap: () => _handleScanQR(context),
+              borderRadius: BorderRadius.circular(6),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Text(
+                  'Scan QR',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
                   ),
                 ),
               ),
             ),
-
-          // Scan QR Button (only for outgoing)
-          if (isOutgoing)
-            Container(
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFF0262AB),
-                    Color(0xFF01345A)
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: InkWell(
-                onTap: () => _handleScanQR(context),
-                borderRadius: BorderRadius.circular(6),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  child: Text(
-                    'Scan QR',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-          if (!isOutgoing) const SizedBox(width: 8),
+          ),
+          const SizedBox(width: 8),
 
           // Reject/Cancel Button
           Container(

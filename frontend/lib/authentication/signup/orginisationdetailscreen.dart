@@ -388,14 +388,10 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildGradientButton('Skip', width, () {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-                    }),
-                    _buildGradientButton('Next', width, _validateAndProceed),
-                  ],
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: _buildGradientButton('Next', width, _validateAndProceed),
                 ),
               ],
             ),

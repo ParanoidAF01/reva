@@ -6,7 +6,6 @@ import 'package:provider/provider.dart';
 import 'package:reva/services/service_manager.dart';
 import 'package:reva/profile/help_center_screen.dart';
 import 'package:reva/services/auth_service.dart';
-import 'package:reva/authentication/welcomescreen.dart';
 import 'package:reva/start_subscription.dart';
 import 'edit_profile_screen.dart';
 import '../providers/user_provider.dart';
@@ -49,9 +48,8 @@ class _ProfileStatCard extends StatelessWidget {
 
 class _SocialIconButton extends StatelessWidget {
   final IconData? icon;
-  final String? assetPath;
   final VoidCallback onTap;
-  const _SocialIconButton({this.icon, this.assetPath, required this.onTap});
+  const _SocialIconButton({this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -64,14 +62,7 @@ class _SocialIconButton extends StatelessWidget {
           color: Color(0xFF23262B),
           shape: BoxShape.circle,
         ),
-        child: icon != null
-            ? Icon(icon, color: Colors.white, size: 20)
-            : assetPath != null
-                ? Padding(
-                    padding: const EdgeInsets.all(7.0),
-                    child: Image.asset(assetPath!, fit: BoxFit.contain),
-                  )
-                : null,
+        child: icon != null ? Icon(icon, color: Colors.white, size: 20) : null,
       ),
     );
   }
@@ -85,6 +76,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
+  RouteObserver<PageRoute>? _routeObserver;
   void _shareProfile(String name, String email, String website, String social) {
     final text = 'Check out $name\'s profile!\nEmail: $email\nWebsite: $website\nSocial: $social';
     // ignore: avoid_print
@@ -114,19 +106,17 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
         .observers
         .whereType<RouteObserver<PageRoute>>()
         .firstOrNull;
-    routeObserver?.subscribe(this, ModalRoute.of(context)! as PageRoute);
+    _routeObserver = routeObserver;
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      _routeObserver?.subscribe(this, route);
+    }
   }
 
   @override
   void dispose() {
-    // Unsubscribe from RouteObserver
-    final routeObserver = ModalRoute.of(context)
-        ?.navigator
-        ?.widget
-        .observers
-        .whereType<RouteObserver<PageRoute>>()
-        .firstOrNull;
-    routeObserver?.unsubscribe(this);
+    // Unsubscribe from RouteObserver without using context (context is deactivated here)
+    _routeObserver?.unsubscribe(this);
     super.dispose();
   }
 
@@ -308,6 +298,8 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold)),
                         onTap: () async {
+                          // Close the bottom sheet before navigating
+                          Navigator.of(context).pop();
                           await AuthService.performCompleteLogout();
                           NavigationHelper.navigateToWelcomeScreen();
                         },

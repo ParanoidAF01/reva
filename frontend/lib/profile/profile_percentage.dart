@@ -19,6 +19,7 @@ class ProfilePercentageScreen extends StatefulWidget {
 }
 
 class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with RouteAware {
+  RouteObserver<PageRoute>? _routeObserver;
   void _showAlreadyVerifiedDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -48,13 +49,16 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with 
   void didChangeDependencies() {
     super.didChangeDependencies();
     final routeObserver = ModalRoute.of(context)?.navigator?.widget.observers.whereType<RouteObserver<PageRoute>>().firstOrNull;
-    routeObserver?.subscribe(this, ModalRoute.of(context)! as PageRoute);
+    _routeObserver = routeObserver;
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      _routeObserver?.subscribe(this, route);
+    }
   }
 
   @override
   void dispose() {
-    final routeObserver = ModalRoute.of(context)?.navigator?.widget.observers.whereType<RouteObserver<PageRoute>>().firstOrNull;
-    routeObserver?.unsubscribe(this);
+    _routeObserver?.unsubscribe(this);
     super.dispose();
   }
 

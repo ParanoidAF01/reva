@@ -80,18 +80,19 @@ class _SignUpState extends State<SignUp> {
       } else if (accessToken == null) {
         throw Exception('Signup failed: No access token received.');
       } else {
-        throw Exception(response['message'] ?? 'Signup failed');
+        // Prefer nested error message if present
+        final String errorMsg = response['error']?['message'] ??
+            response['message'] ?? 'Signup failed';
+        throw Exception(errorMsg);
       }
     } catch (e) {
       String errorMsg = 'Signup failed';
-      if (e.toString().contains('already') && e.toString().contains('registered')) {
-        errorMsg = 'This phone number is already registered.';
-      } else if (e.toString().contains('network')) {
-        errorMsg = 'Network error. Please try again.';
-      } else if (e.toString().contains('validation') || e.toString().contains('required')) {
-        errorMsg = 'Please check your details. Some fields are missing or invalid.';
-      } else if (e.toString().isNotEmpty) {
-        errorMsg = e.toString();
+      final es = e.toString();
+      // Clean typical Exception: prefix from thrown messages
+      if (es.startsWith('Exception: ')) {
+        errorMsg = es.substring('Exception: '.length);
+      } else if (es.isNotEmpty) {
+        errorMsg = es;
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMsg)),

@@ -9,6 +9,9 @@ PODS:
     - GoogleUtilities/Environment (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - PromisesObjC (~> 2.4)
+  - connectivity_plus (0.0.1):
+    - Flutter
+    - ReachabilitySwift
   - device_info_plus (0.0.1):
     - Flutter
   - FBAEMKit (17.0.3):
@@ -68,6 +71,9 @@ PODS:
   - razorpay_flutter (1.1.10):
     - Flutter
     - razorpay-pod
+  - ReachabilitySwift (5.2.4)
+  - share_plus (0.0.1):
+    - Flutter
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -77,6 +83,7 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
+  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - Flutter (from `Flutter`)
   - flutter_facebook_auth (from `.symlinks/plugins/flutter_facebook_auth/ios`)
@@ -87,6 +94,7 @@ DEPENDENCIES:
   - mobile_scanner (from `.symlinks/plugins/mobile_scanner/darwin`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - razorpay_flutter (from `.symlinks/plugins/razorpay_flutter/ios`)
+  - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
@@ -105,8 +113,11 @@ SPEC REPOS:
     - GTMSessionFetcher
     - PromisesObjC
     - razorpay-pod
+    - ReachabilitySwift
 
 EXTERNAL SOURCES:
+  connectivity_plus:
+    :path: ".symlinks/plugins/connectivity_plus/ios"
   device_info_plus:
     :path: ".symlinks/plugins/device_info_plus/ios"
   Flutter:
@@ -127,6 +138,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
   razorpay_flutter:
     :path: ".symlinks/plugins/razorpay_flutter/ios"
+  share_plus:
+    :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   sign_in_with_apple:
@@ -137,6 +150,7 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   AppAuth: d4f13a8fe0baf391b2108511793e4b479691fb73
   AppCheckCore: cc8fd0a3a230ddd401f326489c99990b013f0c4f
+  connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
   device_info_plus: bf2e3232933866d73fe290f2942f2156cdd10342
   FBAEMKit: 9900b2edd99a2d21629a6277e6166f14c6215799
   FBSDKCoreKit: 0791f8f68a8630931a4c12aa23a56cc021551596
@@ -157,6 +171,8 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   razorpay-pod: af9d52abe715ed5cc3eed9fdf6fd74340443d0b9
   razorpay_flutter: 84b3bfd206ae9c9c2a9ba585524a1b3d8102b6c1
+  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
+  share_plus: c3fef564749587fc939ef86ffb283ceac0baf9f5
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   sign_in_with_apple: f3bf75217ea4c2c8b91823f225d70230119b8440
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe

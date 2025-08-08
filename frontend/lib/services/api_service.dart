@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
-  static const String _baseUrl = 'https://bdpharmaceutical.com/api/v1';
+  static const String _baseUrl = 'https://reva-pwsw.onrender.com/api/v1';
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   // Get stored token
@@ -105,16 +105,37 @@ class ApiService {
     print('RESPONSE BODY: ${response.body}');
 
     try {
-      final Map<String, dynamic> body = jsonDecode(response.body);
+      final dynamic decoded = jsonDecode(response.body);
+      final Map<String, dynamic> body = decoded is Map<String, dynamic>
+          ? decoded
+          : <String, dynamic>{'data': decoded};
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return body;
       } else {
-        final errorMsg =
-            body['message'] ?? body['msg'] ?? 'Unknown error occurred';
-        throw Exception(errorMsg);
+        // Extract meaningful error messages from various API formats
+        String? message;
+        if (body['message'] is String) message = body['message'];
+        if (message == null && body['msg'] is String) message = body['msg'];
+        if (message == null && body['error'] is Map &&
+            (body['error'] as Map)['message'] is String) {
+          message = (body['error'] as Map)['message'] as String;
+        }
+        if (message == null && body['errors'] is List &&
+            (body['errors'] as List).isNotEmpty) {
+          final first = (body['errors'] as List).first;
+          if (first is String) message = first;
+          if (first is Map && first['message'] is String) {
+            message = first['message'] as String;
+          }
+        }
+
+        message ??= 'Unknown error occurred';
+        // Do NOT wrap this in the parse catcher below
+        throw Exception(message);
       }
-    } catch (e) {
+    } on FormatException catch (e) {
+      // Only catch JSON parsing errors here
       throw Exception('Failed to parse response: $e');
     }
   }

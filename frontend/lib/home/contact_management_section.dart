@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/redeem.dart';
+import 'package:reva/services/nfc_card_service.dart';
 
 class ContactManagementSection extends StatelessWidget {
   final List<ContactCardData> contacts;
@@ -355,10 +356,21 @@ class NfcCardWidget extends StatelessWidget {
                           fontSize: 18,
                           color: Colors.white)),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => RedeemPage()),
-                      );
+                    onTap: () async {
+                      // Check NFC card status before navigation
+                      try {
+                        final status = await NfcCardService().getMyStatus();
+                        final List<dynamic> cards = (status['data']?['cards'] as List?) ?? const [];
+                        final bool alreadyPurchased = cards.isNotEmpty;
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => RedeemPage(alreadyPurchased: alreadyPurchased)),
+                        );
+                      } catch (_) {
+                        // If status fails, fall back to default (assume not purchased)
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => const RedeemPage()),
+                        );
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(

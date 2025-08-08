@@ -5,17 +5,19 @@ import 'package:reva/services/nfc_card_service.dart';
 import 'package:reva/services/profile_service.dart';
 
 class RedeemPage extends StatefulWidget {
-  const RedeemPage({super.key});
+  final bool? alreadyPurchased;
+  const RedeemPage({super.key, this.alreadyPurchased});
 
   @override
   State<RedeemPage> createState() => _RedeemPageState();
 }
 
 class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateMixin, RouteAware {
+  RouteObserver<PageRoute>? _routeObserver;
   bool _showGoldCard = false;
   late AnimationController _controller;
   late Animation<double> _animation;
-  bool achievementUnlocked = false; // Set to false to test locked state
+  bool achievementUnlocked = false;
   late Razorpay _razorpay;
   final NfcCardService _nfcCardService = NfcCardService();
   final ProfileService _profileService = ProfileService();
@@ -59,19 +61,43 @@ class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateM
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
     _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
     _fetchProfile();
+    _decideInitialCardState();
+  }
+
+  Future<void> _decideInitialCardState() async {
+    // Priority 1: use hint passed from caller
+    if (widget.alreadyPurchased != null) {
+      setState(() {
+        achievementUnlocked = widget.alreadyPurchased!;
+      });
+      return;
+    }
+    // Fallback: check status from API for robustness (e.g., deep links)
+    try {
+      final status = await _nfcCardService.getMyStatus();
+      final List<dynamic> cards = (status['data']?['cards'] as List?) ?? const [];
+      setState(() {
+        achievementUnlocked = cards.isNotEmpty;
+      });
+    } catch (_) {
+      // If call fails, keep default (show buy card)
+    }
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final routeObserver = ModalRoute.of(context)?.navigator?.widget.observers.whereType<RouteObserver<PageRoute>>().firstOrNull;
-    routeObserver?.subscribe(this, ModalRoute.of(context)! as PageRoute);
+    _routeObserver = routeObserver;
+    final route = ModalRoute.of(context);
+    if (route is PageRoute) {
+      _routeObserver?.subscribe(this, route);
+    }
   }
 
   @override
   void dispose() {
-    final routeObserver = ModalRoute.of(context)?.navigator?.widget.observers.whereType<RouteObserver<PageRoute>>().firstOrNull;
-    routeObserver?.unsubscribe(this);
+    _routeObserver?.unsubscribe(this);
     _razorpay.clear();
     _controller.dispose();
     super.dispose();
@@ -123,198 +149,200 @@ class _RedeemPageState extends State<RedeemPage> with SingleTickerProviderStateM
     return Scaffold(
       backgroundColor: const Color(0xFF5B8DCB),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: height * 0.04),
-            // Top celebration icon
-            Center(
-              child: CircleAvatar(
-                radius: 22,
-                backgroundColor: Colors.white,
-                child: Image.asset('assets/celebrate.png', height: 32, width: 32),
-              ),
-            ),
-            SizedBox(height: height * 0.02),
-            // NFC Card Unlocked
-            Center(
-              child: Container(
-                width: width * 0.88,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF22252A),
-                  borderRadius: BorderRadius.circular(22),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Text('Want NFC Card?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
-                        const Spacer(),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF232E1B),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Text('Congratulations!', style: TextStyle(color: Color(0xFF7ED957), fontWeight: FontWeight.w500, fontSize: 13)),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    const Text('UNLOCKED', style: TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500)),
-                    const SizedBox(height: 16),
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF0262AB),
-                            Color(0xFF5B8DCB)
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
-                      child: const Text(
-                        'You will receive your card at the provided address.',
-                        style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
+        child: SafeArea(
+          child: Column(
+            children: [
+              SizedBox(height: height * 0.04),
+              // Top celebration icon
+              Center(
+                child: CircleAvatar(
+                  radius: 22,
+                  backgroundColor: Colors.white,
+                  child: Image.asset('assets/celebrate.png', height: 32, width: 32),
                 ),
               ),
-            ),
-            SizedBox(height: height * 0.04),
-            // Achievement Card (Locked/Unlocked)
-            Center(
-              child: Container(
-                width: width * 0.88,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF22252A),
-                  borderRadius: BorderRadius.circular(22),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 18),
-                child: achievementUnlocked
-                    ? GestureDetector(
-                        onTap: _flipCard,
-                        child: AnimatedBuilder(
-                          animation: _animation,
-                          builder: (context, child) {
-                            final isFront = _animation.value < 0.5;
-                            final angle = _animation.value * 3.1416;
-                            if (isFront) {
-                              return Transform(
-                                alignment: Alignment.center,
-                                transform: Matrix4.identity()
-                                  ..setEntry(3, 2, 0.001)
-                                  ..rotateY(angle),
-                                child: Column(
-                                  children: [
-                                    const Text('Achievement Unlocked!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
-                                    SizedBox(height: height * 0.02),
-                                    CircleAvatar(
-                                      radius: 38,
-                                      backgroundColor: const Color(0xFF22252A),
-                                      child: Image.asset('assets/celebrate.png', height: 54, width: 54),
-                                    ),
-                                    SizedBox(height: height * 0.01),
-                                    const Text('Tap the box to reveal', style: TextStyle(color: Colors.white70, fontSize: 15)),
-                                  ],
-                                ),
-                              );
-                            } else {
-                              return Transform(
-                                alignment: Alignment.center,
-                                transform: Matrix4.identity()
-                                  ..setEntry(3, 2, 0.001)
-                                  ..rotateY(angle + 3.1416),
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 18,
-                                          backgroundColor: Colors.white,
-                                          child: Image.asset('assets/celebrate.png', height: 26, width: 26),
-                                        ),
-                                        const SizedBox(width: 10),
-                                        const Text('Congratulations!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
-                                      ],
-                                    ),
-                                    SizedBox(height: height * 0.02),
-                                    _profileLoading
-                                        ? const CircularProgressIndicator()
-                    : GoldCard(
-                      name: (_profileData?['fullName'] ?? _profileData?['user']?['fullName'] ?? '-').toString(),
-                      location: (_profileData?['location'] ?? _profileData?['user']?['location'] ?? '-').toString(),
-                      experience: (_profileData?['experience'] ?? _profileData?['user']?['experience'] ?? '-').toString(),
-                      language: (_profileData?['language'] ?? _profileData?['user']?['language'] ?? '-').toString(),
-                      tag1: (_profileData != null && _profileData!['preferences'] != null && _profileData!['preferences']['propertyType'] != null && _profileData!['preferences']['propertyType'].toString().isNotEmpty)
-                        ? _profileData!['preferences']['propertyType'].toString()
-                        : '',
-                      tag2: (_profileData != null && _profileData!['preferences'] != null && _profileData!['preferences']['interests'] is List && (_profileData!['preferences']['interests'] as List).isNotEmpty)
-                        ? (_profileData!['preferences']['interests'] as List)[0].toString()
-                        : '',
-                      kycStatus: (_profileData?['kycVerified'] == true || _profileData?['user']?['kycVerified'] == true) ? 'verified' : '',
-                      ),
-                                    SizedBox(height: height * 0.01),
-                                    const Text('Golden league unlocked', style: TextStyle(color: Colors.white70, fontSize: 15)),
-                                    SizedBox(height: height * 0.02),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: ElevatedButton(
-                                        onPressed: _claimNfcCard,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xFF0262AB),
-                                          padding: const EdgeInsets.symmetric(vertical: 14),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                          elevation: 0,
-                                        ),
-                                        child: const Text('Redeem Now!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      )
-                    : Column(
+              SizedBox(height: height * 0.02),
+              // NFC Card Unlocked
+              Center(
+                child: Container(
+                  width: width * 0.88,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF22252A),
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
-                          const Text('Achievement Locked', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
-                          SizedBox(height: height * 0.02),
-                          const CircleAvatar(
-                            radius: 38,
-                            backgroundColor: Color(0xFF22252A),
-                            child: Icon(Icons.lock, color: Colors.white54, size: 38),
-                          ),
-                          SizedBox(height: height * 0.01),
-                          const Text('Unlock this card for ₹5000', style: TextStyle(color: Colors.white70, fontSize: 15)),
-                          SizedBox(height: height * 0.02),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: _openCheckout,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0262AB),
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                elevation: 0,
-                              ),
-                              child: const Text('Pay Now', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)),
+                          const Text('Want NFC Card?', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF232E1B),
+                              borderRadius: BorderRadius.circular(8),
                             ),
+                            child: const Text('Congratulations!', style: TextStyle(color: Color(0xFF7ED957), fontWeight: FontWeight.w500, fontSize: 13)),
                           ),
                         ],
                       ),
+                      const SizedBox(height: 4),
+                      const Text('UNLOCKED', style: TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [
+                              Color(0xFF0262AB),
+                              Color(0xFF5B8DCB)
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                        child: const Text(
+                          'You will receive your card at the provided address.',
+                          style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w500),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-            SizedBox(height: height * 0.09),
-          ],
+              SizedBox(height: height * 0.04),
+              // Achievement Card (Locked/Unlocked)
+              Center(
+                child: Container(
+                  width: width * 0.88,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF22252A),
+                    borderRadius: BorderRadius.circular(22),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 18),
+                  child: achievementUnlocked
+                      ? GestureDetector(
+                          onTap: _flipCard,
+                          child: AnimatedBuilder(
+                            animation: _animation,
+                            builder: (context, child) {
+                              final isFront = _animation.value < 0.5;
+                              final angle = _animation.value * 3.1416;
+                              if (isFront) {
+                                return Transform(
+                                  alignment: Alignment.center,
+                                  transform: Matrix4.identity()
+                                    ..setEntry(3, 2, 0.001)
+                                    ..rotateY(angle),
+                                  child: Column(
+                                    children: [
+                                      const Text('Achievement Unlocked!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
+                                      SizedBox(height: height * 0.02),
+                                      CircleAvatar(
+                                        radius: 38,
+                                        backgroundColor: const Color(0xFF22252A),
+                                        child: Image.asset('assets/celebrate.png', height: 54, width: 54),
+                                      ),
+                                      SizedBox(height: height * 0.01),
+                                      const Text('Tap the box to reveal', style: TextStyle(color: Colors.white70, fontSize: 15)),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                return Transform(
+                                  alignment: Alignment.center,
+                                  transform: Matrix4.identity()
+                                    ..setEntry(3, 2, 0.001)
+                                    ..rotateY(angle + 3.1416),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 18,
+                                            backgroundColor: Colors.white,
+                                            child: Image.asset('assets/celebrate.png', height: 26, width: 26),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          const Text('Congratulations!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
+                                        ],
+                                      ),
+                                      SizedBox(height: height * 0.02),
+                                      _profileLoading
+                                          ? const CircularProgressIndicator()
+                      : GoldCard(
+                        name: (_profileData?['fullName'] ?? _profileData?['user']?['fullName'] ?? '-').toString(),
+                        location: (_profileData?['location'] ?? _profileData?['user']?['location'] ?? '-').toString(),
+                        experience: (_profileData?['experience'] ?? _profileData?['user']?['experience'] ?? '-').toString(),
+                        language: (_profileData?['language'] ?? _profileData?['user']?['language'] ?? '-').toString(),
+                        tag1: (_profileData != null && _profileData!['preferences'] != null && _profileData!['preferences']['propertyType'] != null && _profileData!['preferences']['propertyType'].toString().isNotEmpty)
+                          ? _profileData!['preferences']['propertyType'].toString()
+                          : '',
+                        tag2: (_profileData != null && _profileData!['preferences'] != null && _profileData!['preferences']['interests'] is List && (_profileData!['preferences']['interests'] as List).isNotEmpty)
+                          ? (_profileData!['preferences']['interests'] as List)[0].toString()
+                          : '',
+                        kycStatus: (_profileData?['kycVerified'] == true || _profileData?['user']?['kycVerified'] == true) ? 'verified' : '',
+                        ),
+                                      SizedBox(height: height * 0.01),
+                                      const Text('Golden league unlocked', style: TextStyle(color: Colors.white70, fontSize: 15)),
+                                      SizedBox(height: height * 0.02),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: ElevatedButton(
+                                          onPressed: _claimNfcCard,
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color(0xFF0262AB),
+                                            padding: const EdgeInsets.symmetric(vertical: 14),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                            elevation: 0,
+                                          ),
+                                          child: const Text('Redeem Now!', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        )
+                      : Column(
+                          children: [
+                            const Text('Achievement Locked', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 20)),
+                            SizedBox(height: height * 0.02),
+                            const CircleAvatar(
+                              radius: 38,
+                              backgroundColor: Color(0xFF22252A),
+                              child: Icon(Icons.lock, color: Colors.white54, size: 38),
+                            ),
+                            SizedBox(height: height * 0.01),
+                            const Text('Unlock this card for ₹5000', style: TextStyle(color: Colors.white70, fontSize: 15)),
+                            SizedBox(height: height * 0.02),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: _openCheckout,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF0262AB),
+                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  elevation: 0,
+                                ),
+                                child: const Text('Pay Now', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16)),
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
+              ),
+              SizedBox(height: height * 0.09),
+            ],
+          ),
         ),
       ),
       //bottomNavigationBar: const BottomNavigation(),

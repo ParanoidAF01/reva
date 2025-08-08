@@ -15,16 +15,43 @@ class PostTile extends StatelessWidget {
         padding: EdgeInsets.all(size.width * 0.04),
         decoration: const BoxDecoration(
           color: Color(0xFF2E3339),
-
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Kateryna Luibinskaya and Tatyana Romanova like this",
-              style: TextStyle(color: Colors.white, fontSize: 13),
+            Builder(
+              builder: (context) {
+                // Example dynamic list, replace with actual data source
+                final List<String> likedUsers = [
+                  "Kateryna Luibinskaya",
+                  "Tatyana Romanova"
+                  // Add more usernames as needed
+                ];
+                // Truncate names to 14 characters max, append ...
+                final truncatedNames = likedUsers.map((name) =>
+                    name.length > 14 ? name.substring(0, 14) + '...' : name
+                ).toList();
+
+                String likeText;
+                if (truncatedNames.isEmpty) {
+                  likeText = '';
+                } else if (truncatedNames.length == 1) {
+                  likeText = '${truncatedNames[0]} likes this';
+                } else if (truncatedNames.length == 2) {
+                  likeText = '${truncatedNames[0]} and ${truncatedNames[1]} like this';
+                } else {
+                  likeText = truncatedNames.sublist(0, truncatedNames.length - 1).join(', ') +
+                      ' and ${truncatedNames.last} like this';
+                }
+                return Text(
+                  likeText,
+                  style: const TextStyle(color: Colors.white, fontSize: 13),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                );
+              },
             ),
-            const Divider(color: Color(0xFFCED5DC),thickness: 2,),
+            const Divider(color: Color(0xFFCED5DC), thickness: 2,),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -57,16 +84,39 @@ class PostTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                Image.asset("assets/silverpostbadge.png",height: 60,)
+                Image.asset("assets/silverpostbadge.png", height: 60,)
               ],
             ),
             const SizedBox(height: 12),
-            const Text(
-              "Hello, I am looking for a new career opportunity and would I’m currently working with a buyer looking for a 3BHK",
-              style: TextStyle(color: Colors.white, fontSize: 13.5),
+            StatefulBuilder(
+              builder: (context, setState) {
+                final String content = "Hello, I am looking for a new career opportunity and would I’m currently working with a buyer looking for a 3BHK";
+                bool isExpanded = false;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      content,
+                      style: const TextStyle(color: Colors.white, fontSize: 13.5),
+                      maxLines: isExpanded ? null : 5,
+                      overflow: isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          isExpanded = !isExpanded;
+                        });
+                      },
+                      child: Text(
+                        isExpanded ? "show less" : "read more",
+                        style: const TextStyle(color: Colors.lightBlue, fontSize: 13.5),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
-            const SizedBox(height: 4),
-            TextButton(onPressed: (){},child: const Text("read more", style: TextStyle(color: Colors.lightBlue, fontSize: 13.5))),
             const SizedBox(height: 10),
             const Row(
               mainAxisAlignment: MainAxisAlignment.end,

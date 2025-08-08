@@ -90,12 +90,14 @@ class EventUserProfileScreen extends StatelessWidget {
                 ),
                 SizedBox(height: height * 0.01),
                 Text(
-                  userName,
+                  userName.length > 15 ? userName.substring(0, 15) + '...' : userName,
                   style: GoogleFonts.dmSans(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 24,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 if (userLocation != '***********' && userLocation.isNotEmpty)
                   Text(

@@ -331,10 +331,15 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                                                             backgroundImage: AssetImage('assets/dummyprofile.png'),
                                                           ),
                                                           const SizedBox(height: 6),
-                                                          Text(
-                                                            attendee.fullName,
-                                                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.white),
-                                                            textAlign: TextAlign.center,
+                                                          SizedBox(
+                                                            width: 80, // Fixed width for all attendee names
+                                                            child: Text(
+                                                              attendee.fullName,
+                                                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 11, color: Colors.white),
+                                                              textAlign: TextAlign.center,
+                                                              maxLines: 1,
+                                                              overflow: TextOverflow.ellipsis,
+                                                            ),
                                                           ),
                                                           const SizedBox(height: 2),
                                                           Text('Attendee', style: TextStyle(color: Colors.white70, fontSize: 9)),

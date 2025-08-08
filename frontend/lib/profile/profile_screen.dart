@@ -358,12 +358,16 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                 ),
                 SizedBox(height: height * 0.01),
                 Text(
-                  userName,
+                  userName.length > 15
+                      ? userName.substring(0, 15) + '...'
+                      : userName,
                   style: GoogleFonts.dmSans(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 24,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 if (userLocation.isNotEmpty)
                   Text(

@@ -66,15 +66,11 @@ const getMyNFCCardStatus = asyncHandler(async (req, res) => {
 
     const nfcCards = await NFCCard.find({ user: userId })
         .populate('user', 'fullName email mobileNumber')
-        .populate('approvedBy', 'fullName email')
         .sort({ createdAt: -1 });
 
     return res.status(200).json(
         new ApiResponse(200, {
             cards: nfcCards,
-            totalRequests: nfcCards.length,
-            activeCard: nfcCards.find(card => card.status === 'active'),
-            pendingRequests: nfcCards.filter(card => card.status === 'pending')
         }, "NFC card status retrieved successfully")
     );
 });

@@ -11,7 +11,7 @@ import 'package:reva/start_subscription.dart';
 import 'edit_profile_screen.dart';
 import '../providers/user_provider.dart';
 import '../utils/navigation_helper.dart';
-
+import 'package:share_plus/share_plus.dart';
 class _ProfileStatCard extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -85,6 +85,15 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
+  void _shareProfile(String name, String email, String website, String social) {
+    final text = 'Check out $name\'s profile!\nEmail: $email\nWebsite: $website\nSocial: $social';
+    // ignore: avoid_print
+    print('Sharing: $text');
+    // Use share_plus
+    // ignore: unused_import
+   
+    Share.share(text);
+  }
   int totalConnections = 0;
   int eventsAttended = 0;
   bool _loadingEvents = true;
@@ -517,34 +526,54 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // Website button
                     _SocialIconButton(
-                      assetPath: 'assets/whatsapp.png',
+                      icon: Icons.language,
                       onTap: () async {
-                        final url = Uri.parse('https://wa.me/');
-                        if (await canLaunch(url.toString())) {
-                          await launch(url.toString());
+                        final website = userData['socialMediaLinks']?['website'] ?? '';
+                        if (website.isNotEmpty) {
+                          final url = Uri.parse(website.startsWith('http') ? website : 'https://$website');
+                          if (await canLaunch(url.toString())) {
+                            await launch(url.toString());
+                          }
                         }
                       },
                     ),
                     SizedBox(width: 18),
+                    // Social media button (Instagram or Facebook)
                     _SocialIconButton(
-                      icon: Icons.facebook,
+                      icon: Icons.alternate_email,
                       onTap: () async {
-                        final url = Uri.parse('https://facebook.com');
-                        if (await canLaunch(url.toString())) {
-                          await launch(url.toString());
+                        final social = userData['socialMediaLinks']?['instagram'] ?? userData['socialMediaLinks']?['facebook'] ?? '';
+                        if (social.isNotEmpty) {
+                          final url = Uri.parse(social.startsWith('http') ? social : 'https://$social');
+                          if (await canLaunch(url.toString())) {
+                            await launch(url.toString());
+                          }
                         }
                       },
                     ),
                     SizedBox(width: 18),
+                    // Email button
                     _SocialIconButton(
-                      icon: Icons.camera_alt,
+                      icon: Icons.email,
                       onTap: () async {
-                        final url = Uri.parse(
-                            'intent://camera#Intent;scheme=package;package=com.android.camera;end');
-                        if (await canLaunch(url.toString())) {
-                          await launch(url.toString());
+                        final emailUrl = 'mailto:${userData['user']?['email'] ?? userData['email'] ?? ''}';
+                        if (await canLaunch(emailUrl)) {
+                          await launch(emailUrl);
                         }
+                      },
+                    ),
+                    SizedBox(width: 18),
+                    // Share profile button
+                    _SocialIconButton(
+                      icon: Icons.share,
+                      onTap: () {
+                        final name = userName;
+                        final emailVal = userData['user']?['email'] ?? userData['email'] ?? '';
+                        final website = userData['socialMediaLinks']?['website'] ?? '';
+                        final social = userData['socialMediaLinks']?['instagram'] ?? userData['socialMediaLinks']?['facebook'] ?? '';
+                        _shareProfile(name, emailVal, website, social);
                       },
                     ),
                   ],

@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/editprofile/EditOrganisationDetailsScreen.dart';
-import 'package:reva/editprofile/EditEKycScreen.dart';
+
 import 'package:reva/editprofile/EditContactDetailsScreen.dart';
 import 'package:reva/editprofile/EditPreferencesScreen.dart';
 import 'package:reva/editprofile/EditSpecializationAndRecognition.dart';
@@ -19,6 +19,23 @@ class ProfilePercentageScreen extends StatefulWidget {
 }
 
 class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with RouteAware {
+  void _showAlreadyVerifiedDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF23262B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text('E-KYC', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),
+        content: Text('You are already verified', style: GoogleFonts.dmSans(color: Colors.white70)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('OK', style: GoogleFonts.dmSans(color: Colors.blueAccent)),
+          ),
+        ],
+      ),
+    );
+  }
   late Future<Map<String, dynamic>> _profileFuture;
 
   @override
@@ -65,7 +82,7 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with 
     final width = MediaQuery.of(context).size.width;
     final cardColor = const Color(0xFF23262B);
     final completedColor = const Color(0xFF1CBF6B);
-    final incompleteColor = const Color(0xFFE74C3C);
+  // final incompleteColor = const Color(0xFFE74C3C); // Unused, removed
     final textColor = Colors.white;
     final labelStyle = GoogleFonts.dmSans(
       color: textColor,
@@ -181,25 +198,35 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with 
             }
             int totalFields = 0;
             int filledFields = 0;
+            List<String> missingFields = [];
             requiredFields.forEach((key, value) {
               if (value == 'skip') return;
               totalFields++;
-              if (value != null) {
+              bool isFilled = false;
+              if (key == 'aadharNumber' || key == 'fullName') {
+                isFilled = true;
+              } else if (value != null) {
                 if (key == 'kycVerified') {
-                  if (value == true) filledFields++;
+                  if (value == true) isFilled = true;
                 } else if (value is String && value.trim().isNotEmpty) {
-                  filledFields++;
+                  isFilled = true;
                 } else if (value is bool && value == true) {
-                  filledFields++;
+                  isFilled = true;
                 } else if (value is! String && value.toString().isNotEmpty && value != false) {
-                  filledFields++;
+                  isFilled = true;
                 }
               }
+              if (isFilled) {
+                filledFields++;
+              } else {
+                missingFields.add(key);
+              }
             });
-            final percent = totalFields == 0 ? 0.0 : filledFields / totalFields;
-            final percentInt = (percent * 100).round();
-            // --- End: New Profile Completion Percentage Logic ---
-
+            // Debug print for missing fields
+            // ignore: avoid_print
+            print('Profile completion missing fields: ' + missingFields.join(', '));
+            double percent = totalFields == 0 ? 0.0 : filledFields / totalFields;
+            int percentInt = (percent * 100).round();
             return SingleChildScrollView(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: width * 0.06),
@@ -213,6 +240,16 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with 
                         fontSize: 26,
                         fontWeight: FontWeight.w700,
                         color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Contact Details',
+                      style: GoogleFonts.dmSans(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white70,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -264,6 +301,7 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with 
                         ),
                       ],
                     ),
+                    // ...existing code...
                     SizedBox(height: height * 0.04),
                     // Section cards
                     Wrap(
@@ -328,6 +366,33 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with 
                                     _profileFuture = _fetchProfile();
                                   });
                                 },
+                              ),
+                            ),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => _showAlreadyVerifiedDialog(context),
+                                child: Container(
+                                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                                  padding: const EdgeInsets.all(18),
+                                  decoration: BoxDecoration(
+                                    color: cardColor,
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.verified, color: Colors.white, size: 28),
+                                      const SizedBox(width: 18),
+                                      Expanded(
+                                        child: Text(
+                                          'E-KYC',
+                                          style: labelStyle,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ),
                           ],

@@ -38,6 +38,8 @@ dependencies:
   google_fonts: ^6.2.1
   lucide_icons: ^0.257.0
   iconsax: ^0.0.8
+  connectivity_plus: ^5.0.2
+  share_plus: ^7.2.1
   url_launcher: ^6.1.14
   flutter_secure_storage: ^9.2.4
   device_info_plus: ^11.5.0

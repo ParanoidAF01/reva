@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:reva/shared/network_error_overlay.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/service_manager.dart';
 
@@ -13,13 +15,21 @@ class PostsScreen extends StatefulWidget {
 }
 
 class _PostsScreenState extends State<PostsScreen> {
+  String? _currentUserId;
   Map<String, dynamic> _profilesMap = {};
+  Map<String, dynamic>? _myProfile;
 
   @override
   void initState() {
     super.initState();
-    fetchProfiles();
+  fetchProfiles();
+  fetchMyProfile();
     fetchPosts();
+    ServiceManager.instance.auth.getCurrentUserId().then((id) {
+      setState(() {
+        _currentUserId = id;
+      });
+    });
   }
 
   Future<void> fetchProfiles() async {
@@ -31,6 +41,22 @@ class _PostsScreenState extends State<PostsScreen> {
           _profilesMap = {
             for (var p in profiles) p['user']: p
           };
+        });
+      }
+    } catch (e) {
+      // ignore errors for now
+    }
+  }
+
+  Future<void> fetchMyProfile() async {
+    try {
+      final response = await ServiceManager.instance.profile.getMyProfile();
+      // Debug: print the full response from getMyProfile
+      // ignore: avoid_print
+      print('getMyProfile response: ' + response.toString());
+      if (response['success'] == true && response['data'] != null) {
+        setState(() {
+          _myProfile = response['data'];
         });
       }
     } catch (e) {
@@ -58,7 +84,8 @@ class _PostsScreenState extends State<PostsScreen> {
   String _searchText = '';
   String? _selectedBadge;
   List<dynamic> _posts = [];
-  List<bool> _likedPosts = [];
+  // List<bool> _likedPosts = []; // Unused, removed
+  // Removed unused _likedPosts field
   Map<String, bool> _showCommentsMap = {};
   Map<String, Set<String>> _likedCommentsMap = {};
   bool _loading = true;
@@ -77,7 +104,6 @@ class _PostsScreenState extends State<PostsScreen> {
         final List<dynamic> postsData = response['data']['posts'] ?? [];
         setState(() {
           _posts = postsData;
-          _likedPosts = List.generate(_posts.length, (index) => false);
           _loading = false;
         });
       } else {
@@ -109,32 +135,47 @@ class _PostsScreenState extends State<PostsScreen> {
   Widget build(BuildContext context) {
     var height = MediaQuery.of(context).size.height;
     var width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF22252A),
-        elevation: 0,
-        leading:  SizedBox(
-        ),
-        title: Text(
-          "Posts",
-          style: GoogleFonts.dmSans(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
+
+    // Debug: print values being compared for delete button for each post
+    for (var post in _filteredPosts) {
+      // ignore: avoid_print
+      print('author._id: \'${post['author']?['_id']}\'');
+      print('_currentUserId: \'${_currentUserId}\'');
+      print('_myProfile.user._id: \'${_myProfile != null ? _myProfile?['user']?['_id'] : 'null'}\'');
+    }
+    // Debug print for author and current user id
+    for (var post in _filteredPosts) {
+      // ignore: avoid_print
+      print('POST: ' + (post['content'] ?? post['text'] ?? '').toString());
+      print('author._id: ' + (post['author']?['_id'] ?? 'null').toString());
+      print('_currentUserId: ' + (_currentUserId ?? 'null').toString());
+    }
+    return NetworkErrorOverlay(
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF22252A),
+          elevation: 0,
+          leading:  SizedBox(),
+          title: Text(
+            "Posts",
+            style: GoogleFonts.dmSans(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: Colors.white,
+            ),
           ),
+          centerTitle: true,
         ),
-        centerTitle: true,
-      ),
-      backgroundColor: const Color(0xFF22252A),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _error != null
-              ? Center(child: Text(_error!, style: const TextStyle(color: Colors.red)))
-              : SingleChildScrollView(
-                  child: SafeArea(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+        backgroundColor: const Color(0xFF22252A),
+        body: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : _error != null
+                ? Center(child: Text(_error!, style: const TextStyle(color: Colors.red)))
+                : SingleChildScrollView(
+                    child: SafeArea(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                         SizedBox(height: height * 0.01),
                         // Top Bar
                         Padding(
@@ -230,7 +271,7 @@ class _PostsScreenState extends State<PostsScreen> {
                           final post = entry.value;
                           final author = post['author'] ?? {};
                           final comments = post['comments'] ?? [];
-                          final badge = post['badge'] ?? 'silver';
+                          // final badge = post['badge'] ?? 'silver'; // Unused, removed
                           final role = author['status'] ?? post['role'] ?? '';
                           final location = author['location'] ?? post['location'] ?? '';
                           final time = _formatTimestamp(post['createdAt']);
@@ -355,7 +396,7 @@ class _PostsScreenState extends State<PostsScreen> {
                                         itemCount: post['videos'].length,
                                         separatorBuilder: (context, i) => const SizedBox(width: 12),
                                         itemBuilder: (context, i) {
-                                          final vidUrl = post['videos'][i];
+                                          // final vidUrl = post['videos'][i]; // Unused, removed
                                           return Container(
                                             width: 200,
                                             decoration: BoxDecoration(
@@ -514,7 +555,6 @@ class _PostsScreenState extends State<PostsScreen> {
                                           final response = await ServiceManager.instance.posts.toggleLike(post['_id'].toString());
                                           if (response['success'] == true) {
                                             setState(() {
-                                              // Get current user ID from token or context if available
                                               List<dynamic> likes = response['data']['likes'] ?? [];
                                               post['likes'] = likes;
                                             });
@@ -526,18 +566,14 @@ class _PostsScreenState extends State<PostsScreen> {
                                         },
                                         child: Column(
                                           children: [
-                                            FutureBuilder<String?>(
-                                              future: ServiceManager.instance.auth.getCurrentUserId(),
-                                              builder: (context, snapshot) {
-                                                final currentUserId = snapshot.data;
-                                                final likes = post['likes'] ?? [];
-                                                final isLiked = currentUserId != null && likes.any((like) => like['_id'] == currentUserId);
-                                                return Icon(
-                                                  isLiked ? Icons.thumb_up_alt : Icons.thumb_up_alt_outlined,
-                                                  size: 20,
-                                                  color: isLiked ? Colors.white : Colors.white70,
-                                                );
-                                              },
+                                            Icon(
+                                              (post['likes'] ?? []).any((like) => like['_id'] == _currentUserId)
+                                                  ? Icons.thumb_up_alt
+                                                  : Icons.thumb_up_alt_outlined,
+                                              size: 20,
+                                              color: (post['likes'] ?? []).any((like) => like['_id'] == _currentUserId)
+                                                  ? Colors.white
+                                                  : Colors.white70,
                                             ),
                                             const SizedBox(height: 4),
                                             Text(
@@ -562,7 +598,9 @@ class _PostsScreenState extends State<PostsScreen> {
                                         ),
                                       ),
                                       GestureDetector(
-                                        onTap: () {},
+                                        onTap: () {
+                                          Share.share(post['content'] ?? post['text'] ?? '');
+                                        },
                                         child: Column(
                                           children: [
                                             Icon(Icons.share_outlined, size: 20, color: Colors.white70),
@@ -571,16 +609,79 @@ class _PostsScreenState extends State<PostsScreen> {
                                           ],
                                         ),
                                       ),
-                                      GestureDetector(
-                                        onTap: () {},
-                                        child: Column(
-                                          children: [
-                                            Icon(Icons.send_outlined, size: 20, color: Colors.white70),
-                                            const SizedBox(height: 4),
-                                            Text('Send', style: const TextStyle(color: Colors.white70, fontSize: 12)),
-                                          ],
+                    // Debug: print values being compared for delete button
+                    // ignore: avoid_print
+                    // Show delete if user is author (match author._id with profile['user']['_id'] from getMyProfile)
+                    if ((post['author']?['_id'] == _currentUserId) ||
+                      (_myProfile != null && post['author']?['_id'] == _myProfile?['user']?['_id']))
+                                        GestureDetector(
+                                          onTap: () async {
+                                            final confirm = await showDialog<bool>(
+                                              context: context,
+                                              builder: (context) => AlertDialog(
+                                                backgroundColor: const Color(0xFF22252A),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(16),
+                                                ),
+                                                title: Text('Delete Post', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold)),
+                                                content: Text('Are you sure you want to delete this post?', style: GoogleFonts.dmSans(color: Colors.white70)),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () => Navigator.of(context).pop(false),
+                                                    style: TextButton.styleFrom(
+                                                      foregroundColor: Colors.white70,
+                                                    ),
+                                                    child: const Text('Cancel'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () => Navigator.of(context).pop(true),
+                                                    style: TextButton.styleFrom(
+                                                      foregroundColor: Colors.redAccent,
+                                                    ),
+                                                    child: const Text('Delete'),
+                                                  ),
+                                                ],
+                                              ),
+                                            );
+                                            if (confirm == true) {
+                                              final response = await ServiceManager.instance.posts.deletePost(post['_id'].toString());
+                                              if (response['success'] == true) {
+                                                setState(() {
+                                                  _posts.removeAt(idx);
+                                                });
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: const Text('Post deleted'),
+                                                    backgroundColor: const Color(0xFF2B2F34),
+                                                    behavior: SnackBarBehavior.floating,
+                                                  ),
+                                                );
+                                              } else {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text(response['message'] ?? 'Failed to delete post'),
+                                                    backgroundColor: Colors.redAccent,
+                                                    behavior: SnackBarBehavior.floating,
+                                                  ),
+                                                );
+                                              }
+                                            }
+                                          },
+                                          child: Column(
+                                            children: [
+                                              Container(
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFF2B2F34),
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                padding: const EdgeInsets.all(6),
+                                                child: Icon(Icons.delete_outline, size: 20, color: Colors.redAccent),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text('Delete', style: GoogleFonts.dmSans(color: Colors.redAccent, fontSize: 12, fontWeight: FontWeight.w500)),
+                                            ],
+                                          ),
                                         ),
-                                      ),
                                     ],
                                   ),
                                 ],
@@ -593,7 +694,7 @@ class _PostsScreenState extends State<PostsScreen> {
                     ),
                   ),
                 ),
-    );
+      )); // Close NetworkErrorOverlay
   }
 
   // Removed unused _postAction widget

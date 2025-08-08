@@ -191,9 +191,17 @@ class _MpinVerificationScreenState extends State<MpinVerificationScreen> {
         ],
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+            return SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + bottomInset),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight - bottomInset,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               // Welcome message
@@ -356,7 +364,11 @@ class _MpinVerificationScreenState extends State<MpinVerificationScreen> {
                 ),
               ),
             ],
-          ),
+                  ),
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

@@ -200,9 +200,12 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
     final String email = userData['user']?['email'] ?? userData['email'] ?? '';
     final String phone =
         userData['user']?['mobileNumber'] ?? userData['mobileNumber'] ?? '';
-    final String tag1 = userData['tag1'] ?? "";
-    final String tag2 = userData['tag2'] ?? "";
-    final String tag3 = userData['tag3'] ?? "";
+  final String tag1 = (userData['preferences'] != null && userData['preferences']['propertyType'] != null && userData['preferences']['propertyType'].toString().isNotEmpty)
+    ? userData['preferences']['propertyType']
+    : "";
+  final String tag2 = (userData['preferences'] != null && userData['preferences']['interests'] is List && (userData['preferences']['interests'] as List).isNotEmpty)
+    ? (userData['preferences']['interests'] as List)[0].toString()
+    : "";
 
     // Medal logic
     String medalAsset = '';
@@ -404,14 +407,8 @@ class _ProfileScreenState extends State<ProfileScreen> with RouteAware {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (tag1.isNotEmpty) _tagChip(tag1),
-                    if (tag2.isNotEmpty) ...[
-                      SizedBox(width: 8),
-                      _tagChip(tag2),
-                    ],
-                    if (tag3.isNotEmpty) ...[
-                      SizedBox(width: 8),
-                      _tagChip(tag3),
-                    ],
+                    if (tag1.isNotEmpty && tag2.isNotEmpty) SizedBox(width: 8),
+                    if (tag2.isNotEmpty) _tagChip(tag2),
                   ],
                 ),
                 SizedBox(height: height * 0.03),

@@ -55,26 +55,38 @@ class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
   String propertyType = "Residential";
   String networkingPreference = "Business";
   String targetClient = "Business";
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-    if ((userData['operatingLocation'] ?? '').toString().isNotEmpty && operatingLoactions.contains(userData['operatingLocation'])) {
-      operatingLocation = userData['operatingLocation'];
-    }
-    if ((userData['interest'] ?? '').toString().isNotEmpty && interests.contains(userData['interest'])) {
-      interest = userData['interest'];
-    }
-    if ((userData['propertyType'] ?? '').toString().isNotEmpty && propertyTypes.contains(userData['propertyType'])) {
-      propertyType = userData['propertyType'];
-    }
-    if ((userData['networkingPreference'] ?? '').toString().isNotEmpty && networkingPreferences.contains(userData['networkingPreference'])) {
-      networkingPreference = userData['networkingPreference'];
-    }
-    if ((userData['targetClient'] ?? '').toString().isNotEmpty && targetClients.contains(userData['targetClient'])) {
-      targetClient = userData['targetClient'];
-    }
+    _fetchAndPrefill();
+  }
+
+  Future<void> _fetchAndPrefill() async {
+    setState(() { _loading = true; });
+    try {
+      final response = await ApiService().get('/profiles/me');
+      if (response['success'] == true && response['data'] != null) {
+        final prefs = response['data']['preferences'] ?? {};
+        if ((prefs['operatingLocations'] ?? '').toString().isNotEmpty && operatingLoactions.contains(prefs['operatingLocations'])) {
+          operatingLocation = prefs['operatingLocations'];
+        }
+        if (prefs['interests'] is List && prefs['interests'].isNotEmpty && interests.contains(prefs['interests'][0])) {
+          interest = prefs['interests'][0];
+        }
+        if ((prefs['propertyType'] ?? '').toString().isNotEmpty && propertyTypes.contains(prefs['propertyType'])) {
+          propertyType = prefs['propertyType'];
+        }
+        if ((prefs['networkingPreferences'] ?? '').toString().isNotEmpty && networkingPreferences.contains(prefs['networkingPreferences'])) {
+          networkingPreference = prefs['networkingPreferences'];
+        }
+        if ((prefs['targetClients'] ?? '').toString().isNotEmpty && targetClients.contains(prefs['targetClients'])) {
+          targetClient = prefs['targetClients'];
+        }
+      }
+    } catch (_) {}
+    setState(() { _loading = false; });
   }
 
   Future<void> _savePreferences() async {
@@ -183,94 +195,96 @@ class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
         title: const Text('Edit Preferences', style: TextStyle(color: Colors.white)),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: width * 0.08),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: height * 0.04),
-                _buildBottomSheetField(
-                    label: "Operating Location",
-                    value: operatingLocation,
-                    options: operatingLoactions,
-                    onSelected: (val) {
-                      setState(() => operatingLocation = val);
-                    }),
-                _buildBottomSheetField(
-                    label: "Interest",
-                    value: interest,
-                    options: interests,
-                    onSelected: (val) {
-                      setState(() => interest = val);
-                    }),
-                const SizedBox(height: 16),
-                _buildBottomSheetField(
-                    label: "Property Type",
-                    value: propertyType,
-                    options: propertyTypes,
-                    onSelected: (val) {
-                      setState(() => propertyType = val);
-                    }),
-                const SizedBox(height: 16),
-                _buildBottomSheetField(
-                    label: "Networking Preferences",
-                    value: networkingPreference,
-                    options: networkingPreferences,
-                    onSelected: (val) {
-                      setState(() => networkingPreference = val);
-                    }),
-                const SizedBox(height: 16),
-                _buildBottomSheetField(
-                    label: "Target Client",
-                    value: targetClient,
-                    options: targetClients,
-                    onSelected: (val) {
-                      setState(() => targetClient = val);
-                    }),
-                const SizedBox(height: 32),
-                SizedBox(
-                  width: double.infinity,
-                  height: 52,
-                  child: ElevatedButton(
-                    onPressed: _savePreferences,
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 0,
-                    ),
-                    child: Ink(
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF0262AB),
-                            Color(0xFF01345A)
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'Save',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+        child: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : Padding(
+                padding: EdgeInsets.symmetric(horizontal: width * 0.08),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: height * 0.04),
+                      _buildBottomSheetField(
+                          label: "Operating Location",
+                          value: operatingLocation,
+                          options: operatingLoactions,
+                          onSelected: (val) {
+                            setState(() => operatingLocation = val);
+                          }),
+                      _buildBottomSheetField(
+                          label: "Interest",
+                          value: interest,
+                          options: interests,
+                          onSelected: (val) {
+                            setState(() => interest = val);
+                          }),
+                      const SizedBox(height: 16),
+                      _buildBottomSheetField(
+                          label: "Property Type",
+                          value: propertyType,
+                          options: propertyTypes,
+                          onSelected: (val) {
+                            setState(() => propertyType = val);
+                          }),
+                      const SizedBox(height: 16),
+                      _buildBottomSheetField(
+                          label: "Networking Preferences",
+                          value: networkingPreference,
+                          options: networkingPreferences,
+                          onSelected: (val) {
+                            setState(() => networkingPreference = val);
+                          }),
+                      const SizedBox(height: 16),
+                      _buildBottomSheetField(
+                          label: "Target Client",
+                          value: targetClient,
+                          options: targetClients,
+                          onSelected: (val) {
+                            setState(() => targetClient = val);
+                          }),
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 52,
+                        child: ElevatedButton(
+                          onPressed: _savePreferences,
+                          style: ElevatedButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Ink(
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [
+                                  Color(0xFF0262AB),
+                                  Color(0xFF01345A)
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'Save',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 24),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 24),
-              ],
-            ),
-          ),
-        ),
+              ),
       ),
     );
   }

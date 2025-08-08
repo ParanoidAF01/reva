@@ -57,17 +57,7 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with 
     }
   }
 
-  Map<String, bool> _getSectionStatus(Map<String, dynamic> profile) {
-    // Define required fields for each section
-    return {
-      'Overview': (profile['fullName'] != null && profile['dateOfBirth'] != null && profile['designation'] != null && profile['location'] != null),
-      'Org. Details': profile['organization'] != null && profile['organization']['name'] != null,
-      'E-KYC': profile['aadharNumber'] != null || profile['panNumber'] != null || profile['kycVerified'] == true,
-      'Contact Details': profile['alternateNumber'] != null || (profile['socialMediaLinks'] != null && profile['socialMediaLinks'].isNotEmpty),
-      'Preferences': profile['preferences'] != null && profile['preferences'].isNotEmpty,
-      'Recognition': profile['specialization'] != null && profile['specialization'].isNotEmpty,
-    };
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -154,11 +144,61 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with 
               return const Center(child: Text('No profile data found', style: TextStyle(color: Colors.white)));
             }
             final profile = snapshot.data!;
-            final sectionStatus = _getSectionStatus(profile);
-            final completedCount = sectionStatus.values.where((v) => v).length;
-            final totalCount = sectionStatus.length;
-            final percent = completedCount / totalCount;
+
+            // --- Begin: New Profile Completion Percentage Logic ---
+            // 1. List all required and optional fields for each signup page
+            // Only required fields for 100% completion:
+            // Overview: fullName, dateOfBirth, designation, location, experience
+            // Organisation: name, incorporationDate, companyType, registered
+            // Contact: mobileNumber, email
+            // Preferences: operatingLocations, interests, propertyType, networkingPreferences, targetClients
+            // Specialization: reraRegistered, reraNumber (if reraRegistered true)
+            // EKYC: aadharNumber, kycVerified (true)
+            final requiredFields = <String, dynamic>{
+              'fullName': profile['fullName'],
+              'dateOfBirth': profile['dateOfBirth'],
+              'designation': profile['designation'],
+              'location': profile['location'],
+              'experience': profile['experience'],
+              'companyName': profile['organization']?['name'],
+              'incorporationDate': profile['organization']?['incorporationDate'],
+              'companyType': profile['organization']?['companyType'],
+              'isRegistered': profile['organization']?['registered'],
+              'primaryMobileNumber': profile['user']?['mobileNumber'] ?? profile['mobileNumber'],
+              'primaryEmailId': profile['user']?['email'] ?? profile['email'],
+              'operatingLocations': profile['preferences']?['operatingLocations'],
+              'interests': (profile['preferences']?['interests'] is List && (profile['preferences']?['interests'] as List).isNotEmpty) ? (profile['preferences']?['interests'] as List)[0] : null,
+              'propertyType': profile['preferences']?['propertyType'],
+              'networkingPreferences': profile['preferences']?['networkingPreferences'],
+              'targetClients': profile['preferences']?['targetClients'],
+              'reraRegistered': profile['specialization']?['reraRegistered'],
+              'aadharNumber': profile['aadharNumber'],
+              'kycVerified': profile['kycVerified'],
+            };
+            // reraNumber only required if reraRegistered is true
+            if (profile['specialization']?['reraRegistered'] == true) {
+              requiredFields['reraNumber'] = profile['specialization']?['reraNumber'];
+            }
+            int totalFields = 0;
+            int filledFields = 0;
+            requiredFields.forEach((key, value) {
+              if (value == 'skip') return;
+              totalFields++;
+              if (value != null) {
+                if (key == 'kycVerified') {
+                  if (value == true) filledFields++;
+                } else if (value is String && value.trim().isNotEmpty) {
+                  filledFields++;
+                } else if (value is bool && value == true) {
+                  filledFields++;
+                } else if (value is! String && value.toString().isNotEmpty && value != false) {
+                  filledFields++;
+                }
+              }
+            });
+            final percent = totalFields == 0 ? 0.0 : filledFields / totalFields;
             final percentInt = (percent * 100).round();
+            // --- End: New Profile Completion Percentage Logic ---
 
             return SingleChildScrollView(
               child: Padding(
@@ -236,7 +276,7 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with 
                               child: buildSectionCard(
                                 'Overview',
                                 Icons.info_outline,
-                                sectionStatus['Overview']!,
+                                true,
                                 () async {
                                   await Navigator.push(
                                     context,
@@ -254,7 +294,7 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with 
                               child: buildSectionCard(
                                 'Org. Details',
                                 Icons.apartment,
-                                sectionStatus['Org. Details']!,
+                                true,
                                 () async {
                                   await Navigator.push(
                                     context,
@@ -274,27 +314,9 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with 
                           children: [
                             Expanded(
                               child: buildSectionCard(
-                                'E-KYC',
-                                Icons.event,
-                                sectionStatus['E-KYC']!,
-                                () async {
-                                  await Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => EditEKycScreen(),
-                                    ),
-                                  );
-                                  setState(() {
-                                    _profileFuture = _fetchProfile();
-                                  });
-                                },
-                              ),
-                            ),
-                            Expanded(
-                              child: buildSectionCard(
                                 'Contact Details',
                                 Icons.phone,
-                                sectionStatus['Contact Details']!,
+                                true,
                                 () async {
                                   await Navigator.push(
                                     context,
@@ -316,7 +338,7 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with 
                               child: buildSectionCard(
                                 'Preferences',
                                 Icons.tune,
-                                sectionStatus['Preferences']!,
+                                true,
                                 () async {
                                   await Navigator.push(
                                     context,
@@ -334,7 +356,7 @@ class _ProfilePercentageScreenState extends State<ProfilePercentageScreen> with 
                               child: buildSectionCard(
                                 'Recognition',
                                 Icons.emoji_events,
-                                sectionStatus['Recognition']!,
+                                true,
                                 () async {
                                   await Navigator.push(
                                     context,

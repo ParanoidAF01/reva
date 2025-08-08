@@ -389,32 +389,27 @@ class _PostsScreenState extends State<PostsScreen> {
                                       // Images section
                                       if (post['images'] != null && post['images'] is List && (post['images'] as List).isNotEmpty)
                                         (post['images'] as List).length == 1
-                                            ? Center(
-                                                child: ClipRRect(
-                                                  borderRadius: BorderRadius.circular(8),
-                                                  child: Image.network(
-                                                    post['images'][0],
-                                                    height: 200,
-                                                    width: 200,
-                                                    fit: BoxFit.cover,
-                                                  ),
+                                            ? SizedBox(
+                                                width: double.infinity,
+                                                child: Image.network(
+                                                  post['images'][0],
+                                                  height: 220,
+                                                  width: double.infinity,
+                                                  fit: BoxFit.cover,
                                                 ),
                                               )
                                             : SizedBox(
-                                                height: 200,
+                                                height: 220,
                                                 child: ListView.separated(
                                                   scrollDirection: Axis.horizontal,
                                                   itemCount: post['images'].length,
                                                   separatorBuilder: (_, __) => const SizedBox(width: 12),
                                                   itemBuilder: (context, i) {
-                                                    return ClipRRect(
-                                                      borderRadius: BorderRadius.circular(8),
-                                                      child: Image.network(
-                                                        post['images'][i],
-                                                        height: 200,
-                                                        width: 200,
-                                                        fit: BoxFit.cover,
-                                                      ),
+                                                    return Image.network(
+                                                      post['images'][i],
+                                                      height: 220,
+                                                      width: MediaQuery.of(context).size.width * 0.7,
+                                                      fit: BoxFit.cover,
                                                     );
                                                   },
                                                 ),

@@ -207,9 +207,10 @@ class AchievementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-    double progressPercent = (data.max > 0 ? data.connectionsLeft / 500 : 0.0).clamp(0.0, 1.0);
-    final double barWidth = width - 80;
-    final double emojiLeft = (barWidth * progressPercent).clamp(0.0, barWidth - 24);
+  // Use connection count for progress
+  double progressPercent = (data.max > 0 ? data.connectionsLeft / 500 : 0.0).clamp(0.0, 1.0);
+  final double barWidth = width - 80;
+  final double emojiLeft = (barWidth * progressPercent).clamp(0.0, barWidth - 24);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -240,13 +241,13 @@ class AchievementCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           SizedBox(
-            height: 36,
+            height: 48,
             child: Stack(
               clipBehavior: Clip.none,
               children: [
                 // Progress bar background
                 Positioned.fill(
-                  top: 16,
+                  top: 24,
                   child: Container(
                     height: 4,
                     decoration: BoxDecoration(
@@ -257,7 +258,7 @@ class AchievementCard extends StatelessWidget {
                 ),
                 // Progress bar foreground
                 Positioned.fill(
-                  top: 16,
+                  top: 24,
                   child: FractionallySizedBox(
                     widthFactor: progressPercent,
                     alignment: Alignment.centerLeft,
@@ -276,10 +277,13 @@ class AchievementCard extends StatelessWidget {
                   top: 0,
                   child: Column(
                     children: [
-                      Text('🎉', style: TextStyle(fontSize: 24)),
+                      Container(
+                        padding: const EdgeInsets.only(bottom: 2),
+                        child: Text('🎉', style: TextStyle(fontSize: 28)),
+                      ),
                       Container(
                         width: 2,
-                        height: 16,
+                        height: 24,
                         color: Colors.blue,
                       ),
                     ],
@@ -288,7 +292,7 @@ class AchievementCard extends StatelessWidget {
                 // Gift icon at the end
                 const Positioned(
                   right: 0,
-                  top: 10,
+                  top: 18,
                   child: Icon(Icons.card_giftcard, color: Colors.amber, size: 20),
                 ),
               ],

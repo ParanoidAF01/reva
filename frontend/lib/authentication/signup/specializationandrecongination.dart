@@ -171,19 +171,19 @@ class _SpecializationAndRecognitionState extends State<SpecializationAndRecognit
                 const SizedBox(height: 16),
                 CustomTextField(
                   label: "Networking Member (Optional)",
-                  hint: "ibrddg,bere,enhs",
+                  hint: "Name",
                   controller: networkingMember,
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
                   label: "Real Estate Websites (Optional)",
-                  hint: "waofsavbf",
+                  hint: "www.https://estate.com",
                   controller: realEstateWebsite,
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
                   label: "Associated Builders (Optional)",
-                  hint: "esgopesg,gsgeg,drhhr",
+                  hint: "Name",
                   controller: associatedBuilders,
                 ),
                 const SizedBox(height: 32),

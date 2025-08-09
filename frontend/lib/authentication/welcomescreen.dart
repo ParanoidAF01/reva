@@ -27,7 +27,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       // Page 1: Welcome
       Column(
         children: [
-          SizedBox(height: height * 0.10),
+          SizedBox(height: height * 0.06),
           Center(
             child: Image.asset(
               'assets/logo.png',
@@ -42,7 +42,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               color: Colors.white,
             ),
           ),
-          SizedBox(height: height * 0.005),
+          SizedBox(height: height * 0.012),
           Text(
             'Real Estate Verified Agents',
             style: TextStyle(
@@ -51,7 +51,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               color: const Color(0xFFDFDFDF),
             ),
           ),
-          const Spacer(),
+          Expanded(
+            child: Center(
+              child: Image.asset(
+                'assets/welcome.png',
+                height: height * 0.36,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: width * 0.1),
             child: Text(
@@ -63,20 +71,32 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
           ),
-          SizedBox(height: height * 0.19),
+          SizedBox(height: height * 0.04),
         ],
       ),
       // Page 2: Onboarding
       Column(
         children: [
-          SizedBox(height: height * 0.16),
+          SizedBox(height: height * 0.08),
           const Text(
-            '🔒 Verified. Connected.\nEmpowered.',
+            '🔒 Verified. Connected. \nEmpowered.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w700,
               color: Color(0xFFDFDFDF),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Center(
+              child: FractionallySizedBox(
+                widthFactor: 0.82,
+                child: Image.asset(
+                  'assets/verify.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
             ),
           ),
           const Spacer(),
@@ -95,13 +115,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
           ),
-          SizedBox(height: height * 0.19),
+          SizedBox(height: height * 0.02),
         ],
       ),
       // Page 3: Login Navigation
       Column(
         children: [
-          SizedBox(height: height * 0.16),
+          SizedBox(height: height * 0.08),
           const Text(
             '📈 Take Your Real Estate\nGame to the Next Level',
             textAlign: TextAlign.center,
@@ -109,6 +129,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               fontSize: 24,
               fontWeight: FontWeight.w700,
               color: Color(0xFFDFDFDF),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Center(
+              child: FractionallySizedBox(
+                widthFactor: 0.82,
+                child: Image.asset(
+                  'assets/pg3.png',
+                  fit: BoxFit.contain,
+                ),
+              ),
             ),
           ),
           const Spacer(),
@@ -123,7 +155,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
             ),
           ),
-          SizedBox(height: height * 0.19),
+          SizedBox(height: height * 0.02),
         ],
       ),
     ];
@@ -165,11 +197,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 height: height * 0.065,
                 child: ElevatedButton(
                   onPressed: () {
-                    if (_currentPage < pages.length - 1) {
-                      _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
-                    } else {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-                    }
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (context) => const LoginScreen(),
+                      ),
+                      (route) => false,
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     elevation: 0,
@@ -191,7 +224,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     ),
                     child: Center(
                       child: Text(
-                        _currentPage < pages.length - 1 ? 'Swipe >>' : 'Login/Signup',
+                        'Get Started',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,

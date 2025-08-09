@@ -88,12 +88,6 @@ class _RootRedirectorState extends State<RootRedirector> {
               fit: BoxFit.contain,
               repeat: true,
             ),
-            const SizedBox(height: 24),
-            const Text('REVA',
-                style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold)),
           ],
         ),
       ),

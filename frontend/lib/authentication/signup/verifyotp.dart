@@ -320,7 +320,7 @@ class _VerifyOtpState extends State<VerifyOtp> {
               mainContent,
               SizedBox(height: height * 0.08),
               Center(
-                child: Image.asset('assets/logo.png', height: 32),
+                child: Image.asset('assets/full_logo.png', height: 70),
               ),
               SizedBox(height: height * 0.03),
             ],

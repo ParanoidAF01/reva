@@ -45,7 +45,7 @@ const profileSchema = new mongoose.Schema({
             },
             companyType: {
                 type: String,
-                enum: ["Private Limited", "Public Limited", "LLP", "Partnership", "Other"],
+                enum: ["Private Limited", "Public Limited", "LLP", "Partnership", "Other", "Not Applicable"],
                 default: null
             },
             gstNumber: {

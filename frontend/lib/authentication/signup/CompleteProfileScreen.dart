@@ -153,10 +153,34 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
   }
 
   final List<String> locations = [
-    'New Delhi',
-    'Mumbai',
-    'Bangalore',
-    'Chennai'
+    'Andhra Pradesh',
+    'Arunachal Pradesh',
+    'Assam',
+    'Bihar',
+    'Chhattisgarh',
+    'Goa',
+    'Gujarat',
+    'Haryana',
+    'Himachal Pradesh',
+    'Jharkhand',
+    'Karnataka',
+    'Kerala',
+    'Madhya Pradesh',
+    'Maharashtra',
+    'Manipur',
+    'Meghalaya',
+    'Mizoram',
+    'Nagaland',
+    'Odisha',
+    'Punjab',
+    'Rajasthan',
+    'Sikkim',
+    'Tamil Nadu',
+    'Telangana',
+    'Tripura',
+    'Uttar Pradesh',
+    'Uttarakhand',
+    'West Bengal',
   ];
   final List<String> experienceOptions = [
     'Less than 1 year',
@@ -390,7 +414,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  "Location",
+                  "State",
                   style: TextStyle(
                     color: Color(0xFFDFDFDF),
                     fontWeight: FontWeight.w600,

@@ -70,31 +70,16 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(height: height * 0.06),
-            // Top images grid
+            // Single image that fills the area
             SizedBox(
-              height: height * 0.13,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                children: [
-                  ...[
-                    'assets/interior.png',
-                    'assets/eventdummyimage.png',
-                    'assets/homebuyer.png',
-                    'assets/material.png',
-                    'assets/bronze_background.png',
-                    'assets/goldCard.png',
-                    'assets/silver_background.png',
-                  ].map((img) => Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 6),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Image.asset(img,
-                              height: height * 0.12,
-                              width: width * 0.22,
-                              fit: BoxFit.cover),
-                        ),
-                      ))
-                ],
+              height: height * 0.25,
+              width: double.infinity,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.asset(
+                  'assets/sub.jpeg',
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             SizedBox(height: height * 0.04),
@@ -147,7 +132,7 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
                                         fontWeight: FontWeight.w600,
                                         fontSize: 17)),
                                 const SizedBox(height: 20),
-                                Text('First 7 days free - Then ₹899/Year',
+                                Text('₹549/Year',
                                     style: GoogleFonts.dmSans(
                                         color: Colors.white70, fontSize: 14)),
                               ],
@@ -195,7 +180,7 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
                                         fontWeight: FontWeight.w600,
                                         fontSize: 17)),
                                 const SizedBox(height: 20),
-                                Text('First 7 days free - Then ₹99/Month',
+                                Text('₹60/Month',
                                     style: GoogleFonts.dmSans(
                                         color: Colors.white70, fontSize: 14)),
                               ],
@@ -223,7 +208,7 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
             ),
             SizedBox(height: height * 0.02),
             Text(
-              'Enjoy Premium access at only ₹3/day',
+              'Enjoy Premium access at only ₹2/day',
               style: GoogleFonts.dmSans(
                   color: Colors.white70,
                   fontSize: 15,
@@ -309,7 +294,7 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
       // Create subscription request body
       final subscriptionData = {
         "plan": _selected == 0 ? "annual" : "monthly",
-        "amountPaid": _selected == 0 ? 899 : 99,
+        "amountPaid": _selected == 0 ? 549 : 60,
         "paymentMethod": "card"
       };
 
@@ -358,7 +343,7 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
   void _openCheckout() {
     var options = {
       'key': 'rzp_test_QyOoTjd4T2z2Nj',
-      'amount': _selected == 0 ? 89900 : 9900,
+      'amount': _selected == 0 ? 54900 : 6000,
       'name': 'REVA',
       'description':
           _selected == 0 ? 'Annual Subscription' : 'Monthly Subscription',

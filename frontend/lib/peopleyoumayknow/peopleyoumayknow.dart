@@ -165,7 +165,7 @@ class _PeopleYouMayKnowBodyState extends State<_PeopleYouMayKnowBody> {
           ),
 
           // Action buttons
-         
+        
           // Grid View for Cards
           Expanded(
             child: Padding(

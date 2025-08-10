@@ -121,7 +121,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   void _openCheckout() {
     var options = {
-      'key': 'rzp_test_QyOoTjd4rz',
+      'key': 'rzp_test_QyOoTjd4T2z2Nj',
       'amount': (int.tryParse(event?.price ?? '0') ?? 0) * 100,
       'name': event?.title ?? '',
       'description': event?.description ?? '',

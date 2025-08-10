@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:reva/authentication/login.dart';
 import 'package:reva/authentication/signup/ekycscreen.dart';
 import '../components/mytextfield.dart';
 import '../../providers/user_provider.dart';
@@ -27,6 +26,7 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
     'LLP',
     'Partnership',
     'Other',
+    'Not Applicable',
   ];
   String selectedCompanyType = 'Private Limited';
   // GSTIN is now a free-form text field, so options are removed
@@ -143,8 +143,6 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
       error = "Please enter your company/firm name.";
     } else if (!_isValidIncorporationDate(date)) {
       error = "Please enter a valid incorporation date (dd/mm/yyyy).";
-    } else if (!isRegistered) {
-      error = "Please confirm your company is registered.";
     } else if (!_isValidCompanyType(type)) {
       error = "Please select a valid company type.";
     }
@@ -167,13 +165,14 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
       // dd/mm/yyyy or dd-mm-yyyy to yyyy-mm-dd
       isoDate = '${match.group(3)}-${match.group(2)}-${match.group(1)}';
     }
+    final String? companyTypeToSend = (selectedCompanyType == 'Not Applicable') ? null : selectedCompanyType;
     userProvider.updateUserData({
       'organization': {
         'name': companyNameController.text,
         'incorporationDate': isoDate,
         'gstNumber': gstinController.text,
         'registered': isRegistered,
-        'companyType': selectedCompanyType,
+        'companyType': companyTypeToSend,
       }
     });
     // Save to shared_preferences for persistence
@@ -186,7 +185,7 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
         'incorporationDate': isoDate,
         'gstNumber': gstinController.text,
         'registered': isRegistered,
-        'companyType': selectedCompanyType,
+        'companyType': companyTypeToSend,
       }
     };
     // ignore: avoid_print
@@ -291,7 +290,7 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
 
                 // CustomTextFields
                 CustomTextField(
-                  label: 'Company/Firm Name',
+                  label: 'Company / Individual Name',
                   hint: 'xyw company',
                   controller: companyNameController,
                 ),
@@ -363,7 +362,7 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                   },
                   child: AbsorbPointer(
                     child: CustomTextField(
-                      label: 'Incorporation Date',
+                      label: 'Incorporation Date / Birth Date',
                       hint: '09/09/2003',
                       controller: incorporationDateController,
                     ),
@@ -372,7 +371,7 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                 const SizedBox(height: 16),
 
                 _buildBottomSheetField(
-                  label: 'Company Type',
+                  label: 'Company Type (Select N/A if Individual)',
                   value: selectedCompanyType,
                   options: companyTypes,
                   onSelected: (val) {

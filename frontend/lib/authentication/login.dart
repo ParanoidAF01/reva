@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:reva/authentication/signup/signup.dart';
 import 'package:reva/authentication/signup/otpscreen.dart';
+import 'package:reva/profile/help_center_screen.dart';
 import 'package:reva/services/auth_service.dart';
 import 'package:reva/bottomnavigation/bottomnavigation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -205,7 +206,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 14, vertical: 2),
                               ),
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              const HelpCenterScreen()));
+                              },
                               icon: const Icon(Icons.help_outline,
                                   size: 18, color: Color(0xFFB2C2D9)),
                               label: const Text('Help',
@@ -336,7 +343,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Center(
                           child: Opacity(
                             opacity: 0.18,
-                            child: Image.asset('assets/full_logo.png', height: 40),
+                            child: Image.asset('assets/full_logo.png', height: 80),
                           ),
                         ),
                         const SizedBox(height: 18),

@@ -115,8 +115,24 @@ class _BottomNavigationState extends State<BottomNavigation> {
   }
 
   Widget _buildNavItem({required IconData icon, required int index}) {
-    return IconButton(
-      onPressed: () {
+    String label = '';
+    switch (index) {
+      case 0:
+        label = 'Home';
+        break;
+      case 1:
+        label = 'Events';
+        break;
+      case 2:
+        label = 'Posts';
+        break;
+      case 3:
+        label = 'Profile';
+        break;
+    }
+
+    return GestureDetector(
+      onTap: () {
         setState(() {
           if (index == 3) {
             // If profile tab is tapped, assign a new key to force reload
@@ -125,9 +141,24 @@ class _BottomNavigationState extends State<BottomNavigation> {
           _currentIndex = index;
         });
       },
-      icon: Icon(
-        icon,
-        color: _currentIndex == index ? Colors.white : Colors.grey[500],
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            icon,
+            color: _currentIndex == index ? Colors.white : Colors.grey[500],
+            size: 24,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: _currentIndex == index ? Colors.white : Colors.grey[500],
+              fontSize: 12,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }

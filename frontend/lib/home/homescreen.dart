@@ -559,8 +559,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               duration: const Duration(milliseconds: 150),
                               child: _customStatCard(
                                 icon: Icons.people_alt,
-                                label1: 'REVA',
-                                label2: 'Connections',
+                                label1: 'My REVA',
+                                label2: 'Network',
                                 value: revaConnections.toString(),
                                 width: width,
                               ),
@@ -582,8 +582,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               duration: const Duration(milliseconds: 150),
                               child: _customStatCard(
                                 icon: Icons.hourglass_empty,
-                                label1: 'Incoming',
-                                label2: 'Requests',
+                                label1: 'Requested',
+                                label2: 'Connects',
                                 value: pendingRequests.toString(),
                                 width: width,
                               ),
@@ -605,8 +605,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               duration: const Duration(milliseconds: 150),
                               child: _customStatCard(
                                 icon: Icons.link,
-                                label1: 'Outgoing',
-                                label2: 'Requests',
+                                label1: 'Awaiting',
+                                label2: 'Connects',
                                 value: pendingConnects.toString(),
                                 width: width,
                               ),

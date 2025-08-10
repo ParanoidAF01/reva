@@ -396,7 +396,7 @@ class _OtpScreenState extends State<OtpScreen> {
               mainContent,
               const Spacer(),
               Center(
-                child: Image.asset('assets/logo.png', height: 32),
+                child: Image.asset('assets/full_logo.png', height: 40),
               ),
               SizedBox(height: height * 0.03),
             ],

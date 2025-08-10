@@ -336,7 +336,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         Center(
                           child: Opacity(
                             opacity: 0.18,
-                            child: Image.asset('assets/logo.png', height: 32),
+                            child: Image.asset('assets/full_logo.png', height: 40),
                           ),
                         ),
                         const SizedBox(height: 18),

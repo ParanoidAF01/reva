@@ -30,24 +30,38 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           SizedBox(height: height * 0.06),
           Center(
             child: Image.asset(
-              'assets/logo.png',
+              'assets/full_logo.png',
               height: height * 0.08,
             ),
           ),
-          Text(
-            'Welcome to REVA',
-            style: TextStyle(
-              fontSize: width * 0.070,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
+          Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: width * 0.1),
+              child: Text(
+                'Welcome to \nLexora REVA Network',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: width * 0.070,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ),
           SizedBox(height: height * 0.012),
-          Text(
-            'Real Estate Verified Agents',
+          Text.rich(
+            TextSpan(
+              children: [
+                const TextSpan(text: "India's #1"),
+                TextSpan(
+                  text: ' Real Estate Verified Alliance',
+                  style: const TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ],
+            ),
+            textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: width * 0.030,
-              fontWeight: FontWeight.w400,
+              fontSize: width * 0.035,
               color: const Color(0xFFDFDFDF),
             ),
           ),
@@ -63,10 +77,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: width * 0.1),
             child: Text(
-              'India’s trusted platform for agent\nnetworking, verified leads, and offline events.',
+              "Networking Platform. \nWe Make Real Estate. \nReal.. Verified. Trusted. Professional.",
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: width * 0.030,
+                fontSize: width * 0.032,
                 color: const Color(0xFFDFDFDF),
               ),
             ),
@@ -79,7 +93,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         children: [
           SizedBox(height: height * 0.08),
           const Text(
-            '🔒 Verified. Connected. \nEmpowered.',
+            'Your Real Estate Network, \nSimplified',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 24,
@@ -103,14 +117,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           const Center(
             child: IntrinsicWidth(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  _BulletPoint(text: 'Connect only with RERA-verified agents'),
+                  _BulletPoint(text: 'The Complete Real Estate Ecosystem Under One Roof'),
                   SizedBox(height: 12),
-                  _BulletPoint(text: 'Share & find buyer/seller/investor leads'),
+                  _BulletPoint(text: 'Agents || Builders || Pros'),
                   SizedBox(height: 12),
-                  _BulletPoint(text: 'Attend exclusive builder & peer events'),
+                  _BulletPoint(text: 'Services || Suppliers || and more'),
                 ],
               ),
             ),
@@ -123,7 +137,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         children: [
           SizedBox(height: height * 0.08),
           const Text(
-            '📈 Take Your Real Estate\nGame to the Next Level',
+            'Networking, Anywhere. \nGrowth, Always.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 24,
@@ -147,10 +161,23 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: width * 0.1),
             child: Text(
-              'Build genuine connections, grow your business,\nand manage everything in one place.',
+              'Manage and grow your trusted network anytime, anywhere.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: width * 0.030,
+                color: const Color(0xFFDFDFDF),
+              ),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: width * 0.1),
+            child: Text(
+              'Connect. Collaborate. Grow Together.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: width * 0.032,
+                fontWeight: FontWeight.w700,
                 color: const Color(0xFFDFDFDF),
               ),
             ),

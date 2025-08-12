@@ -230,7 +230,7 @@ class _StartSubscriptionPageState extends State<StartSubscriptionPage> {
                     elevation: 0,
                   ),
                   child: Text(
-                    'Start 7-day free trial',
+                    'Proceed to Payment',
                     style: GoogleFonts.dmSans(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,

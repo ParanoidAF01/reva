@@ -20,3 +20,19 @@ export const generateOTP = () => {
 export const mask = (value) => {
     return "X".repeat(value.length - 4) + value.slice(-4);
 };
+
+export const maskAfterX = (value, x) => {
+    if (!value || typeof value !== 'string') {
+        return '';
+    }
+
+    if (!x || typeof x !== 'number' || x < 0) {
+        x = 4;
+    }
+
+    if (value.length <= x) {
+        return value;
+    }
+
+    return value.slice(0, x) + "X".repeat(value.length - x);
+};

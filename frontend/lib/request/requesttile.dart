@@ -143,15 +143,6 @@ class RequestTile extends StatelessWidget {
                       fontWeight: FontWeight.w400,
                     ),
                   ),
-                const SizedBox(height: 3),
-                Text(
-                  mobileNumber,
-                  style: const TextStyle(
-                    color: Color(0xFFB2B8BD),
-                    fontSize: 13.5,
-                    fontWeight: FontWeight.w400,
-                  ),
-                ),
               ],
             ),
           ),

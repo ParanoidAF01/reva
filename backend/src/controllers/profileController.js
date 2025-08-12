@@ -3,6 +3,7 @@ import User from "../models/user.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { maskAfterX } from "../utils/helpers.js";
 import { sendProfileUpdateNotification } from "../utils/notificationService.js";
 
 const getMyProfile = asyncHandler(async (req, res) => {
@@ -39,9 +40,29 @@ const getProfileById = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Profile not found");
     }
 
+    const profileData = {
+        _id: profile._id,
+        user: {
+            _id: profile.user._id,
+            fullName: profile.user.fullName,
+            email: profile.user.email,
+            mobileNumber: profile.user.mobileNumber,
+            status: profile.user.status
+        },
+        profilePicture: profile.profilePicture,
+        location: profile.location,
+        language: profile.language,
+        experience: profile.experience,
+        propertyType: profile.preferences.propertyType,
+        interests: profile.preferences.interests,
+        socialLinks: profile.socialLinks,
+        connections: profile.user.connections?.length || 0,
+        events: profile.user.events?.length || 0
+    };
+
     if (currentUserId.toString() === userId) {
         return res.status(200).json(
-            new ApiResponse(200, profile, "Profile retrieved successfully")
+            new ApiResponse(200, profileData, "Profile retrieved successfully")
         );
     }
 
@@ -50,34 +71,25 @@ const getProfileById = asyncHandler(async (req, res) => {
 
     if (isConnected) {
         return res.status(200).json(
-            new ApiResponse(200, profile, "Profile retrieved successfully")
+            new ApiResponse(200, profileData, "Profile retrieved successfully")
         );
     }
 
-    const maskedProfile = {
-        _id: profile._id,
+    const maskedProfileData = {
+        ...profileData,
         user: {
-            _id: profile.user._id,
-            fullName: "***",
-            email: "***",
-            mobileNumber: "***",
-            status: profile.user.status
+            ...profileData.user,
+            email: maskAfterX(profileData.user.email, 1),
+            mobileNumber: maskAfterX(profileData.user.mobileNumber, 1),
         },
-        profilePicture: profile.profilePicture,
-        designation: "***",
-        organization: "***",
-        location: "***",
-        bio: "***",
-        skills: [],
-        experience: [],
-        education: [],
-        socialLinks: {},
-        createdAt: profile.createdAt,
-        updatedAt: profile.updatedAt
+        propertyType: "***",
+        interests: ["***"],
+        connections: "***",
+        events: "***"
     };
 
     return res.status(200).json(
-        new ApiResponse(200, maskedProfile, "Profile retrieved successfully")
+        new ApiResponse(200, maskedProfileData, "Profile retrieved successfully")
     );
 });
 

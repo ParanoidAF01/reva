@@ -44,6 +44,7 @@ class DynamicProfileScreen extends StatelessWidget {
     final String profileImage = (userInfo['profilePicture'] ?? userInfo['user']?['profilePicture'] ?? 'assets/dummyprofile.png').toString();
     final String email = (userInfo['user']?['email'] ?? userInfo['email'] ?? '').toString();
     final String phone = (userInfo['user']?['mobileNumber'] ?? userInfo['mobileNumber'] ?? '').toString();
+    final String userStatus = (userInfo['user']?['status'] ?? 'bronze').toString();
 
     int totalConnections = 0;
     int eventsAttended = 0;
@@ -62,10 +63,18 @@ class DynamicProfileScreen extends StatelessWidget {
     final List interests = (userInfo['preferences']?['interests'] is List) ? userInfo['preferences']['interests'] : <dynamic>[];
 
     String medalAsset = 'assets/bronze.png';
-    if (eventsAttended >= 60) {
-      medalAsset = 'assets/gold.png';
-    } else if (eventsAttended >= 20) {
-      medalAsset = 'assets/silver.png';
+    // Use status from API to determine medal asset
+    switch (userStatus.toLowerCase()) {
+      case 'gold':
+        medalAsset = 'assets/gold.png';
+        break;
+      case 'silver':
+        medalAsset = 'assets/silver.png';
+        break;
+      case 'bronze':
+      default:
+        medalAsset = 'assets/bronze.png';
+        break;
     }
 
     return Scaffold(
@@ -102,11 +111,25 @@ class DynamicProfileScreen extends StatelessWidget {
                 physics: const BouncingScrollPhysics(),
                 padding: EdgeInsets.symmetric(vertical: height * 0.03),
                 child: Column(
-                  children: [
-                    CircleAvatar(
-                      radius: width * 0.16,
-                      backgroundImage: (profileImage.isNotEmpty && !profileImage.contains('assets/')) ? NetworkImage(profileImage) : const AssetImage('assets/dummyprofile.png') as ImageProvider,
-                    ),
+                                  children: [
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CircleAvatar(
+                        radius: width * 0.16,
+                        backgroundImage: (profileImage.isNotEmpty && !profileImage.contains('assets/')) ? NetworkImage(profileImage) : const AssetImage('assets/dummyprofile.png') as ImageProvider,
+                      ),
+                      Positioned(
+                        bottom: -30,
+                        right: -30,
+                        child: Image.asset(
+                          medalAsset,
+                          width: width * 0.30,
+                          height: width * 0.30,
+                        ),
+                      ),
+                    ],
+                  ),
                     SizedBox(height: height * 0.012),
                     Text(
                       userName.length > 15 ? '${userName.substring(0, 15)}...' : userName,

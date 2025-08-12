@@ -36,7 +36,7 @@ class _PeopleConnectScreenState extends State<PeopleConnectScreen> {
     try {
       final response = await ServiceManager.instance.profile.getProfileById(widget.userId);
       if (response['success'] == true) {
-        userInfo = response['data']['profile'] ?? {};
+        userInfo = response['data'] ?? {};
       } else {
         error = response['message'] ?? 'Failed to load user info';
       }
@@ -56,13 +56,23 @@ class _PeopleConnectScreenState extends State<PeopleConnectScreen> {
     return value.toString();
   }
 
+  String getUserField(String key) {
+    final user = userInfo?['user'];
+    if (user == null) return '***********';
+    final value = user[key];
+    if (value == null || value.toString().isEmpty) {
+      return '***********';
+    }
+    return value.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
 
     // Use fields from API or fallback to widget.initialName and initialImage when needed
-    String userName = getField('fullName');
+    String userName = getUserField('fullName');
     if (userName == '***********' || userName.isEmpty || userName == 'null') {
       userName = (userInfo?['name'] ?? userInfo?['userName'] ?? '').toString();
     }
@@ -78,14 +88,13 @@ class _PeopleConnectScreenState extends State<PeopleConnectScreen> {
 
     final String userLocation = getField('location');
     final String userExperience = getField('experience');
-    final String userLanguages = getField('languages');
-    final int totalConnections = userInfo?['totalConnections'] ?? 0;
-    final int eventsAttended = userInfo?['eventsAttended'] ?? 0;
-    final String email = getField('email');
-    final String phone = getField('phone');
-    final String tag1 = getField('tag1');
-    final String tag2 = getField('tag2');
-    final String tag3 = getField('tag3');
+    final String userLanguages = getField('language');
+    final String totalConnections = getField('connections');
+    final String eventsAttended = getField('events');
+    final String email = getUserField('email');
+    final String phone = getUserField('mobileNumber');
+    final String propertyType = getField('propertyType');
+    final List<dynamic> interests = userInfo?['interests'] ?? [];
     final String medalAsset = 'assets/bronze.png';
 
     return Scaffold(
@@ -250,20 +259,30 @@ class _PeopleConnectScreenState extends State<PeopleConnectScreen> {
                                 ],
                               ),
                               SizedBox(height: height * 0.01),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  if (tag1.isNotEmpty) _tagChip(tag1),
-                                  if (tag2.isNotEmpty) ...[
-                                    const SizedBox(width: 8),
-                                    _tagChip(tag2),
+                              if (propertyType.isNotEmpty && propertyType != "***")
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                                  child: Text(
+                                    propertyType,
+                                    style: GoogleFonts.dmSans(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              if (interests.isNotEmpty && interests.first != "***")
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    for (int i = 0; i < interests.length && i < 3; i++)
+                                      if (i > 0) ...[
+                                        const SizedBox(width: 8),
+                                        _tagChip(interests[i].toString()),
+                                      ] else
+                                        _tagChip(interests[i].toString()),
                                   ],
-                                  if (tag3.isNotEmpty) ...[
-                                    const SizedBox(width: 8),
-                                    _tagChip(tag3),
-                                  ],
-                                ],
-                              ),
+                                ),
                               SizedBox(height: height * 0.03),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -281,7 +300,7 @@ class _PeopleConnectScreenState extends State<PeopleConnectScreen> {
                                           const Icon(Icons.people, color: Colors.white, size: 28),
                                           const SizedBox(height: 6),
                                           Text(
-                                            totalConnections.toString(),
+                                            totalConnections,
                                             style: GoogleFonts.dmSans(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
@@ -313,7 +332,7 @@ class _PeopleConnectScreenState extends State<PeopleConnectScreen> {
                                           const Icon(Icons.celebration, color: Colors.white, size: 28),
                                           const SizedBox(height: 6),
                                           Text(
-                                            eventsAttended.toString(),
+                                            eventsAttended,
                                             style: GoogleFonts.dmSans(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,

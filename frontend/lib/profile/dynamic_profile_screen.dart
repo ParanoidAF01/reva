@@ -176,7 +176,7 @@ class DynamicProfileScreen extends StatelessWidget {
                               children: [
                                 const Icon(Icons.people, color: Colors.white, size: 28),
                                 SizedBox(height: 6),
-                                if (totalConnections > 0)
+                                if (totalConnections >= 0)
                                   Text(
                                     totalConnections.toString(),
                                     style: GoogleFonts.dmSans(
@@ -209,7 +209,7 @@ class DynamicProfileScreen extends StatelessWidget {
                               children: [
                                 const Icon(Icons.celebration, color: Colors.white, size: 28),
                                 SizedBox(height: 6),
-                                if (eventsAttended > 0)
+                                if (eventsAttended >= 0)
                                   Text(
                                     eventsAttended.toString(),
                                     style: GoogleFonts.dmSans(

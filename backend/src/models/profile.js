@@ -45,7 +45,7 @@ const profileSchema = new mongoose.Schema({
             },
             companyType: {
                 type: String,
-                enum: ["Private Limited", "Public Limited", "LLP", "Partnership", "Other", "Not Applicable"],
+                enum: ["Private Limited", "Public Limited", "LLP", "Partnership", "Other"],
                 default: null
             },
             gstNumber: {
@@ -71,11 +71,11 @@ const profileSchema = new mongoose.Schema({
             },
             networkingPreferences: {
                 type: String,
-                enum: ["Business", "Technology", "Health", "Education", "Entertainment", "Sports", "Other"]
+                enum: ["One-on-One Meetings", "Group Discussions", "Industry Events / Meetups", "Online Networking (App-based)", "Collaborations & Partnerships", "Mentorship (Giving or Receiving)", "Business Referrals", "Knowledge Sharing / Learning"]
             },
             targetClients: {
                 type: String,
-                enum: ["Business", "Technology", "Health", "Education", "Entertainment", "Sports", "Other"]
+                enum: ["Property Buyers", "Property Sellers", "Real Estate Agents", "Developers & Builders", "Investors", "Financial Institutions / Banks", "Legal & Professional Services", "Architects / Engineers / Consultants", "Material Suppliers & Vendors", "PropTech Companies", "Corporate Clients", "Government / Regulatory Bodies"]
             },
         },
         default: {}

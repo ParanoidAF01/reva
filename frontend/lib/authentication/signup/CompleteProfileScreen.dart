@@ -10,7 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class CompleteProfileScreen extends StatefulWidget {
   final bool showBack;
-  const CompleteProfileScreen({Key? key, this.showBack = false}) : super(key: key);
+  const CompleteProfileScreen({Key? key, this.showBack = false})
+    : super(key: key);
 
   @override
   State<CompleteProfileScreen> createState() => _CompleteProfileScreenState();
@@ -39,7 +40,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     "Construction Manager",
     "Real Estate Agent",
     "Technical Consultant",
-    "Other"
+    "Other",
   ];
   String? selectedDesignation;
   String selectedLocation = 'New Delhi';
@@ -67,8 +68,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       fullNameController.text = fullName;
     } else {
       // fallback to provider
-      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-      String? providerFullName = userData['user']?['fullName'] ?? userData['fullName'];
+      final userData =
+          Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      String? providerFullName =
+          userData['user']?['fullName'] ?? userData['fullName'];
       if ((providerFullName ?? '').toString().isNotEmpty) {
         fullNameController.text = providerFullName!;
       }
@@ -76,7 +79,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     if (dob != null && dob.isNotEmpty) {
       dobController.text = dob;
     } else {
-      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      final userData =
+          Provider.of<UserProvider>(context, listen: false).userData ?? {};
       if ((userData['dateOfBirth'] ?? '').toString().isNotEmpty) {
         final dobRaw = userData['dateOfBirth'];
         String? formattedDob;
@@ -86,11 +90,13 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
             dt = DateTime.tryParse(dobRaw);
           } catch (_) {}
           if (dt != null) {
-            formattedDob = '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+            formattedDob =
+                '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
           } else if (dobRaw.contains('-')) {
             final parts = dobRaw.split('-');
             if (parts.length == 3) {
-              formattedDob = '${parts[2].padLeft(2, '0')}/${parts[1].padLeft(2, '0')}/${parts[0]}';
+              formattedDob =
+                  '${parts[2].padLeft(2, '0')}/${parts[1].padLeft(2, '0')}/${parts[0]}';
             }
           }
           formattedDob ??= dobRaw;
@@ -103,7 +109,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         selectedDesignation = designation;
       });
     } else {
-      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      final userData =
+          Provider.of<UserProvider>(context, listen: false).userData ?? {};
       if ((userData['designation'] ?? '').toString().isNotEmpty) {
         setState(() {
           selectedDesignation = userData['designation'];
@@ -115,7 +122,8 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         selectedLocation = location;
       });
     } else {
-      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      final userData =
+          Provider.of<UserProvider>(context, listen: false).userData ?? {};
       if ((userData['location'] ?? '').toString().isNotEmpty) {
         setState(() {
           selectedLocation = userData['location'];
@@ -127,14 +135,19 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         selectedExperience = experience;
       });
     } else {
-      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      final userData =
+          Provider.of<UserProvider>(context, listen: false).userData ?? {};
       if (userData['experience'] != null) {
         final exp = userData['experience'];
         if (exp is int) {
-          if (exp == 0) selectedExperience = 'Less than 1 year';
-          else if (exp == 1) selectedExperience = '1 year';
-          else if (exp == 2) selectedExperience = '2 years';
-          else if (exp == 3) selectedExperience = '3+ years';
+          if (exp == 0)
+            selectedExperience = 'Less than 1 year';
+          else if (exp == 1)
+            selectedExperience = '1 year';
+          else if (exp == 2)
+            selectedExperience = '2 years';
+          else if (exp == 3)
+            selectedExperience = '3+ years';
         } else if (exp is String && exp.isNotEmpty) {
           selectedExperience = exp;
         }
@@ -186,7 +199,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     'Less than 1 year',
     '1 year',
     '2 years',
-    '3+ years'
+    '3+ years',
   ];
 
   // Validation helpers
@@ -200,7 +213,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
 
   bool _isValidDate(String date) {
     // Accepts dd/mm/yyyy or dd-mm-yyyy
-    final regex = RegExp(r'^(0[1-9]|[12][0-9]|3[01])[\/\-](0[1-9]|1[0-2])[\/\-](19|20)\d{2}$');
+    final regex = RegExp(
+      r'^(0[1-9]|[12][0-9]|3[01])[\/\-](0[1-9]|1[0-2])[\/\-](19|20)\d{2}$',
+    );
     return regex.hasMatch(date.trim());
   }
 
@@ -217,14 +232,16 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       experienceNum = 1;
     else if (selectedExperience == '2 years')
       experienceNum = 2;
-    else if (selectedExperience == '3+ years') experienceNum = 3;
+    else if (selectedExperience == '3+ years')
+      experienceNum = 3;
 
     // Convert dob to ISO format (yyyy-mm-dd)
     String dobIso = '';
     try {
       final parts = dob.split('/');
       if (parts.length == 3) {
-        dobIso = '${parts[2]}-${parts[1].padLeft(2, '0')}-${parts[0].padLeft(2, '0')}';
+        dobIso =
+            '${parts[2]}-${parts[1].padLeft(2, '0')}-${parts[0].padLeft(2, '0')}';
       }
     } catch (_) {}
 
@@ -277,7 +294,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'] ?? 'Failed to update profile'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(response['message'] ?? 'Failed to update profile'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } catch (e) {
@@ -343,7 +363,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                       value: 0.0,
                       minHeight: 6,
                       backgroundColor: Colors.white,
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Color(0xFF0262AB),
+                      ),
                     ),
                   ),
                 ),
@@ -371,14 +393,17 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                               surface: Color(0xFF22252A),
                               onSurface: Colors.white,
                             ),
-                            dialogTheme: DialogThemeData(backgroundColor: Color(0xFF23262B)),
+                            dialogTheme: DialogThemeData(
+                              backgroundColor: Color(0xFF23262B),
+                            ),
                           ),
                           child: child!,
                         );
                       },
                     );
                     if (picked != null) {
-                      String formatted = "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
+                      String formatted =
+                          "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
                       setState(() {
                         dobController.text = formatted;
                       });
@@ -394,7 +419,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 ),
                 const SizedBox(height: 16),
                 const Text(
-                  "Designation",
+                  "Select Your REVA Role Category",
                   style: TextStyle(
                     color: Color(0xFFDFDFDF),
                     fontWeight: FontWeight.w600,
@@ -442,7 +467,9 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                 ),
                 const SizedBox(height: 8),
                 _customBottomSheetTile(
-                  title: selectedExperience.isEmpty ? "Select Experience" : selectedExperience,
+                  title: selectedExperience.isEmpty
+                      ? "Select Experience"
+                      : selectedExperience,
                   onTap: () => _showBottomSheet(
                     context,
                     title: "Select Experience",
@@ -468,10 +495,7 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
                     child: Ink(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF0262AB),
-                            Color(0xFF01345A)
-                          ],
+                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -499,7 +523,10 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     );
   }
 
-  Widget _customBottomSheetTile({required String title, required VoidCallback onTap}) {
+  Widget _customBottomSheetTile({
+    required String title,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -541,13 +568,15 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
               shrinkWrap: true,
               children: [
                 const SizedBox(height: 12),
-                ...options.map((e) => ListTile(
-                      title: Text(e, style: const TextStyle(color: Colors.white)),
-                      onTap: () {
-                        Navigator.pop(context);
-                        onSelected(e);
-                      },
-                    )),
+                ...options.map(
+                  (e) => ListTile(
+                    title: Text(e, style: const TextStyle(color: Colors.white)),
+                    onTap: () {
+                      Navigator.pop(context);
+                      onSelected(e);
+                    },
+                  ),
+                ),
                 const SizedBox(height: 12),
               ],
             ),

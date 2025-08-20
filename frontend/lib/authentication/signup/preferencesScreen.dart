@@ -18,23 +18,31 @@ class PreferencesScreen extends StatefulWidget {
 
 class _PreferencesScreenState extends State<PreferencesScreen> {
   List<String> targetClients = [
-    "Business",
-    "Technology",
-    "Health",
-    "Education",
-    "Entertainment",
-    "Sports",
-    "Other"
+    "Property Buyers",
+    "Property Sellers",
+    "Real Estate Agents",
+    "Developers & Builders",
+    "Investors",
+    "Financial Institutions / Banks",
+    "Legal & Professional Services",
+    "Architects / Engineers / Consultants",
+    "Material Suppliers & Vendors",
+    "PropTech Companies",
+    "Corporate Clients",
+    "Government / Regulatory Bodies"
   ];
+
   List<String> networkingPreferences = [
-    "Business",
-    "Technology",
-    "Health",
-    "Education",
-    "Entertainment",
-    "Sports",
-    "Other"
+    "One-on-One Meetings",
+    "Group Discussions",
+    "Industry Events / Meetups",
+    "Online Networking (App-based)",
+    "Collaborations & Partnerships",
+    "Mentorship (Giving or Receiving)",
+    "Business Referrals",
+    "Knowledge Sharing / Learning"
   ];
+
   List<String> propertyTypes = [
     "Residential",
     "Commercial",
@@ -43,18 +51,19 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     "Other"
   ];
   List<String> interests = [
-    "Business",
-    "Technology",
-    "Health",
-    "Education",
-    "Entertainment",
-    "Sports",
-    "Other"
+    "Buying Property",
+    "Selling Property",
+    "Renting / Leasing",
+    "Real Estate Investment",
+    "Legal & Compliance",
+    "Architecture & Design",
+    "Construction & Project Management",
+    "Finance & Loans",
+    "Networking & Partnerships",
+    "Technology & PropTech",
+    "Training & Knowledge Sharing"
   ];
-  List<String> operatingLoactions = [
-    "India",
-    "International"
-  ];
+  List<String> operatingLoactions = ["India", "International"];
 
   String operatingLocation = "India";
   String interest = "Business";
@@ -75,31 +84,47 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     final netPref = prefs.getString('signup_networkingPreference');
     final tgtClient = prefs.getString('signup_targetClient');
 
-    final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+    final userData =
+        Provider.of<UserProvider>(context, listen: false).userData ?? {};
     setState(() {
-      if (opLoc != null && opLoc.isNotEmpty && operatingLoactions.contains(opLoc)) {
+      if (opLoc != null &&
+          opLoc.isNotEmpty &&
+          operatingLoactions.contains(opLoc)) {
         operatingLocation = opLoc;
-      } else if ((userData['operatingLocation'] ?? '').toString().isNotEmpty && operatingLoactions.contains(userData['operatingLocation'])) {
+      } else if ((userData['operatingLocation'] ?? '').toString().isNotEmpty &&
+          operatingLoactions.contains(userData['operatingLocation'])) {
         operatingLocation = userData['operatingLocation'];
       }
       if (intr != null && intr.isNotEmpty && interests.contains(intr)) {
         interest = intr;
-      } else if ((userData['interest'] ?? '').toString().isNotEmpty && interests.contains(userData['interest'])) {
+      } else if ((userData['interest'] ?? '').toString().isNotEmpty &&
+          interests.contains(userData['interest'])) {
         interest = userData['interest'];
       }
-      if (propType != null && propType.isNotEmpty && propertyTypes.contains(propType)) {
+      if (propType != null &&
+          propType.isNotEmpty &&
+          propertyTypes.contains(propType)) {
         propertyType = propType;
-      } else if ((userData['propertyType'] ?? '').toString().isNotEmpty && propertyTypes.contains(userData['propertyType'])) {
+      } else if ((userData['propertyType'] ?? '').toString().isNotEmpty &&
+          propertyTypes.contains(userData['propertyType'])) {
         propertyType = userData['propertyType'];
       }
-      if (netPref != null && netPref.isNotEmpty && networkingPreferences.contains(netPref)) {
+      if (netPref != null &&
+          netPref.isNotEmpty &&
+          networkingPreferences.contains(netPref)) {
         networkingPreference = netPref;
-      } else if ((userData['networkingPreference'] ?? '').toString().isNotEmpty && networkingPreferences.contains(userData['networkingPreference'])) {
+      } else if ((userData['networkingPreference'] ?? '')
+              .toString()
+              .isNotEmpty &&
+          networkingPreferences.contains(userData['networkingPreference'])) {
         networkingPreference = userData['networkingPreference'];
       }
-      if (tgtClient != null && tgtClient.isNotEmpty && targetClients.contains(tgtClient)) {
+      if (tgtClient != null &&
+          tgtClient.isNotEmpty &&
+          targetClients.contains(tgtClient)) {
         targetClient = tgtClient;
-      } else if ((userData['targetClient'] ?? '').toString().isNotEmpty && targetClients.contains(userData['targetClient'])) {
+      } else if ((userData['targetClient'] ?? '').toString().isNotEmpty &&
+          targetClients.contains(userData['targetClient'])) {
         targetClient = userData['targetClient'];
       }
     });
@@ -166,7 +191,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                       value: 0.8,
                       minHeight: 6,
                       backgroundColor: Colors.white,
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
                     ),
                   ),
                 ),
@@ -218,7 +244,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(builder: (context) => LoginScreen()),
+                              MaterialPageRoute(
+                                  builder: (context) => LoginScreen()),
                               (route) => false,
                             );
                           },
@@ -258,10 +285,7 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                           child: Ink(
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [
-                                  Color(0xFF0262AB),
-                                  Color(0xFF01345A)
-                                ],
+                                colors: [Color(0xFF0262AB), Color(0xFF01345A)],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
@@ -299,18 +323,14 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
     // Build preferences object
     final preferences = {
       'operatingLocations': operatingLocation,
-      'interests': [
-        interest
-      ],
+      'interests': [interest],
       'propertyType': propertyType,
       'networkingPreferences': networkingPreference,
       'targetClients': targetClient,
     };
     // Save to provider
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.updateUserData({
-      'preferences': preferences
-    });
+    userProvider.updateUserData({'preferences': preferences});
     // Send to backend
     try {
       final response = await ApiService().put('/profiles/', {
@@ -319,11 +339,15 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
       if (response['success'] == true) {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const SpecializationAndRecognition()),
+          MaterialPageRoute(
+              builder: (context) => const SpecializationAndRecognition()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'] ?? 'Failed to update preferences'), backgroundColor: Colors.red),
+          SnackBar(
+              content:
+                  Text(response['message'] ?? 'Failed to update preferences'),
+              backgroundColor: Colors.red),
         );
       }
     } catch (e) {
@@ -364,7 +388,8 @@ class _PreferencesScreenState extends State<PreferencesScreen> {
                 shrinkWrap: true,
                 children: options.map((option) {
                   return ListTile(
-                    title: Text(option, style: const TextStyle(color: Colors.white)),
+                    title: Text(option,
+                        style: const TextStyle(color: Colors.white)),
                     onTap: () async {
                       Navigator.pop(context);
                       onSelected(option);

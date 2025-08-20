@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:reva/services/api_service.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/profile/profile_percentage.dart';
+
 class EditPreferencesScreen extends StatefulWidget {
   const EditPreferencesScreen({Key? key}) : super(key: key);
 
@@ -11,10 +12,7 @@ class EditPreferencesScreen extends StatefulWidget {
 }
 
 class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
-  List<String> operatingLoactions = [
-    "India",
-    "International"
-  ];
+  List<String> operatingLoactions = ["India", "International"];
   List<String> propertyTypes = [
     "Residential",
     "Commercial",
@@ -23,31 +21,43 @@ class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
     "Other"
   ];
   List<String> networkingPreferences = [
-    "Business",
-    "Technology",
-    "Health",
-    "Education",
-    "Entertainment",
-    "Sports",
-    "Other"
+    "One-on-One Meetings",
+    "Group Discussions",
+    "Industry Events / Meetups",
+    "Online Networking (App-based)",
+    "Collaborations & Partnerships",
+    "Mentorship (Giving or Receiving)",
+    "Business Referrals",
+    "Knowledge Sharing / Learning"
   ];
+
   List<String> targetClients = [
-    "Business",
-    "Technology",
-    "Health",
-    "Education",
-    "Entertainment",
-    "Sports",
-    "Other"
+    "Property Buyers",
+    "Property Sellers",
+    "Real Estate Agents",
+    "Developers & Builders",
+    "Investors",
+    "Financial Institutions / Banks",
+    "Legal & Professional Services",
+    "Architects / Engineers / Consultants",
+    "Material Suppliers & Vendors",
+    "PropTech Companies",
+    "Corporate Clients",
+    "Government / Regulatory Bodies"
   ];
+
   List<String> interests = [
-    "Business",
-    "Technology",
-    "Health",
-    "Education",
-    "Entertainment",
-    "Sports",
-    "Other"
+    "Buying Property",
+    "Selling Property",
+    "Renting / Leasing",
+    "Real Estate Investment",
+    "Legal & Compliance",
+    "Architecture & Design",
+    "Construction & Project Management",
+    "Finance & Loans",
+    "Networking & Partnerships",
+    "Technology & PropTech",
+    "Training & Knowledge Sharing"
   ];
 
   String operatingLocation = "India";
@@ -64,45 +74,51 @@ class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
   }
 
   Future<void> _fetchAndPrefill() async {
-    setState(() { _loading = true; });
+    setState(() {
+      _loading = true;
+    });
     try {
       final response = await ApiService().get('/profiles/me');
       if (response['success'] == true && response['data'] != null) {
         final prefs = response['data']['preferences'] ?? {};
-        if ((prefs['operatingLocations'] ?? '').toString().isNotEmpty && operatingLoactions.contains(prefs['operatingLocations'])) {
+        if ((prefs['operatingLocations'] ?? '').toString().isNotEmpty &&
+            operatingLoactions.contains(prefs['operatingLocations'])) {
           operatingLocation = prefs['operatingLocations'];
         }
-        if (prefs['interests'] is List && prefs['interests'].isNotEmpty && interests.contains(prefs['interests'][0])) {
+        if (prefs['interests'] is List &&
+            prefs['interests'].isNotEmpty &&
+            interests.contains(prefs['interests'][0])) {
           interest = prefs['interests'][0];
         }
-        if ((prefs['propertyType'] ?? '').toString().isNotEmpty && propertyTypes.contains(prefs['propertyType'])) {
+        if ((prefs['propertyType'] ?? '').toString().isNotEmpty &&
+            propertyTypes.contains(prefs['propertyType'])) {
           propertyType = prefs['propertyType'];
         }
-        if ((prefs['networkingPreferences'] ?? '').toString().isNotEmpty && networkingPreferences.contains(prefs['networkingPreferences'])) {
+        if ((prefs['networkingPreferences'] ?? '').toString().isNotEmpty &&
+            networkingPreferences.contains(prefs['networkingPreferences'])) {
           networkingPreference = prefs['networkingPreferences'];
         }
-        if ((prefs['targetClients'] ?? '').toString().isNotEmpty && targetClients.contains(prefs['targetClients'])) {
+        if ((prefs['targetClients'] ?? '').toString().isNotEmpty &&
+            targetClients.contains(prefs['targetClients'])) {
           targetClient = prefs['targetClients'];
         }
       }
     } catch (_) {}
-    setState(() { _loading = false; });
+    setState(() {
+      _loading = false;
+    });
   }
 
   Future<void> _savePreferences() async {
     final preferences = {
       'operatingLocations': operatingLocation,
-      'interests': [
-        interest
-      ],
+      'interests': [interest],
       'propertyType': propertyType,
       'networkingPreferences': networkingPreference,
       'targetClients': targetClient,
     };
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.updateUserData({
-      'preferences': preferences
-    });
+    userProvider.updateUserData({'preferences': preferences});
     try {
       final response = await ApiService().put('/profiles/', {
         'preferences': preferences,
@@ -113,7 +129,10 @@ class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'] ?? 'Failed to update preferences'), backgroundColor: Colors.red),
+          SnackBar(
+              content:
+                  Text(response['message'] ?? 'Failed to update preferences'),
+              backgroundColor: Colors.red),
         );
       }
     } catch (e) {
@@ -152,7 +171,8 @@ class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
                 shrinkWrap: true,
                 children: options.map((option) {
                   return ListTile(
-                    title: Text(option, style: const TextStyle(color: Colors.white)),
+                    title: Text(option,
+                        style: const TextStyle(color: Colors.white)),
                     onTap: () {
                       Navigator.pop(context);
                       onSelected(option);
@@ -192,7 +212,8 @@ class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
         backgroundColor: const Color(0xFF22252A),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Edit Preferences', style: TextStyle(color: Colors.white)),
+        title: const Text('Edit Preferences',
+            style: TextStyle(color: Colors.white)),
       ),
       body: SafeArea(
         child: _loading
@@ -258,10 +279,7 @@ class _EditPreferencesScreenState extends State<EditPreferencesScreen> {
                           child: Ink(
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [
-                                  Color(0xFF0262AB),
-                                  Color(0xFF01345A)
-                                ],
+                                colors: [Color(0xFF0262AB), Color(0xFF01345A)],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),

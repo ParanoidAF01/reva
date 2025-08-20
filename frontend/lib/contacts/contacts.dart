@@ -55,7 +55,9 @@ class _ContactsBodyState extends State<_ContactsBody> {
     for (final c in contacts) {
       final d1 = c['designation']?.toString();
       if (d1 != null && d1.isNotEmpty) designations.add(d1);
-      final d2 = c['profile'] is Map ? c['profile']['designation']?.toString() : null;
+      final d2 = c['profile'] is Map
+          ? c['profile']['designation']?.toString()
+          : null;
       if (d2 != null && d2.isNotEmpty) designations.add(d2);
     }
     final list = designations.toList();
@@ -76,7 +78,8 @@ class _ContactsBodyState extends State<_ContactsBody> {
     provider.setLoading(true);
 
     try {
-      final response = await ServiceManager.instance.connections.getMyConnections();
+      final response = await ServiceManager.instance.connections
+          .getMyConnections();
       if (response['success'] == true) {
         final contacts = response['data']['connections'] ?? [];
         provider.setContacts(contacts);
@@ -107,7 +110,7 @@ class _ContactsBodyState extends State<_ContactsBody> {
           },
         ),
         title: Text(
-          "Contacts",
+          " My REVA Network",
           style: GoogleFonts.dmSans(
             fontSize: 22,
             fontWeight: FontWeight.w700,
@@ -135,10 +138,16 @@ class _ContactsBodyState extends State<_ContactsBody> {
                             color: const Color(0xFF2B2F34),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          padding: EdgeInsets.symmetric(horizontal: width * 0.03),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: width * 0.03,
+                          ),
                           child: Row(
                             children: [
-                              const Icon(Icons.search, color: Colors.white70, size: 22),
+                              const Icon(
+                                Icons.search,
+                                color: Colors.white70,
+                                size: 22,
+                              ),
                               SizedBox(width: width * 0.02),
                               Expanded(
                                 child: TextField(
@@ -168,23 +177,50 @@ class _ContactsBodyState extends State<_ContactsBody> {
                             context: context,
                             backgroundColor: const Color(0xFF23262B),
                             shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.vertical(top: Radius.circular(18)),
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(18),
+                              ),
                             ),
                             builder: (context) {
                               return Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 16.0),
-                                    child: Text('Filter by Designation', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16.0,
+                                    ),
+                                    child: Text(
+                                      'Filter by Designation',
+                                      style: GoogleFonts.dmSans(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    ),
                                   ),
-                                  ...allDesignations.map((designation) => ListTile(
-                                        title: Text(designation, style: GoogleFonts.dmSans(color: Colors.white)),
-                                        tileColor: selectedDesignation == designation ? const Color(0xFF0262AB) : Colors.transparent,
-                                        onTap: () => Navigator.pop(context, designation),
-                                      )),
+                                  ...allDesignations.map(
+                                    (designation) => ListTile(
+                                      title: Text(
+                                        designation,
+                                        style: GoogleFonts.dmSans(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      tileColor:
+                                          selectedDesignation == designation
+                                          ? const Color(0xFF0262AB)
+                                          : Colors.transparent,
+                                      onTap: () =>
+                                          Navigator.pop(context, designation),
+                                    ),
+                                  ),
                                   ListTile(
-                                    title: Text('Clear Filter', style: GoogleFonts.dmSans(color: Colors.redAccent)),
+                                    title: Text(
+                                      'Clear Filter',
+                                      style: GoogleFonts.dmSans(
+                                        color: Colors.redAccent,
+                                      ),
+                                    ),
                                     onTap: () => Navigator.pop(context, null),
                                   ),
                                   const SizedBox(height: 10),
@@ -202,10 +238,7 @@ class _ContactsBodyState extends State<_ContactsBody> {
                           width: width * 0.32,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [
-                                Color(0xFF0262AB),
-                                Color(0xFF01345A)
-                              ],
+                              colors: [Color(0xFF0262AB), Color(0xFF01345A)],
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
@@ -214,10 +247,16 @@ class _ContactsBodyState extends State<_ContactsBody> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.filter_list, color: Colors.white, size: 20),
+                              const Icon(
+                                Icons.filter_list,
+                                color: Colors.white,
+                                size: 20,
+                              ),
                               const SizedBox(width: 8),
                               Text(
-                                selectedDesignation == null ? 'Filter' : selectedDesignation!,
+                                selectedDesignation == null
+                                    ? 'Filter'
+                                    : selectedDesignation!,
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 14.5,
@@ -235,9 +274,7 @@ class _ContactsBodyState extends State<_ContactsBody> {
                 // Contacts List
                 if (provider.isLoading)
                   const Center(
-                    child: CircularProgressIndicator(
-                      color: Color(0xFF0262AB),
-                    ),
+                    child: CircularProgressIndicator(color: Color(0xFF0262AB)),
                   )
                 else if (provider.contacts.isEmpty)
                   Padding(
@@ -281,21 +318,47 @@ class _ContactsBodyState extends State<_ContactsBody> {
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       child: Column(
-                        children: provider.contacts.where((contact) {
-                          final designation = contact['designation']?.toString() ?? contact['profile']?['designation']?.toString() ?? '';
-                          final matchesDesignation = selectedDesignation == null || designation == selectedDesignation;
-                          final matchesSearch = _searchQuery == null || _searchQuery!.isEmpty || (contact['fullName']?.toString().toLowerCase().contains(_searchQuery!.toLowerCase()) ?? false) || (contact['profile']?['fullName']?.toString().toLowerCase().contains(_searchQuery!.toLowerCase()) ?? false);
-                          return matchesDesignation && matchesSearch;
-                        }).map((contact) {
-                          return ContactTile(
-                            contact: contact,
-                            onRemove: () async {
-                              await ServiceManager.instance.connections.removeConnection(contact['_id']);
-                              // Refresh contacts after removal
-                              _fetchContacts();
-                            },
-                          );
-                        }).toList(),
+                        children: provider.contacts
+                            .where((contact) {
+                              final designation =
+                                  contact['designation']?.toString() ??
+                                  contact['profile']?['designation']
+                                      ?.toString() ??
+                                  '';
+                              final matchesDesignation =
+                                  selectedDesignation == null ||
+                                  designation == selectedDesignation;
+                              final matchesSearch =
+                                  _searchQuery == null ||
+                                  _searchQuery!.isEmpty ||
+                                  (contact['fullName']
+                                          ?.toString()
+                                          .toLowerCase()
+                                          .contains(
+                                            _searchQuery!.toLowerCase(),
+                                          ) ??
+                                      false) ||
+                                  (contact['profile']?['fullName']
+                                          ?.toString()
+                                          .toLowerCase()
+                                          .contains(
+                                            _searchQuery!.toLowerCase(),
+                                          ) ??
+                                      false);
+                              return matchesDesignation && matchesSearch;
+                            })
+                            .map((contact) {
+                              return ContactTile(
+                                contact: contact,
+                                onRemove: () async {
+                                  await ServiceManager.instance.connections
+                                      .removeConnection(contact['_id']);
+                                  // Refresh contacts after removal
+                                  _fetchContacts();
+                                },
+                              );
+                            })
+                            .toList(),
                       ),
                     ),
                   ),

@@ -4,11 +4,13 @@ import 'package:reva/services/api_service.dart';
 import 'package:reva/providers/user_provider.dart';
 import 'package:reva/authentication/components/mytextfield.dart';
 import 'package:reva/profile/profile_percentage.dart';
+
 class EditContactDetailsScreen extends StatefulWidget {
   const EditContactDetailsScreen({Key? key}) : super(key: key);
 
   @override
-  State<EditContactDetailsScreen> createState() => _EditContactDetailsScreenState();
+  State<EditContactDetailsScreen> createState() =>
+      _EditContactDetailsScreenState();
 }
 
 class _EditContactDetailsScreenState extends State<EditContactDetailsScreen> {
@@ -21,17 +23,24 @@ class _EditContactDetailsScreenState extends State<EditContactDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-    if ((userData['user']?['mobileNumber'] ?? userData['mobileNumber'] ?? '').toString().isNotEmpty) {
-      primaryMobileNumber.text = userData['user']?['mobileNumber'] ?? userData['mobileNumber'];
+    final userData =
+        Provider.of<UserProvider>(context, listen: false).userData ?? {};
+    if ((userData['user']?['mobileNumber'] ?? userData['mobileNumber'] ?? '')
+        .toString()
+        .isNotEmpty) {
+      primaryMobileNumber.text =
+          userData['user']?['mobileNumber'] ?? userData['mobileNumber'];
     }
-    if ((userData['user']?['email'] ?? userData['email'] ?? '').toString().isNotEmpty) {
+    if ((userData['user']?['email'] ?? userData['email'] ?? '')
+        .toString()
+        .isNotEmpty) {
       primaryEmailId.text = userData['user']?['email'] ?? userData['email'];
     }
     if ((userData['alternateNumber'] ?? '').toString().isNotEmpty) {
       alternateMobileNumbers.text = userData['alternateNumber'];
     }
-    if (userData['socialMediaLinks'] != null && userData['socialMediaLinks'] is Map) {
+    if (userData['socialMediaLinks'] != null &&
+        userData['socialMediaLinks'] is Map) {
       final links = userData['socialMediaLinks'];
       if ((links['website'] ?? '').toString().isNotEmpty) {
         websitePortfolio.text = links['website'];
@@ -42,7 +51,8 @@ class _EditContactDetailsScreenState extends State<EditContactDetailsScreen> {
     }
   }
 
-  bool _isValidMobile(String mobile) => RegExp(r'^[0-9]{10}$').hasMatch(mobile.trim());
+  bool _isValidMobile(String mobile) =>
+      RegExp(r'^[0-9]{10}$').hasMatch(mobile.trim());
 
   Future<void> _saveContactDetails() async {
     final mobile = primaryMobileNumber.text;
@@ -78,7 +88,10 @@ class _EditContactDetailsScreenState extends State<EditContactDetailsScreen> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'] ?? 'Failed to update contact details'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text(
+                  response['message'] ?? 'Failed to update contact details'),
+              backgroundColor: Colors.red),
         );
       }
     } catch (e) {
@@ -98,7 +111,8 @@ class _EditContactDetailsScreenState extends State<EditContactDetailsScreen> {
         backgroundColor: const Color(0xFF22252A),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Edit Contact Details', style: TextStyle(color: Colors.white)),
+        title: const Text('Edit Contact Details',
+            style: TextStyle(color: Colors.white)),
       ),
       body: SafeArea(
         child: Padding(
@@ -127,7 +141,7 @@ class _EditContactDetailsScreenState extends State<EditContactDetailsScreen> {
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
-                  label: "Social Media Links",
+                  label: "Linkldn Profile",
                   hint: "instagram",
                   controller: socialMediaLinks,
                 ),
@@ -153,10 +167,7 @@ class _EditContactDetailsScreenState extends State<EditContactDetailsScreen> {
                     child: Ink(
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF0262AB),
-                            Color(0xFF01345A)
-                          ],
+                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),

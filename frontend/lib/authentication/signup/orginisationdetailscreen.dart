@@ -9,10 +9,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class OrganisationDetailsScreen extends StatefulWidget {
   final bool showBack;
-  const OrganisationDetailsScreen({Key? key, this.showBack = false}) : super(key: key);
+  const OrganisationDetailsScreen({Key? key, this.showBack = false})
+    : super(key: key);
 
   @override
-  State<OrganisationDetailsScreen> createState() => _OrganisationDetailsScreenState();
+  State<OrganisationDetailsScreen> createState() =>
+      _OrganisationDetailsScreenState();
 }
 
 class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
@@ -51,7 +53,8 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
     if (companyName != null && companyName.isNotEmpty) {
       companyNameController.text = companyName;
     } else {
-      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      final userData =
+          Provider.of<UserProvider>(context, listen: false).userData ?? {};
       if (userData['organization'] != null && userData['organization'] is Map) {
         final org = userData['organization'];
         if ((org['name'] ?? '').toString().isNotEmpty) {
@@ -62,7 +65,8 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
     if (incorporationDate != null && incorporationDate.isNotEmpty) {
       incorporationDateController.text = incorporationDate;
     } else {
-      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      final userData =
+          Provider.of<UserProvider>(context, listen: false).userData ?? {};
       if (userData['organization'] != null && userData['organization'] is Map) {
         final org = userData['organization'];
         if ((org['incorporationDate'] ?? '').toString().isNotEmpty) {
@@ -74,11 +78,13 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
               dt = DateTime.tryParse(dateRaw);
             } catch (_) {}
             if (dt != null) {
-              formattedDate = '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+              formattedDate =
+                  '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
             } else if (dateRaw.contains('-')) {
               final parts = dateRaw.split('-');
               if (parts.length == 3) {
-                formattedDate = '${parts[2].padLeft(2, '0')}/${parts[1].padLeft(2, '0')}/${parts[0]}';
+                formattedDate =
+                    '${parts[2].padLeft(2, '0')}/${parts[1].padLeft(2, '0')}/${parts[0]}';
               }
             }
             formattedDate ??= dateRaw;
@@ -87,15 +93,19 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
         }
       }
     }
-    if (companyType != null && companyType.isNotEmpty && companyTypes.contains(companyType)) {
+    if (companyType != null &&
+        companyType.isNotEmpty &&
+        companyTypes.contains(companyType)) {
       setState(() {
         selectedCompanyType = companyType;
       });
     } else {
-      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      final userData =
+          Provider.of<UserProvider>(context, listen: false).userData ?? {};
       if (userData['organization'] != null && userData['organization'] is Map) {
         final org = userData['organization'];
-        if ((org['companyType'] ?? '').toString().isNotEmpty && companyTypes.contains(org['companyType'])) {
+        if ((org['companyType'] ?? '').toString().isNotEmpty &&
+            companyTypes.contains(org['companyType'])) {
           setState(() {
             selectedCompanyType = org['companyType'];
           });
@@ -105,7 +115,8 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
     if (gstin != null && gstin.isNotEmpty) {
       gstinController.text = gstin;
     } else {
-      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      final userData =
+          Provider.of<UserProvider>(context, listen: false).userData ?? {};
       if (userData['organization'] != null && userData['organization'] is Map) {
         final org = userData['organization'];
         if ((org['gstNumber'] ?? '').toString().isNotEmpty) {
@@ -119,7 +130,10 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
   Future<void> _saveFormData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('signup_companyName', companyNameController.text);
-    await prefs.setString('signup_incorporationDate', incorporationDateController.text);
+    await prefs.setString(
+      'signup_incorporationDate',
+      incorporationDateController.text,
+    );
     await prefs.setString('signup_companyType', selectedCompanyType);
     await prefs.setString('signup_gstin', gstinController.text);
   }
@@ -127,7 +141,9 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
   // Validation helpers
   bool _isValidCompanyName(String name) => name.trim().isNotEmpty;
   bool _isValidIncorporationDate(String date) {
-    final regex = RegExp(r'^(0[1-9]|[12][0-9]|3[01])[\/\-](0[1-9]|1[0-2])[\/\-](19|20)\d{2}$');
+    final regex = RegExp(
+      r'^(0[1-9]|[12][0-9]|3[01])[\/\-](0[1-9]|1[0-2])[\/\-](19|20)\d{2}$',
+    );
     return regex.hasMatch(date.trim());
   }
 
@@ -165,7 +181,9 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
       // dd/mm/yyyy or dd-mm-yyyy to yyyy-mm-dd
       isoDate = '${match.group(3)}-${match.group(2)}-${match.group(1)}';
     }
-    final String? companyTypeToSend = (selectedCompanyType == 'Not Applicable') ? null : selectedCompanyType;
+    final String? companyTypeToSend = (selectedCompanyType == 'Not Applicable')
+        ? null
+        : selectedCompanyType;
     userProvider.updateUserData({
       'organization': {
         'name': companyNameController.text,
@@ -173,7 +191,7 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
         'gstNumber': gstinController.text,
         'registered': isRegistered,
         'companyType': companyTypeToSend,
-      }
+      },
     });
     // Save to shared_preferences for persistence
     await _saveFormData();
@@ -186,7 +204,7 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
         'gstNumber': gstinController.text,
         'registered': isRegistered,
         'companyType': companyTypeToSend,
-      }
+      },
     };
     // ignore: avoid_print
     print('PUT request to: ' + endpoint);
@@ -202,7 +220,12 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'] ?? 'Failed to update organization details'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(
+              response['message'] ?? 'Failed to update organization details',
+            ),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } catch (e) {
@@ -261,7 +284,11 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                   children: [
                     Text(
                       "20%   ",
-                      style: GoogleFonts.dmSans(color: const Color(0xFFD8D8DD), fontSize: 18, fontWeight: FontWeight.w700),
+                      style: GoogleFonts.dmSans(
+                        color: const Color(0xFFD8D8DD),
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                     Text(
                       "Completed..",
@@ -282,7 +309,9 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                       value: 0.2,
                       minHeight: 6,
                       backgroundColor: Colors.white,
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Color(0xFF0262AB),
+                      ),
                     ),
                   ),
                 ),
@@ -290,7 +319,7 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
 
                 // CustomTextFields
                 CustomTextField(
-                  label: 'Company / Individual Name',
+                  label: 'Company / Brand Name',
                   hint: 'xyw company',
                   controller: companyNameController,
                 ),
@@ -347,14 +376,17 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                               surface: Color(0xFF22252A),
                               onSurface: Colors.white,
                             ),
-                            dialogTheme: DialogThemeData(backgroundColor: Color(0xFF23262B)),
+                            dialogTheme: DialogThemeData(
+                              backgroundColor: Color(0xFF23262B),
+                            ),
                           ),
                           child: child!,
                         );
                       },
                     );
                     if (picked != null) {
-                      String formatted = "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
+                      String formatted =
+                          "${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}";
                       setState(() {
                         incorporationDateController.text = formatted;
                       });
@@ -362,7 +394,7 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                   },
                   child: AbsorbPointer(
                     child: CustomTextField(
-                      label: 'Incorporation Date / Birth Date',
+                      label: 'Incorporation Date / Date of Birth',
                       hint: '09/09/2003',
                       controller: incorporationDateController,
                     ),
@@ -390,7 +422,11 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                 SizedBox(
                   width: double.infinity,
                   height: 48,
-                  child: _buildGradientButton('Next', width, _validateAndProceed),
+                  child: _buildGradientButton(
+                    'Next',
+                    width,
+                    _validateAndProceed,
+                  ),
                 ),
               ],
             ),
@@ -429,7 +465,10 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
                 shrinkWrap: true,
                 children: options.map((option) {
                   return ListTile(
-                    title: Text(option, style: const TextStyle(color: Colors.white)),
+                    title: Text(
+                      option,
+                      style: const TextStyle(color: Colors.white),
+                    ),
                     onTap: () {
                       Navigator.pop(context);
                       onSelected(option);
@@ -459,7 +498,11 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
     );
   }
 
-  Widget _buildGradientButton(String label, double width, void Function()? onTap) {
+  Widget _buildGradientButton(
+    String label,
+    double width,
+    void Function()? onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -468,16 +511,16 @@ class _OrganisationDetailsScreenState extends State<OrganisationDetailsScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           gradient: const LinearGradient(
-            colors: [
-              Color(0xFF0262AB),
-              Color(0xFF01345A)
-            ],
+            colors: [Color(0xFF0262AB), Color(0xFF01345A)],
           ),
         ),
         child: Center(
           child: Text(
             label,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
       ),

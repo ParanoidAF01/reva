@@ -56,11 +56,15 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
   }
 
   Future<void> _fetchPendingRequests() async {
-    final provider = Provider.of<PendingRequestsProvider>(context, listen: false);
+    final provider = Provider.of<PendingRequestsProvider>(
+      context,
+      listen: false,
+    );
     provider.setLoading(true);
 
     try {
-      final response = await ServiceManager.instance.connections.getPendingRequests();
+      final response = await ServiceManager.instance.connections
+          .getPendingRequests();
       print('PENDING REQUESTS RESPONSE:');
       print('Response: $response');
 
@@ -103,7 +107,7 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
           },
         ),
         title: Text(
-          "Requests",
+          "Requested Connects",
           style: GoogleFonts.dmSans(
             fontSize: 22,
             fontWeight: FontWeight.w700,
@@ -130,7 +134,11 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
                       padding: EdgeInsets.symmetric(horizontal: width * 0.03),
                       child: Row(
                         children: [
-                          const Icon(Icons.search, color: Colors.white70, size: 22),
+                          const Icon(
+                            Icons.search,
+                            color: Colors.white70,
+                            size: 22,
+                          ),
                           SizedBox(width: width * 0.02),
                           const Expanded(
                             child: TextField(
@@ -159,10 +167,7 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
                       width: width * 0.2,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF0262AB),
-                            Color(0xFF01345A)
-                          ],
+                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -182,13 +187,11 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
                         ],
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
-            SizedBox(
-              height: height * 0.03,
-            ),
+            SizedBox(height: height * 0.03),
 
             // Requests List
             Consumer<PendingRequestsProvider>(
@@ -209,7 +212,9 @@ class _RequestScreenBodyState extends State<_RequestScreenBody> {
                           )
                         else if (provider.requests.isEmpty)
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: width * 0.05,
+                            ),
                             child: Center(
                               child: Column(
                                 children: [

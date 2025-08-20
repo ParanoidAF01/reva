@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +11,8 @@ import 'package:reva/authentication/login.dart';
 
 class ContactDetailsScreen extends StatefulWidget {
   final bool showBack;
-  const ContactDetailsScreen({Key? key, this.showBack = false}) : super(key: key);
+  const ContactDetailsScreen({Key? key, this.showBack = false})
+      : super(key: key);
 
   @override
   State<ContactDetailsScreen> createState() => _ContactDetailsScreenState();
@@ -47,23 +47,31 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
     if (mobile != null && mobile.isNotEmpty) {
       primaryMobileNumber.text = mobile;
     } else {
-      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-      if ((userData['user']?['mobileNumber'] ?? userData['mobileNumber'] ?? '').toString().isNotEmpty) {
-        primaryMobileNumber.text = userData['user']?['mobileNumber'] ?? userData['mobileNumber'];
+      final userData =
+          Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if ((userData['user']?['mobileNumber'] ?? userData['mobileNumber'] ?? '')
+          .toString()
+          .isNotEmpty) {
+        primaryMobileNumber.text =
+            userData['user']?['mobileNumber'] ?? userData['mobileNumber'];
       }
     }
     if (email != null && email.isNotEmpty) {
       primaryEmailId.text = email;
     } else {
-      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-      if ((userData['user']?['email'] ?? userData['email'] ?? '').toString().isNotEmpty) {
+      final userData =
+          Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if ((userData['user']?['email'] ?? userData['email'] ?? '')
+          .toString()
+          .isNotEmpty) {
         primaryEmailId.text = userData['user']?['email'] ?? userData['email'];
       }
     }
     if (alternate != null && alternate.isNotEmpty) {
       alternateMobileNumbers.text = alternate;
     } else {
-      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      final userData =
+          Provider.of<UserProvider>(context, listen: false).userData ?? {};
       if ((userData['alternateNumber'] ?? '').toString().isNotEmpty) {
         alternateMobileNumbers.text = userData['alternateNumber'];
       }
@@ -71,8 +79,10 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
     if (website != null && website.isNotEmpty) {
       websitePortfolio.text = website;
     } else {
-      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-      if (userData['socialMediaLinks'] != null && userData['socialMediaLinks'] is Map) {
+      final userData =
+          Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if (userData['socialMediaLinks'] != null &&
+          userData['socialMediaLinks'] is Map) {
         final links = userData['socialMediaLinks'];
         if ((links['website'] ?? '').toString().isNotEmpty) {
           websitePortfolio.text = links['website'];
@@ -82,8 +92,10 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
     if (social != null && social.isNotEmpty) {
       socialMediaLinks.text = social;
     } else {
-      final userData = Provider.of<UserProvider>(context, listen: false).userData ?? {};
-      if (userData['socialMediaLinks'] != null && userData['socialMediaLinks'] is Map) {
+      final userData =
+          Provider.of<UserProvider>(context, listen: false).userData ?? {};
+      if (userData['socialMediaLinks'] != null &&
+          userData['socialMediaLinks'] is Map) {
         final links = userData['socialMediaLinks'];
         if ((links['instagram'] ?? '').toString().isNotEmpty) {
           socialMediaLinks.text = links['instagram'];
@@ -95,15 +107,18 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
 
   Future<void> _saveFormData() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('signup_primaryMobileNumber', primaryMobileNumber.text);
+    await prefs.setString(
+        'signup_primaryMobileNumber', primaryMobileNumber.text);
     await prefs.setString('signup_primaryEmailId', primaryEmailId.text);
     await prefs.setString('signup_websitePortfolio', websitePortfolio.text);
     await prefs.setString('signup_socialMediaLinks', socialMediaLinks.text);
-    await prefs.setString('signup_alternateMobileNumbers', alternateMobileNumbers.text);
+    await prefs.setString(
+        'signup_alternateMobileNumbers', alternateMobileNumbers.text);
   }
 
   // Validation helpers
-  bool _isValidMobile(String mobile) => RegExp(r'^[0-9]{10}$').hasMatch(mobile.trim());
+  bool _isValidMobile(String mobile) =>
+      RegExp(r'^[0-9]{10}$').hasMatch(mobile.trim());
 
   Future<void> _validateAndProceed() async {
     final mobile = primaryMobileNumber.text;
@@ -146,7 +161,10 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'] ?? 'Failed to update contact details'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text(
+                  response['message'] ?? 'Failed to update contact details'),
+              backgroundColor: Colors.red),
         );
       }
     } catch (e) {
@@ -218,7 +236,8 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                       value: 0.6,
                       minHeight: 6,
                       backgroundColor: Colors.white,
-                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(Color(0xFF0262AB)),
                     ),
                   ),
                 ),
@@ -242,7 +261,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                 ),
                 const SizedBox(height: 16),
                 CustomTextField(
-                  label: "Social Media Links",
+                  label: "Linkldn Profile",
                   hint: "instagram",
                   controller: socialMediaLinks,
                 ),
@@ -261,7 +280,8 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(builder: (context) => LoginScreen()),
+                              MaterialPageRoute(
+                                  builder: (context) => LoginScreen()),
                               (route) => false,
                             );
                           },
@@ -299,10 +319,7 @@ class _ContactDetailsScreenState extends State<ContactDetailsScreen> {
                           child: Ink(
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [
-                                  Color(0xFF0262AB),
-                                  Color(0xFF01345A)
-                                ],
+                                colors: [Color(0xFF0262AB), Color(0xFF01345A)],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),

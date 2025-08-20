@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:reva/authentication/signup/signup.dart';
 import 'package:reva/services/auth_service.dart';
 import 'package:reva/authentication/signup/newmpin.dart';
+import '../../profile/help_center_screen.dart';
 import '../../utils/navigation_helper.dart';
 
 class OtpScreen extends StatefulWidget {
@@ -132,36 +133,49 @@ class _OtpScreenState extends State<OtpScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0262AB),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               child: isLoading
                   ? const SizedBox(
                       height: 18,
                       width: 18,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white))
-                  : const Text('Get OTP',
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text(
+                      'Get OTP',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.white)),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
             ),
           ),
           const SizedBox(height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text("Don't have an account? ",
-                  style: TextStyle(color: Color(0xFF6F6F6F))),
+              const Text(
+                "Don't have an account? ",
+                style: TextStyle(color: Color(0xFF6F6F6F)),
+              ),
               GestureDetector(
                 onTap: () {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(builder: (_) => const SignUp()),
                   );
                 },
-                child: const Text('Signup',
-                    style: TextStyle(
-                        color: Color(0xFF3B9FED), fontWeight: FontWeight.w600)),
+                child: const Text(
+                  'Signup',
+                  style: TextStyle(
+                    color: Color(0xFF3B9FED),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ],
           ),
@@ -215,19 +229,26 @@ class _OtpScreenState extends State<OtpScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0262AB),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               child: isLoading
                   ? const SizedBox(
                       height: 18,
                       width: 18,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white))
-                  : const Text('Get OTP',
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text(
+                      'Get OTP',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.white)),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
             ),
           ),
         ],
@@ -248,8 +269,11 @@ class _OtpScreenState extends State<OtpScreen> {
                 ),
               ),
               IconButton(
-                icon:
-                    const Icon(Icons.edit, color: Color(0xFF3B9FED), size: 20),
+                icon: const Icon(
+                  Icons.edit,
+                  color: Color(0xFF3B9FED),
+                  size: 20,
+                ),
                 tooltip: 'Edit phone number',
                 onPressed: isLoading
                     ? null
@@ -287,9 +311,13 @@ class _OtpScreenState extends State<OtpScreen> {
           const SizedBox(height: 16),
           const Divider(color: Color(0xFF6F6F6F)),
           const SizedBox(height: 16),
-          const Text('Enter OTP',
-              style: TextStyle(
-                  color: Color(0xFFD8D8DD), fontWeight: FontWeight.w500)),
+          const Text(
+            'Enter OTP',
+            style: TextStyle(
+              color: Color(0xFFD8D8DD),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
           const SizedBox(height: 8),
           Container(
             decoration: BoxDecoration(
@@ -305,12 +333,17 @@ class _OtpScreenState extends State<OtpScreen> {
                 hintText: 'Enter OTP',
                 hintStyle: TextStyle(color: Color(0xFF6F6F6F)),
                 border: InputBorder.none,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
                 counterText: '',
               ),
               style: const TextStyle(
-                  color: Colors.white, letterSpacing: 32, fontSize: 24),
+                color: Colors.white,
+                letterSpacing: 32,
+                fontSize: 24,
+              ),
               textAlign: TextAlign.center,
             ),
           ),
@@ -320,11 +353,14 @@ class _OtpScreenState extends State<OtpScreen> {
             children: [
               GestureDetector(
                 onTap: isLoading ? null : _sendOtp,
-                child: const Text('Resend OTP',
-                    style: TextStyle(
-                        color: Color(0xFF3B9FED),
-                        fontWeight: FontWeight.w600,
-                        fontSize: 12)),
+                child: const Text(
+                  'Resend OTP',
+                  style: TextStyle(
+                    color: Color(0xFF3B9FED),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
               ),
             ],
           ),
@@ -337,19 +373,26 @@ class _OtpScreenState extends State<OtpScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF0262AB),
                 shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8)),
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
               child: isLoading
                   ? const SizedBox(
                       height: 18,
                       width: 18,
                       child: CircularProgressIndicator(
-                          strokeWidth: 2, color: Colors.white))
-                  : const Text('Verify and Continue',
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Text(
+                      'Verify and Continue',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: Colors.white)),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: Colors.white,
+                      ),
+                    ),
             ),
           ),
         ],
@@ -373,9 +416,17 @@ class _OtpScreenState extends State<OtpScreen> {
                       side: const BorderSide(color: Color(0xFF6F6F6F)),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24)),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const HelpCenterScreen(),
+                        ),
+                      );
+                    },
                     icon: const Icon(Icons.help_outline, size: 18),
                     label: const Text('Help'),
                   ),
@@ -395,9 +446,7 @@ class _OtpScreenState extends State<OtpScreen> {
               SizedBox(height: height * 0.04),
               mainContent,
               const Spacer(),
-              Center(
-                child: Image.asset('assets/full_logo.png', height: 70),
-              ),
+              Center(child: Image.asset('assets/full_logo.png', height: 70)),
               SizedBox(height: height * 0.03),
             ],
           ),

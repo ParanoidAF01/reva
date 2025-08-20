@@ -44,12 +44,25 @@ class ContactManagementSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Contact Management', style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 22, color: Colors.white)),
+        Text(
+          'My REVA Network Dashboard –',
+          style: GoogleFonts.dmSans(
+            fontWeight: FontWeight.w700,
+            fontSize: 22,
+            color: Colors.white,
+          ),
+        ),
         const SizedBox(height: 2),
-        Text('All your Contacts in one place', style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14)),
+        Text(
+          'All your Contacts in one place',
+          style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 14),
+        ),
         // No gap below subtitle for tighter layout
         Padding(
-          padding: const EdgeInsets.only(top: 0, bottom: 0), // minimal non-negative gap
+          padding: const EdgeInsets.only(
+            top: 0,
+            bottom: 0,
+          ), // minimal non-negative gap
           child: GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -68,8 +81,10 @@ class ContactManagementSection extends StatelessWidget {
                   final double tileWidth = constraints.maxWidth * 0.9;
                   final double tileHeight = constraints.maxHeight * 0.9;
                   final double iconSize = tileHeight * 0.22 * tileIconScale;
-                  final double countFont = tileHeight * 0.42 * tileCountFontScale;
-                  final double labelFont = tileHeight * 0.12 * tileLabelFontScale;
+                  final double countFont =
+                      tileHeight * 0.42 * tileCountFontScale;
+                  final double labelFont =
+                      tileHeight * 0.12 * tileLabelFontScale;
                   final double avatarTop = -iconSize * 0.12;
                   return Center(
                     child: SizedBox(
@@ -80,14 +95,18 @@ class ContactManagementSection extends StatelessWidget {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => const Contacts()),
+                            MaterialPageRoute(
+                              builder: (context) => const Contacts(),
+                            ),
                           );
                         },
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(borderRadius),
                             image: const DecorationImage(
-                              image: AssetImage('assets/contactmanagement_tile.png'),
+                              image: AssetImage(
+                                'assets/contactmanagement_tile.png',
+                              ),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -102,9 +121,18 @@ class ContactManagementSection extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: Colors.black.withOpacity(0.13),
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white.withOpacity(0.10), width: 1.2 * tilePaddingScale),
+                                  border: Border.all(
+                                    color: Colors.white.withOpacity(0.10),
+                                    width: 1.2 * tilePaddingScale,
+                                  ),
                                 ),
-                                child: Center(child: SizedBox(width: iconSize * 0.7, height: iconSize * 0.7, child: c.icon)),
+                                child: Center(
+                                  child: SizedBox(
+                                    width: iconSize * 0.7,
+                                    height: iconSize * 0.7,
+                                    child: c.icon,
+                                  ),
+                                ),
                               ),
                               SizedBox(height: tileHeight * 0.02),
                               Text(
@@ -116,9 +144,13 @@ class ContactManagementSection extends StatelessWidget {
                                   letterSpacing: 0.2,
                                 ),
                               ),
-                              SizedBox(height: tileHeight * 0.005 * tilePaddingScale),
+                              SizedBox(
+                                height: tileHeight * 0.005 * tilePaddingScale,
+                              ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 2.0),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 2.0,
+                                ),
                                 child: Text(
                                   c.label,
                                   style: GoogleFonts.dmSans(
@@ -160,7 +192,12 @@ class ContactCardData {
   final String count;
   final String label;
   final String userId;
-  ContactCardData({required this.icon, required this.count, required this.label, required this.userId});
+  ContactCardData({
+    required this.icon,
+    required this.count,
+    required this.label,
+    required this.userId,
+  });
 }
 
 class AchievementData {
@@ -170,7 +207,14 @@ class AchievementData {
   final int current;
   final String label;
   final String subtitle;
-  AchievementData({required this.progress, required this.connectionsLeft, required this.max, required this.current, required this.label, required this.subtitle});
+  AchievementData({
+    required this.progress,
+    required this.connectionsLeft,
+    required this.max,
+    required this.current,
+    required this.label,
+    required this.subtitle,
+  });
 }
 
 class NfcCardData {
@@ -179,7 +223,13 @@ class NfcCardData {
   final int connectionsLeft;
   final VoidCallback onClaim;
   final VoidCallback onBuy;
-  NfcCardData({required this.title, required this.subtitle, required this.connectionsLeft, required this.onClaim, required this.onBuy});
+  NfcCardData({
+    required this.title,
+    required this.subtitle,
+    required this.connectionsLeft,
+    required this.onClaim,
+    required this.onBuy,
+  });
 }
 
 class SubscriptionStatusData {
@@ -207,10 +257,14 @@ class AchievementCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
-  // Use connection count for progress
-  double progressPercent = (data.max > 0 ? data.connectionsLeft / 500 : 0.0).clamp(0.0, 1.0);
-  final double barWidth = width - 80;
-  final double emojiLeft = (barWidth * progressPercent).clamp(0.0, barWidth - 24);
+    // Use connection count for progress
+    double progressPercent = (data.max > 0 ? data.connectionsLeft / 500 : 0.0)
+        .clamp(0.0, 1.0);
+    final double barWidth = width - 80;
+    final double emojiLeft = (barWidth * progressPercent).clamp(
+      0.0,
+      barWidth - 24,
+    );
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -225,18 +279,32 @@ class AchievementCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(data.label, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: Colors.white)),
+              Text(
+                data.label,
+                style: GoogleFonts.dmSans(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                  color: Colors.white,
+                ),
+              ),
               Icon(Icons.celebration, color: Colors.amber[200], size: 22),
             ],
           ),
           const SizedBox(height: 2),
-          Text(data.subtitle, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
+          Text(
+            data.subtitle,
+            style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13),
+          ),
           const SizedBox(height: 18),
           // Show connection count above the bar
           Center(
             child: Text(
               '${data.connectionsLeft} / 500 Connections',
-              style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+              style: GoogleFonts.dmSans(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+              ),
             ),
           ),
           const SizedBox(height: 8),
@@ -281,11 +349,7 @@ class AchievementCard extends StatelessWidget {
                         padding: const EdgeInsets.only(bottom: 2),
                         child: Text('🎉', style: TextStyle(fontSize: 28)),
                       ),
-                      Container(
-                        width: 2,
-                        height: 24,
-                        color: Colors.blue,
-                      ),
+                      Container(width: 2, height: 24, color: Colors.blue),
                     ],
                   ),
                 ),
@@ -293,7 +357,11 @@ class AchievementCard extends StatelessWidget {
                 const Positioned(
                   right: 0,
                   top: 18,
-                  child: Icon(Icons.card_giftcard, color: Colors.amber, size: 20),
+                  child: Icon(
+                    Icons.card_giftcard,
+                    color: Colors.amber,
+                    size: 20,
+                  ),
                 ),
               ],
             ),
@@ -302,9 +370,18 @@ class AchievementCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('0', style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 12)),
-              Text('${data.connectionsLeft}', style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 12)),
-              Text('500', style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 12)),
+              Text(
+                '0',
+                style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 12),
+              ),
+              Text(
+                '${data.connectionsLeft}',
+                style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 12),
+              ),
+              Text(
+                '500',
+                style: GoogleFonts.dmSans(color: Colors.white54, fontSize: 12),
+              ),
             ],
           ),
         ],
@@ -320,8 +397,11 @@ class NfcCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     // Achievement unlocked if connectionsLeft >= 500
     final int requiredConnections = 500;
-    final bool achievementUnlocked = data.connectionsLeft >= requiredConnections;
-    final int remainingConnections = achievementUnlocked ? 0 : (requiredConnections - data.connectionsLeft);
+    final bool achievementUnlocked =
+        data.connectionsLeft >= requiredConnections;
+    final int remainingConnections = achievementUnlocked
+        ? 0
+        : (requiredConnections - data.connectionsLeft);
     return Stack(
       clipBehavior: Clip.none,
       children: [
@@ -340,58 +420,96 @@ class NfcCardWidget extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(data.title, style: GoogleFonts.dmSans(fontWeight: FontWeight.w700, fontSize: 18, color: Colors.white)),
+                  Text(
+                    data.title,
+                    style: GoogleFonts.dmSans(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 18,
+                      color: Colors.white,
+                    ),
+                  ),
                   GestureDetector(
                     onTap: () async {
                       // Check NFC card status before navigation
                       try {
                         final status = await NfcCardService().getMyStatus();
-                        final List<dynamic> cards = (status['data']?['cards'] as List?) ?? const [];
+                        final List<dynamic> cards =
+                            (status['data']?['cards'] as List?) ?? const [];
                         final bool alreadyPurchased = cards.isNotEmpty;
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => RedeemPage(alreadyPurchased: alreadyPurchased)),
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                RedeemPage(alreadyPurchased: alreadyPurchased),
+                          ),
                         );
                       } catch (_) {
                         // If status fails, fall back to default (assume not purchased)
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => const RedeemPage()),
+                          MaterialPageRoute(
+                            builder: (context) => const RedeemPage(),
+                          ),
                         );
                       }
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: const Color(0xFF23262B),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(color: Colors.white24),
                       ),
-                      child: Text('Buy?', style: GoogleFonts.dmSans(color: Colors.white, fontSize: 13)),
+                      child: Text(
+                        'Buy?',
+                        style: GoogleFonts.dmSans(
+                          color: Colors.white,
+                          fontSize: 13,
+                        ),
+                      ),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 2),
-              Text(data.subtitle, style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13)),
+              Text(
+                data.subtitle,
+                style: GoogleFonts.dmSans(color: Colors.white70, fontSize: 13),
+              ),
               const SizedBox(height: 10),
               RichText(
                 text: TextSpan(
-                  text: achievementUnlocked ? 'Achievement unlocked!' : 'You need ',
+                  text: achievementUnlocked
+                      ? 'Achievement unlocked!'
+                      : 'You need ',
                   style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
                   children: achievementUnlocked
                       ? [
                           TextSpan(
                             text: '',
-                            style: GoogleFonts.dmSans(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 22),
+                            style: GoogleFonts.dmSans(
+                              color: Colors.amber,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
+                            ),
                           ),
                         ]
                       : [
                           TextSpan(
                             text: remainingConnections.toString(),
-                            style: GoogleFonts.dmSans(color: Colors.amber, fontWeight: FontWeight.bold, fontSize: 22),
+                            style: GoogleFonts.dmSans(
+                              color: Colors.amber,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
+                            ),
                           ),
                           TextSpan(
                             text: ' more connections to unlock achievement.',
-                            style: GoogleFonts.dmSans(color: Colors.white, fontSize: 14),
+                            style: GoogleFonts.dmSans(
+                              color: Colors.white,
+                              fontSize: 14,
+                            ),
                           ),
                         ],
                 ),
@@ -408,11 +526,23 @@ class NfcCardWidget extends StatelessWidget {
             child: ElevatedButton.icon(
               onPressed: achievementUnlocked ? data.onClaim : null,
               icon: const Icon(Icons.lock, color: Colors.white, size: 18),
-              label: Text('Claim now', style: GoogleFonts.dmSans(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 15)),
+              label: Text(
+                'Claim now',
+                style: GoogleFonts.dmSans(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                ),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF01416A),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 22,
+                  vertical: 12,
+                ),
                 elevation: 2,
                 shadowColor: Colors.black.withOpacity(0.18),
                 minimumSize: const Size(0, 0),

@@ -9,10 +9,12 @@ class EditSpecializationAndRecognition extends StatefulWidget {
   const EditSpecializationAndRecognition({Key? key}) : super(key: key);
 
   @override
-  State<EditSpecializationAndRecognition> createState() => _EditSpecializationAndRecognitionState();
+  State<EditSpecializationAndRecognition> createState() =>
+      _EditSpecializationAndRecognitionState();
 }
 
-class _EditSpecializationAndRecognitionState extends State<EditSpecializationAndRecognition> {
+class _EditSpecializationAndRecognitionState
+    extends State<EditSpecializationAndRecognition> {
   bool reraRegestration = false;
   TextEditingController reraNUmber = TextEditingController();
   TextEditingController networkingMember = TextEditingController();
@@ -27,7 +29,9 @@ class _EditSpecializationAndRecognitionState extends State<EditSpecializationAnd
   }
 
   Future<void> _fetchAndPrefill() async {
-    setState(() { _loading = true; });
+    setState(() {
+      _loading = true;
+    });
     try {
       final response = await ApiService().get('/profiles/me');
       if (response['success'] == true && response['data'] != null) {
@@ -49,7 +53,9 @@ class _EditSpecializationAndRecognitionState extends State<EditSpecializationAnd
         }
       }
     } catch (_) {}
-    setState(() { _loading = false; });
+    setState(() {
+      _loading = false;
+    });
   }
 
   Future<void> _saveSpecialization() async {
@@ -61,9 +67,7 @@ class _EditSpecializationAndRecognitionState extends State<EditSpecializationAnd
       'associatedBuilders': associatedBuilders.text,
     };
     final userProvider = Provider.of<UserProvider>(context, listen: false);
-    userProvider.updateUserData({
-      'specialization': specialization
-    });
+    userProvider.updateUserData({'specialization': specialization});
     try {
       final response = await ApiService().put('/profiles/', {
         'specialization': specialization,
@@ -74,7 +78,12 @@ class _EditSpecializationAndRecognitionState extends State<EditSpecializationAnd
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response['message'] ?? 'Failed to update specialization'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(
+              response['message'] ?? 'Failed to update specialization',
+            ),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } catch (e) {
@@ -94,7 +103,10 @@ class _EditSpecializationAndRecognitionState extends State<EditSpecializationAnd
         backgroundColor: const Color(0xFF22252A),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Edit Specialization & Recognition', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Edit Specialization & Recognition',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: SafeArea(
         child: _loading
@@ -107,7 +119,7 @@ class _EditSpecializationAndRecognitionState extends State<EditSpecializationAnd
                     children: [
                       SizedBox(height: height * 0.04),
                       const Text(
-                        'RERA Regestration',
+                        'Recognition Details',
                         style: TextStyle(
                           color: Color(0xFFDFDFDF),
                           fontWeight: FontWeight.w600,
@@ -140,26 +152,27 @@ class _EditSpecializationAndRecognitionState extends State<EditSpecializationAnd
                       ),
                       const SizedBox(height: 16),
                       CustomTextField(
-                        label: "RERA NUMBER",
+                        label: "Registration Number",
                         hint: "0000 0000 00",
                         controller: reraNUmber,
                       ),
                       const SizedBox(height: 16),
                       CustomTextField(
-                        label: "Networking Member (Optional)",
-                        hint: "ibrddg,bere,enhs",
+                        label: "Existing Networking Member (Optional)",
+                        hint: "member groups (Brokers, CREDAI, NAR, etc.)",
                         controller: networkingMember,
                       ),
                       const SizedBox(height: 16),
                       CustomTextField(
-                        label: "Real Estate Websites (Optional)",
-                        hint: "waofsavbf",
+                        label: " Presence in Real Estate Websites (Optional)",
+                        hint:
+                            "popular portals (99acres, MagicBricks, Housing, etc.)",
                         controller: realEstateWebsite,
                       ),
                       const SizedBox(height: 16),
                       CustomTextField(
-                        label: "Associated Builders (Optional)",
-                        hint: "esgopesg,gsgeg,drhhr",
+                        label: "Associated Builders / Projects (Optional)",
+                        hint: "Enter builder/developer names",
                         controller: associatedBuilders,
                       ),
                       const SizedBox(height: 32),
@@ -178,10 +191,7 @@ class _EditSpecializationAndRecognitionState extends State<EditSpecializationAnd
                           child: Ink(
                             decoration: BoxDecoration(
                               gradient: const LinearGradient(
-                                colors: [
-                                  Color(0xFF0262AB),
-                                  Color(0xFF01345A)
-                                ],
+                                colors: [Color(0xFF0262AB), Color(0xFF01345A)],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),

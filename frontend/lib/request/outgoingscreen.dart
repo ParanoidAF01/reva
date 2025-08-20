@@ -58,10 +58,14 @@ class _OutgoingScreenBodyState extends State<_OutgoingScreenBody> {
   }
 
   Future<void> _fetchOutgoingRequests() async {
-    final provider = Provider.of<OutgoingRequestsProvider>(context, listen: false);
+    final provider = Provider.of<OutgoingRequestsProvider>(
+      context,
+      listen: false,
+    );
     provider.setLoading(true);
     try {
-      final response = await ServiceManager.instance.connections.getSentRequests();
+      final response = await ServiceManager.instance.connections
+          .getSentRequests();
       if (response['success'] == true) {
         final requests = response['data']['sentRequests'] ?? [];
         provider.setRequests(requests);
@@ -91,7 +95,7 @@ class _OutgoingScreenBodyState extends State<_OutgoingScreenBody> {
           },
         ),
         title: Text(
-          "Outgoing Requests",
+          "Awaiting Connects",
           style: GoogleFonts.dmSans(
             fontSize: 22,
             fontWeight: FontWeight.w700,
@@ -118,7 +122,11 @@ class _OutgoingScreenBodyState extends State<_OutgoingScreenBody> {
                       padding: EdgeInsets.symmetric(horizontal: width * 0.03),
                       child: Row(
                         children: [
-                          const Icon(Icons.search, color: Colors.white70, size: 22),
+                          const Icon(
+                            Icons.search,
+                            color: Colors.white70,
+                            size: 22,
+                          ),
                           SizedBox(width: width * 0.02),
                           Expanded(
                             child: TextField(
@@ -149,10 +157,7 @@ class _OutgoingScreenBodyState extends State<_OutgoingScreenBody> {
                       width: width * 0.2,
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [
-                            Color(0xFF0262AB),
-                            Color(0xFF01345A)
-                          ],
+                          colors: [Color(0xFF0262AB), Color(0xFF01345A)],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -172,7 +177,7 @@ class _OutgoingScreenBodyState extends State<_OutgoingScreenBody> {
                         ],
                       ),
                     ),
-                  )
+                  ),
                 ],
               ),
             ),
@@ -180,7 +185,9 @@ class _OutgoingScreenBodyState extends State<_OutgoingScreenBody> {
             Consumer<OutgoingRequestsProvider>(
               builder: (context, provider, child) {
                 final filteredRequests = provider.requests.where((request) {
-                  final name = (request['fullName'] ?? '').toString().toLowerCase();
+                  final name = (request['fullName'] ?? '')
+                      .toString()
+                      .toLowerCase();
                   return name.contains(_searchQuery.toLowerCase());
                 }).toList();
                 return RefreshIndicator(
@@ -199,7 +206,9 @@ class _OutgoingScreenBodyState extends State<_OutgoingScreenBody> {
                           )
                         else if (provider.requests.isEmpty)
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: width * 0.05,
+                            ),
                             child: Center(
                               child: Column(
                                 children: [
@@ -233,7 +242,9 @@ class _OutgoingScreenBodyState extends State<_OutgoingScreenBody> {
                           )
                         else if (filteredRequests.isEmpty)
                           Padding(
-                            padding: EdgeInsets.symmetric(horizontal: width * 0.05),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: width * 0.05,
+                            ),
                             child: Center(
                               child: Column(
                                 children: [

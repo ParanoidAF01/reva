@@ -7,8 +7,7 @@ class ProfileQrScreen extends StatelessWidget {
   final String mpin;
   final String phone;
   final String name;
-  const ProfileQrScreen(
-      {super.key, required this.mpin, required this.phone, required this.name});
+  const ProfileQrScreen({super.key, required this.mpin, required this.phone, required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +16,7 @@ class ProfileQrScreen extends StatelessWidget {
     final qrData = 'phone:$phone';
     final userData = context.watch<UserProvider>().userData;
     final String userLocation =
-        (userData?['location'] ?? userData?['user']?['location'] ?? '')
-            .toString();
+        (userData?['location'] ?? userData?['user']?['location'] ?? '').toString();
     print('QR GENERATION DEBUG:');
     print('Phone: $phone');
     print('QR Data: $qrData');
@@ -105,8 +103,7 @@ class ProfileQrScreen extends StatelessWidget {
                       height: 32,
                       decoration: const BoxDecoration(
                         border: Border(
-                          bottom:
-                              BorderSide(color: Color(0xFF1976D2), width: 4),
+                          bottom: BorderSide(color: Color(0xFF1976D2), width: 4),
                           left: BorderSide(color: Color(0xFF1976D2), width: 4),
                         ),
                       ),
@@ -120,8 +117,7 @@ class ProfileQrScreen extends StatelessWidget {
                       height: 32,
                       decoration: const BoxDecoration(
                         border: Border(
-                          bottom:
-                              BorderSide(color: Color(0xFF1976D2), width: 4),
+                          bottom: BorderSide(color: Color(0xFF1976D2), width: 4),
                           right: BorderSide(color: Color(0xFF1976D2), width: 4),
                         ),
                       ),
